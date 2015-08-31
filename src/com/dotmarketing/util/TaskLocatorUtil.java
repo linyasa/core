@@ -131,6 +131,8 @@ public class TaskLocatorUtil {
         ret.add(Task03120AddInodeToContainerStructure.class);
 		ret.add(Task03130ActionletsFromPlugin.class);
 		ret.add(Task03135FixStructurePageDetail.class);
+		ret.add(Task03140AddFileAssetsIntegrityResultTable.class);
+		ret.add(Task03150LoweCaseURLOnVirtualLinksTable.class);
 
         return ret;
     }

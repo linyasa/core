@@ -2,6 +2,7 @@ package com.dotcms.content.elasticsearch.business;
 
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,6 +14,7 @@ import java.util.StringTokenizer;
 
 import com.dotcms.repackage.org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
 import com.dotcms.repackage.org.elasticsearch.index.query.functionscore.random.RandomScoreFunctionBuilder;
+
 import org.springframework.util.NumberUtils;
 
 import com.dotcms.content.business.DotMappingException;
@@ -50,7 +52,6 @@ import com.dotmarketing.business.query.GenericQueryFactory.Query;
 import com.dotmarketing.business.query.SimpleCriteria;
 import com.dotmarketing.business.query.ValidationException;
 import com.dotmarketing.cache.FieldsCache;
-import com.dotmarketing.cache.StructureCache;
 import com.dotmarketing.common.db.DotConnect;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
@@ -328,11 +329,22 @@ public class ESContentFactoryImpl extends ContentletFactory {
 	            con.setDateProperty(st.getPublishDateVar(), identifier.getSysPublishDate());
 	        if(UtilMethods.isSet(st.getExpireDateVar()))
 	            con.setDateProperty(st.getExpireDateVar(), identifier.getSysExpireDate());
-		}
-	     else{
-	         con.setHost(APILocator.getHostAPI().findSystemHost().getIdentifier());
-	         con.setFolder(APILocator.getFolderAPI().findSystemFolder().getInode());
-	     }
+		} else {
+	        if(!UtilMethods.isSet(con.getStructureInode())) {
+	            throw new DotDataException("Contentlet must have a structure type.");
+	        }
+
+            if (con.isSystemHost()) {
+                // When we are saving a systemHost we cannot call
+                // APILocator.getHostAPI().findSystemHost() method, because this
+                // method will create a system host if not exist which cause 
+                // a infinite loop.
+                con.setHost(Host.SYSTEM_HOST);
+            } else {
+                con.setHost(APILocator.getHostAPI().findSystemHost().getIdentifier());
+            }
+            con.setFolder(APILocator.getFolderAPI().findSystemFolder().getInode());
+        }
         String wysiwyg = fatty.getDisabledWysiwyg();
         if( UtilMethods.isSet(wysiwyg) ) {
             List<String> wysiwygFields = new ArrayList<String>();
@@ -529,40 +541,25 @@ public class ESContentFactoryImpl extends ContentletFactory {
 
 	@Override
 	protected void delete(List<Contentlet> contentlets) throws DotDataException {
-
         /*
          First thing to do is to clean up the trees for the given Contentles
          */
-        StringBuffer buffy = new StringBuffer();
-        StringBuffer idsbuffy = new StringBuffer();
+        final int maxRecords = 500;
+        List<String> inodes = new ArrayList<String>();
 
-        int maxRecords = 500;
-        int current = 0;
         for ( Contentlet contentlet : contentlets ) {
+            inodes.add("'" + contentlet.getInode() + "'");
 
-            if ( buffy.length() > 0 ) {
-                buffy.append( ",'" + contentlet.getInode() + "'" );
-                idsbuffy.append( ",'" + contentlet.getIdentifier() + "'" );
-            } else {
-                buffy.append( "'" + contentlet.getInode() + "'" );
-                idsbuffy.append( "'" + contentlet.getIdentifier() + "'" );
-            }
-
-            current++;
             //Another group of 500 contentles ids is ready...
-            if ( current >= maxRecords ) {
-
-                deleteTreesForInodes( buffy );
-
-                buffy = new StringBuffer();
-                //idsbuffy = new StringBuffer();
-                current = 0;
+            if ( inodes.size() >= maxRecords ) {
+                deleteTreesForInodes( inodes );
+                inodes = new ArrayList<String>();
             }
         }
 
         //And if is something left..
-        if ( buffy.length() > 0 ) {
-            deleteTreesForInodes( buffy );
+        if ( inodes.size() > 0 ) {
+            deleteTreesForInodes( inodes );
         }
 
         //Now workflows, and versions
@@ -608,13 +605,10 @@ public class ESContentFactoryImpl extends ContentletFactory {
         }
         for (Contentlet c : contentlets) {
             if(InodeUtils.isSet(c.getInode())){
-                //Identifier ident = (Identifier)InodeFactory.getInode(c.getIdentifier(), Identifier.class);
-                //Identifier ident = InodeFactory.getInodeOfClassByCondition(Identifier.class,"inode= '"+c.getIdentifier()+"'");
                 Identifier ident = APILocator.getIdentifierAPI().find(c.getIdentifier());
                 String si = ident.getInode();
                 if(!identsDeleted.contains(si) && si!=null && si!="" ){
                     APILocator.getIdentifierAPI().delete(ident);
-                    //DotHibernate.delete(ident);
                     identsDeleted.add(si);
                 }
             }
@@ -622,22 +616,29 @@ public class ESContentFactoryImpl extends ContentletFactory {
 	}
 
     /**
-     * Deletes from the tree and multi_tree tables Contentles given in a comma separated String list
+     * Deletes from the tree and multi_tree tables Contentles given a list of
+     * inodes.
      *
-     * @param buffy List of contentles inodes
+     * @param inodes
+     *            List of contentles inodes
      */
-    private void deleteTreesForInodes ( StringBuffer buffy ) {
-
-        // workaround for dbs where we can't have more than one constraint
-        // or triggers
+    private void deleteTreesForInodes(List<String> inodes) throws DotDataException {
         DotConnect db = new DotConnect();
-        db.setSQL( "delete from tree where child in (" + buffy.toString() + ") or parent in (" + buffy.toString() + ")" );
-        db.getResult();
+        try {
+            final String sInodeIds = StringUtils.join(inodes, ",");
 
-        // workaround for dbs where we can't have more than one constraint
-        // or triggers
-        db.setSQL( "delete from multi_tree where child in (" + buffy.toString() + ") or parent1 in (" + buffy.toString() + ") or parent2 in (" + buffy.toString() + ")" );
-        db.getResult();
+            // workaround for dbs where we can't have more than one constraint
+            // or triggers
+            db.executeStatement("delete from tree where child in (" + sInodeIds
+                    + ") or parent in (" + sInodeIds + ")");
+
+            // workaround for dbs where we can't have more than one constraint
+            // or triggers
+            db.executeStatement("delete from multi_tree where child in (" + sInodeIds
+                    + ") or parent1 in (" + sInodeIds + ") or parent2 in (" + sInodeIds + ")");
+        } catch (SQLException e) {
+            throw new DotDataException("Error deleting tree and multi-tree.", e);
+        }
     }
 
 	@Override
@@ -988,7 +989,7 @@ public class ESContentFactoryImpl extends ContentletFactory {
 	    List<Contentlet> result = new ArrayList<Contentlet>();
 
         try {
-            Structure structure = StructureCache.getStructureByInode(structureInode);
+            Structure structure = CacheLocator.getContentTypeCache().getStructureByInode(structureInode);
             if ((structure == null) || (!InodeUtils.isSet(structure.getInode())))
                 return result;
 
@@ -1506,7 +1507,7 @@ public class ESContentFactoryImpl extends ContentletFactory {
 	                Logger.debug(ESContentFactoryImpl.class, e.toString());
 	                inode = query.substring(index);
 	            }
-	            st = StructureCache.getStructureByInode(inode);
+	            st = CacheLocator.getContentTypeCache().getStructureByInode(inode);
 	            if (!InodeUtils.isSet(st.getInode()) || !UtilMethods.isSet(st.getVelocityVarName())) {
 	                Logger.error(ESContentFactoryImpl.class,
 	                        "Unable to find Structure or Structure Velocity Variable Name from passed in structureInode Query : "
@@ -1641,13 +1642,13 @@ public class ESContentFactoryImpl extends ContentletFactory {
 	        if(matches.size() > 0) {
 	            String structureName = matches.get(0).getGroups().get(0).getMatch();
 	            fields = FieldsCache.getFieldsByStructureVariableName(structureName);
-	            structure = StructureCache.getStructureByVelocityVarName(structureName);
+	            structure = CacheLocator.getContentTypeCache().getStructureByVelocityVarName(structureName);
 	        } else {
 	            matches = RegEX.find(originalQuery, "structureInode:([^\\s)]+)");
 	            if(matches.size() > 0) {
 	                String structureInode = matches.get(0).getGroups().get(0).getMatch();
 	                fields = FieldsCache.getFieldsByStructureInode(structureInode);
-	                structure = StructureCache.getStructureByInode(structureInode);
+	                structure = CacheLocator.getContentTypeCache().getStructureByInode(structureInode);
 	            }
 	        }
 
@@ -1702,7 +1703,7 @@ public class ESContentFactoryImpl extends ContentletFactory {
                 //return query;
             }
 
-            Structure selectedStructure = StructureCache.getStructureByVelocityVarName(structureVarName);
+            Structure selectedStructure = CacheLocator.getContentTypeCache().getStructureByVelocityVarName(structureVarName);
 
             if ((selectedStructure == null) || !InodeUtils.isSet(selectedStructure.getInode())) {
                 Logger.debug(ESContentFactoryImpl.class, "Structure not found");
@@ -1752,7 +1753,7 @@ public class ESContentFactoryImpl extends ContentletFactory {
                 if(clause.indexOf('.') >= 0 && (clause.indexOf('.') < clause.indexOf(':'))){
 
                     tempStructureVarName = clause.substring(0, clause.indexOf('.'));
-                    tempStructure = StructureCache.getStructureByVelocityVarName(tempStructureVarName);
+                    tempStructure = CacheLocator.getContentTypeCache().getStructureByVelocityVarName(tempStructureVarName);
 
                     List<com.dotmarketing.portlets.structure.model.Field> tempStructureFields = FieldsCache.getFieldsByStructureVariableName(tempStructure.getVelocityVarName());
 
@@ -1776,7 +1777,7 @@ public class ESContentFactoryImpl extends ContentletFactory {
             for (String clause: clauses) {
                 for (com.dotmarketing.portlets.structure.model.Field field: dateFields) {
 
-                    structureVarName = StructureCache.getStructureByInode(field.getStructureInode()).getVelocityVarName().toLowerCase();
+                    structureVarName = CacheLocator.getContentTypeCache().getStructureByInode(field.getStructureInode()).getVelocityVarName().toLowerCase();
 
                     if (clause.startsWith(structureVarName + "." + field.getVelocityVarName().toLowerCase() + ":") || clause.startsWith("moddate:")) {
                         replace = new String(clause);
