@@ -134,6 +134,12 @@
 	<!-- BEGIN FILTER-MAPPINGS -->
  <!-- END FILTER-MAPPINGS -->
 	<!--DOTMARKETING FILTER-MAPPINGS-->
+
+	<filter-mapping>
+		<filter-name>UrlRewriteFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 	<filter-mapping>
 		<filter-name>SalesForceFilter</filter-name>
 		<url-pattern>/dotCMS/login</url-pattern>
@@ -233,11 +239,10 @@
 	<filter-mapping>
 		<filter-name>CMSFilter</filter-name>
 		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
 	</filter-mapping>
-    <filter-mapping>
-        <filter-name>UrlRewriteFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+
 	<!--
 	<filter>
   		<filter-name>Compression Filter</filter-name>

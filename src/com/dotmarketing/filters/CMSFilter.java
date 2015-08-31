@@ -43,16 +43,22 @@ public class CMSFilter implements Filter {
 		VANITY_URL,
 		NOTHING_IN_THE_CMS
 	}
-	
-	
-	
+
+
+
 	public static final String CMS_INDEX_PAGE = Config.getStringProperty("CMS_INDEX_PAGE", "index");
 	public static final String CMS_FILTER_IDENTITY = "CMS_FILTER_IDENTITY";
 	public static final String CMS_FILTER_URI_OVERRIDE = "CMS_FILTER_URLMAP_OVERRIDE";
-
+	public static final String CMS_FILTER_ALREADY_FIRED = "CMS_FILTER_ALREADY_FIRED";
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
 
+		if(req.getAttribute(CMS_FILTER_ALREADY_FIRED)!=null){
+			chain.doFilter(req, res);
+			return;
+		}
 		HttpServletRequest request = (HttpServletRequest) req;
+		request.setAttribute(CMS_FILTER_ALREADY_FIRED,true);
+
 		HttpServletResponse response = (HttpServletResponse) res;
 
 		final String uri = (request.getAttribute(CMS_FILTER_URI_OVERRIDE) != null) ? (String) request.getAttribute(CMS_FILTER_URI_OVERRIDE)
@@ -63,10 +69,10 @@ public class CMSFilter implements Filter {
 			response.sendRedirect(xssRedirect);
 			return;
 		}
-		
-		
+
+
 		IAm iAm = IAm.NOTHING_IN_THE_CMS;
-		
+
 		LogFactory.getLog(this.getClass()).debug("CMS Filter URI = " + uri);
 		
 
@@ -109,12 +115,12 @@ public class CMSFilter implements Filter {
 		} else if (urlUtil.isFolder(uri, host)) {
 			iAm = IAm.FOLDER;
 		}
-		
+
 		String rewrite = null;
 		String queryString = request.getQueryString();
 		// if a vanity URL
 		if (iAm == IAm.VANITY_URL) {
-			
+
 			rewrite = VirtualLinksCache.getPathFromCache(host.getHostname() + ":" + ("/".equals(uri) ? "/cmsHomePage" : uri.endsWith("/")?uri.substring(0, uri.length() - 1):uri));
 
 			if (!UtilMethods.isSet(rewrite)) {
@@ -122,7 +128,7 @@ public class CMSFilter implements Filter {
 			}
 			if (UtilMethods.isSet(rewrite) && rewrite.contains("//")) {
 				response.sendRedirect(rewrite);
-				
+
 				closeDbSilently();
 				return;
 			}
@@ -151,7 +157,7 @@ public class CMSFilter implements Filter {
 				}
 				else{
 					response.setHeader("Location", uri +"/" );
-					
+
 				}
 				response.setStatus(301);
 				closeDbSilently();
@@ -209,9 +215,9 @@ public class CMSFilter implements Filter {
 
 	}
 
-	
-	
-	
+
+
+
 	public void init(FilterConfig config) throws ServletException {
 		this.ASSET_PATH = APILocator.getFileAPI().getRelativeAssetsRootPath();
 
@@ -221,18 +227,18 @@ public class CMSFilter implements Filter {
 	@Deprecated
 	private static final Integer mutex = new Integer(0);
 
-	
+
 	@Deprecated
 	private static void buildExcludeList() {
 		// not needed anymore
 	}
-	
+
 	@Deprecated
 	public static void addExclude(String URLPattern) {
 
 		// not needed anymore
 	}
-	
+
 	@Deprecated
 	public static void removeExclude(String URLPattern) {
 		// not needed anymore
@@ -250,7 +256,7 @@ public class CMSFilter implements Filter {
 
 		} finally {
 			try {
-				
+
 				DbConnectionFactory.closeConnection();
 			} catch (Exception e) {
 
@@ -259,7 +265,7 @@ public class CMSFilter implements Filter {
 	}
 
 	private String xssCheck(String uri, String queryString) throws ServletException{
-		
+
 		String rewrite=null;
 		if (Xss.URIHasXSS(uri)) {
 			Logger.warn(this, "XSS Found in request URI: " +uri );
@@ -277,10 +283,10 @@ public class CMSFilter implements Filter {
 				rewrite=uri;
 			}
 		}
-		
+
 		return rewrite;
 	}
-	
-	
+
+
 
 }
