@@ -128,14 +128,14 @@ public class DependencyManager {
 					if(page == null) {
 						page = APILocator.getHTMLPageAPI().loadWorkingPageById(asset.getAsset(), user, false);
 					}
-					
+
 					if(page == null) {
 						Logger.warn(getClass(), "HTMLPage id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						htmlPages.add(asset.getAsset(), page.getModDate());
 						htmlPagesSet.add(asset.getAsset());
 					}
-					
+
 				} catch (Exception e) {
 					Logger.error(getClass(), "Couldn't add the HtmlPage to the Bundle. Bundle ID: " + config.getId() + ", HTMLPage ID: " + asset.getAsset(), e);
 				}
@@ -143,14 +143,14 @@ public class DependencyManager {
 			} else if(asset.getType().equals("structure")) {
 				try {
 					Structure st = CacheLocator.getContentTypeCache().getStructureByInode(asset.getAsset());
-					
+
 					if(st == null) {
 						Logger.warn(getClass(), "Structure id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						structures.add(asset.getAsset(), st.getModDate());
 						structuresSet.add(asset.getAsset());
 					}
-					
+
 				} catch (Exception e) {
 					Logger.error(getClass(), "Couldn't add the Structure to the Bundle. Bundle ID: " + config.getId() + ", Structure ID: " + asset.getAsset(), e);
 				}
@@ -168,7 +168,7 @@ public class DependencyManager {
 						templates.add(asset.getAsset(), t.getModDate());
 						templatesSet.add(asset.getAsset());
 					}
-					
+
 				} catch (Exception e) {
 					Logger.error(getClass(), "Couldn't add the Template to the Bundle. Bundle ID: " + config.getId() + ", Template ID: " + asset.getAsset(), e);
 				}
@@ -179,66 +179,66 @@ public class DependencyManager {
 					if(c == null) {
 						c = APILocator.getContainerAPI().getWorkingContainerById(asset.getAsset(), user, false);
 					}
-					
+
 					if(c == null) {
 						Logger.warn(getClass(), "Container id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						containers.add(asset.getAsset(), c.getModDate());
 						containersSet.add(asset.getAsset());
 					}
-					
+
 				} catch (DotSecurityException e) {
 					Logger.error(getClass(), "Couldn't add the Container to the Bundle. Bundle ID: " + config.getId() + ", Container ID: " + asset.getAsset(), e);
 				}
 			} else if(asset.getType().equals("folder")) {
 				try {
 					Folder f = APILocator.getFolderAPI().find(asset.getAsset(), user, false);
-					
+
 					if(f == null){
 						Logger.warn(getClass(), "Folder id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						folders.add(asset.getAsset(), f.getModDate());
 						foldersSet.add(asset.getAsset());
 					}
-					
+
 				} catch (DotSecurityException e) {
 					Logger.error(getClass(), "Couldn't add the Folder to the Bundle. Bundle ID: " + config.getId() + ", Folder ID: " + asset.getAsset(), e);
 				}
 			} else if(asset.getType().equals("host")) {
 				try {
 					Host h = APILocator.getHostAPI().find(asset.getAsset(), user, false);
-					
+
 					if(h == null){
 						Logger.warn(getClass(), "Host id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						hosts.add(asset.getAsset(), h.getModDate());
 						hostsSet.add(asset.getAsset());
 					}
-					
+
 				} catch (DotSecurityException e) {
 					Logger.error(getClass(), "Couldn't add the Host to the Bundle. Bundle ID: " + config.getId() + ", Host ID: " + asset.getAsset(), e);
 				}
 			} else if(asset.getType().equals("links")) {
 				try {
 					Link link = (Link) APILocator.getVersionableAPI().findLiveVersion(asset.getAsset(), user, false);
-					
+
 					if(link == null || !InodeUtils.isSet(link.getInode())) {
 						link = APILocator.getMenuLinkAPI().findWorkingLinkById(asset.getAsset(), user, false);
 					}
-					
+
 					if(link == null || !InodeUtils.isSet(link.getInode())) {
 						Logger.warn(getClass(), "Link id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 					} else {
 						links.add(asset.getAsset(),link.getModDate());
 						linksSet.add(asset.getAsset());
 					}
-					
+
 				} catch (DotSecurityException e) {
 					Logger.error(getClass(), "Couldn't add the Host to the Bundle. Bundle ID: " + config.getId() + ", Host ID: " + asset.getAsset(), e);
 				}
 			} else if(asset.getType().equals("workflow")) {
 				WorkflowScheme scheme = APILocator.getWorkflowAPI().findScheme(asset.getAsset());
-				
+
 				if(scheme == null){
 					Logger.warn(getClass(), "WorkflowScheme id: "+ (asset.getAsset() != null ? asset.getAsset() : "N/A") +" does NOT have working or live version, not Pushed");
 				} else {
@@ -252,12 +252,12 @@ public class DependencyManager {
             for(String id : contentIds){
                 List<Contentlet> contentlets = APILocator.getContentletAPI().search("+identifier:"+id, 0, 0, "moddate", user, false);
                 for(Contentlet con : contentlets){
-                    contents.add( con.getIdentifier(), con.getModDate()); 
+                    contents.add( con.getIdentifier(), con.getModDate());
                     contentsSet.add(con.getIdentifier());
                 }
             }
         }
-		
+
 		setHostDependencies();
         setFolderDependencies();
         setHTMLPagesDependencies();
@@ -266,7 +266,7 @@ public class DependencyManager {
         setStructureDependencies();
         setLinkDependencies();
 
-        
+
         setContentDependencies();
 
 		config.setHostSet(hosts);
@@ -518,14 +518,14 @@ public class DependencyManager {
 			List<String> idsToWork=new ArrayList<String>();
 			idsToWork.addAll(htmlPagesSet);
 			for( String contId : contentsSet) {
-				
+
 				List<Contentlet> c = APILocator.getContentletAPI().search("+identifier:"+contId, 0, 0, "moddate", user, false);
-				
+
 			    if(c!=null && !c.isEmpty() && c.get(0).getStructure().getStructureType()==Structure.STRUCTURE_TYPE_HTMLPAGE) {
 			        idsToWork.add(contId);
 			    }
 			}
-			
+
 			for (String pageId : idsToWork) {
 				Identifier iden = idenAPI.find(pageId);
 
@@ -536,12 +536,12 @@ public class DependencyManager {
 				Folder folder = folderAPI.findFolderByPath(iden.getParentPath(), iden.getHostId(), user, false);
 				folders.addOrClean( folder.getInode(), folder.getModDate());
 				foldersSet.add(folder.getInode());
-				
-				
+
+
 				// looking for working version (must exists)
 				IHTMLPage workingPage = null;
-				
-				if(iden.getAssetType().equals("htmlpage")){ 
+
+				if(iden.getAssetType().equals("htmlpage")){
 					workingPage = APILocator.getHTMLPageAPI().loadWorkingPageById(pageId, user, false);
 				}else{
 					Contentlet contentlet = null;
@@ -554,10 +554,10 @@ public class DependencyManager {
 					if(contentlet != null)
 						workingPage = APILocator.getHTMLPageAssetAPI().fromContentlet(contentlet);
 				}
-				
+
 				// looking for live version (might not exists)
 				IHTMLPage livePage = null;
-				
+
 				if(iden.getAssetType().equals("htmlpage")){
 					livePage = APILocator.getHTMLPageAPI().loadLivePageById(pageId, user, false);
 				}else{
@@ -567,15 +567,15 @@ public class DependencyManager {
 						if(!result.isEmpty()) {
 							contentlet = result.get(0);
 						}
-						
+
 					} catch (DotContentletStateException e) {
 						// content not found message is already displayed on console
 						Logger.debug(this, e.getMessage(),e);
 					}
 					if(contentlet != null)
-						livePage = APILocator.getHTMLPageAssetAPI().fromContentlet(contentlet); 
+						livePage = APILocator.getHTMLPageAssetAPI().fromContentlet(contentlet);
 				}
-				            
+
 				// working template working page
 				Template workingTemplateWP = null;
 				// live template working page
@@ -655,7 +655,7 @@ public class DependencyManager {
 		try {
 			List<Container> containerList = new ArrayList<Container>();
 			FolderAPI folderAPI = APILocator.getFolderAPI();
-			
+
 			for (String id : templatesSet) {
 				Template wkT = APILocator.getTemplateAPI().findWorkingTemplate(id, user, false);
 				Template lvT = APILocator.getTemplateAPI().findLiveTemplate(id, user, false);
@@ -676,7 +676,7 @@ public class DependencyManager {
 					containers.addOrClean( container.getIdentifier(), container.getModDate());
 					containersSet.add(container.getIdentifier());
 				}
-				
+
 				//Adding theme
 				if(UtilMethods.isSet(wkT.getTheme())){
 					Folder themeFolder = folderAPI.find(wkT.getTheme(), user, false);
@@ -894,22 +894,23 @@ public class DependencyManager {
 			try {
 				if(Config.getBooleanProperty("PUSH_PUBLISHING_PUSH_ALL_FOLDER_PAGES",false)) {
 					Folder contFolder=APILocator.getFolderAPI().find(con.getFolder(), user, false);
-				    List<IHTMLPage> folderHtmlPages = new ArrayList<IHTMLPage>(); 
+				    List<IHTMLPage> folderHtmlPages = new ArrayList<IHTMLPage>();
 					folderHtmlPages.addAll(APILocator.getHTMLPageAPI().findLiveHTMLPages(
 							APILocator.getFolderAPI().find(con.getFolder(), user, false)));
 					folderHtmlPages.addAll(APILocator.getHTMLPageAPI().findWorkingHTMLPages(
 							APILocator.getFolderAPI().find(con.getFolder(), user, false)));
 					folderHtmlPages.addAll(APILocator.getHTMLPageAssetAPI().getHTMLPages(contFolder, false, false, user, false));
 					folderHtmlPages.addAll(APILocator.getHTMLPageAssetAPI().getHTMLPages(contFolder, true, false, user, false));
-					
+
 					for(IHTMLPage htmlPage: folderHtmlPages) {
-                    	 
+
 					    if(htmlPage instanceof HTMLPage) {
 					        htmlPages.addOrClean( htmlPage.getIdentifier(), htmlPage.getModDate());
 					    }
 					    else {
 					        contents.addOrClean( htmlPage.getIdentifier(), htmlPage.getModDate());
-					    }
+							languages.addOrClean(Long.toString(htmlPage.getLanguageId()), new Date());
+						}
 
 						// working template working page
 						Template workingTemplateWP = APILocator.getTemplateAPI().findWorkingTemplate(htmlPage.getTemplateId(), user, false);
