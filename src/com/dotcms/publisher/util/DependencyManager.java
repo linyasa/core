@@ -919,6 +919,25 @@ public class DependencyManager {
 						// Templates dependencies
                         templates.addOrClean( htmlPage.getTemplateId(), workingTemplateWP.getModDate());
 
+						// Template Host dependency
+						Host templateHost = APILocator.getHostAPI().find(APILocator.getTemplateAPI().getTemplateHost(workingTemplateWP).getIdentifier(), user, false);
+						hosts.addOrClean(APILocator.getTemplateAPI().getTemplateHost(workingTemplateWP).getIdentifier(), templateHost.getModDate());
+
+						//Adding Template theme
+						if(UtilMethods.isSet(workingTemplateWP.getTheme())){
+							Folder themeFolder = APILocator.getFolderAPI().find(workingTemplateWP.getTheme(), user, false);
+							if(themeFolder != null &&  InodeUtils.isSet(themeFolder.getInode())){
+								Folder parent = APILocator.getFolderAPI().findParentFolder(themeFolder, user, false);
+								if(UtilMethods.isSet(parent)) {
+									folders.addOrClean( parent.getInode(), parent.getModDate());
+									foldersSet.add(parent.getInode());
+								}
+								List<Folder> folderList = new ArrayList<Folder>();
+								folderList.add(themeFolder);
+								setFolderListDependencies(folderList);
+							}
+						}
+
 						// Containers dependencies
 						List<Container> containerList = new ArrayList<Container>();
 						containerList.addAll(APILocator.getTemplateAPI().getContainersInTemplate(workingTemplateWP, user, false));
@@ -926,6 +945,12 @@ public class DependencyManager {
 
 						for (Container container : containerList) {
                         	containers.addOrClean( container.getIdentifier(), container.getModDate());
+
+							// Container Host Dependency
+							Host containerHost = APILocator.getContainerAPI().getParentHost(container, user, false);
+							hosts.addOrClean(APILocator.getContainerAPI().getParentHost(container, user, false).getIdentifier(), containerHost.getModDate());
+
+
 							// Structure dependencies
 							List<ContainerStructure> csList = APILocator.getContainerAPI().getContainerStructures(container);
 
