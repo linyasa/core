@@ -2382,6 +2382,7 @@ public class ESContentletAPIImpl implements ContentletAPI {
  		contentPushExpireDate = UtilMethods.isSet(contentPushExpireDate)?contentPushExpireDate:"N/D";
  		contentPushExpireTime = UtilMethods.isSet(contentPushExpireTime)?contentPushExpireTime:"N/D";
 
+        final boolean DONT_VALIDATE_ME = contentlet.getMap().get(Contentlet.DONT_VALIDATE_ME) != null;
 
         ActivityLogger.logInfo(getClass(), "Saving Content", "StartDate: " +contentPushPublishDate+ "; "
          		+ "EndDate: " +contentPushExpireDate + "; User:" + (user != null ? user.getUserId() : "Unknown")
@@ -2404,7 +2405,7 @@ public class ESContentletAPIImpl implements ContentletAPI {
 				    dc.setSQL("select inode from contentlet where inode=?");
 				    dc.addParam(contentlet.getInode());
 				    if(dc.loadResults().size()>0){
-				    	if(contentlet.getMap().get(Contentlet.DONT_VALIDATE_ME) != null){
+				    	if(DONT_VALIDATE_ME){
 				    		Logger.debug(this, "forcing checking with no version as the _dont_validate_me is set and inode exists");
 				    		createNewVersion = false;
 				    	}else{
@@ -2424,7 +2425,7 @@ public class ESContentletAPIImpl implements ContentletAPI {
 				}
 				if (!createNewVersion && contentlet != null && !InodeUtils.isSet(contentlet.getInode()))
 				    throw new DotContentletStateException("Contentlet must exist already");
-				if (contentlet != null && contentlet.isArchived() && contentlet.getMap().get(Contentlet.DONT_VALIDATE_ME) == null)
+				if (contentlet != null && contentlet.isArchived() && !DONT_VALIDATE_ME)
 				    throw new DotContentletStateException("Unable to checkin an archived piece of content, please un-archive first");
 				if (!perAPI.doesUserHavePermission(InodeUtils.isSet(contentlet.getIdentifier()) ? contentlet : contentlet.getStructure(),
 				        PermissionAPI.PERMISSION_WRITE, user, respectFrontendRoles)) {
@@ -2468,7 +2469,7 @@ public class ESContentletAPIImpl implements ContentletAPI {
 				    throw ve;
 				}
 
-				if(contentlet.getMap().get(Contentlet.DONT_VALIDATE_ME) == null) {
+				if(!DONT_VALIDATE_ME) {
 				    canLock(contentlet, user);
 				}
 				contentlet.setModUser(user.getUserId());
@@ -2843,7 +2844,7 @@ public class ESContentletAPIImpl implements ContentletAPI {
                                 save=true;
                             }
                         }
-    			        if (!contentlet.isLive() && UtilMethods.isSet( st.getExpireDateVar() ) ) {//Verify if the structure have a Expire Date Field set
+    			        if (!contentlet.isLive() && UtilMethods.isSet( st.getExpireDateVar() ) && !DONT_VALIDATE_ME) {//Verify if the structure have a Expire Date Field set
 			        		if(UtilMethods.isSet(ident.getSysExpireDate()) && ident.getSysExpireDate().before( new Date())) {
 			        			throw new DotContentletValidationException( "message.contentlet.expired" );
 	    		            }
