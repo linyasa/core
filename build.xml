@@ -90,12 +90,8 @@
         <pathelement location="${java.home}/../lib/tools.jar"/>
     </path>
 
-    <!-- include ant-contrib -->    
-    <taskdef resource="net/sf/antcontrib/antlib.xml">
-        <classpath>
-            <pathelement location="/Users/danielsilva/Documents/apache-ant-1.9.4/lib/ant-contrib-1.0b3.jar"/>
-        </classpath>
-    </taskdef>
+    <!-- include ant-contrib -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml"/>
 
     <!-- Target to create the build directories prior to the -->
     <!-- compile target. -->
@@ -148,7 +144,7 @@
         <delete dir="${osgi.velocity.dir}" />
     </target>
 
-    <!-- #MigratedToGradle -->
+    <!-- #MigratedToGradle - cleanJsp -->
     <target name="clean-jsp" description="Removes all compiled jsp files from the tomcat instance.">
         <delete dir="${tomcat.home}/work/Catalina" />
     </target>
