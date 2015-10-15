@@ -298,20 +298,13 @@ task deploy(dependsOn: [assembleStarterContent, deployBaseApp]) {
     description = "Build war with starter content and deploy it to the configured webapp."
 }
 
-task cleanJsp(type: Delete) {
-    description "Removes all compiled jsp files from the target instance."
-    file("${project.'webapp.jspDir'}").listFiles().each({ f ->
-        delete f
-    })
-}
-
 task undeploy(type: Delete) {
     description "Removes all content from the 'webapp.appDir' folder (${project.'webapp.appDir'}"
     file("${project.'webapp.appDir'}").listFiles().each({f ->
         delete f
     })
 }
-deployBaseApp.mustRunAfter clean, undeploy, cleanJsp
+deployBaseApp.mustRunAfter clean, undeploy, clean-jsp
 
 
 apply from: "${project.projectDir}/core-build-task-mappings.gradle"

@@ -28,11 +28,6 @@ task cleanPre3_5_Files(type: Delete) {
             "${project.projectDir}/dotCMS/html/js/_rulesengine"
 }
 
-task 'clean-tinymce-gz'(type: Delete){
-    description = "Removes all generated .gz pre-compressed files by tinymce_gzip.jsp"
-    delete fileTree("${project.projectDir}/dotCMS/html/js/tinymce/js/tinymce/").include("**/*.gz")
-}
-
 task listProperties() {
     description = 'Write out all the project properties at info log level.'
     doLast {
@@ -44,6 +39,7 @@ task listProperties() {
 def usePre3_5Build(){
     logger.info("Building with pre3.5 Ant build system.")
     //Import and apply the dependencies from the dependencies scripts
+    apply from: "ant.gradle"
     apply from: "$rootDir/build-pre3_5-ant.gradle"
     clean.dependsOn cleanPre3_5_Files
 }

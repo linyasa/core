@@ -5,7 +5,6 @@
 
 
 task 'war-file'(dependsOn: war) { description = 'See documentation for "war" task.' }
-task 'clean-jsp'(dependsOn: cleanJsp) { description = 'See documentation for "distCleanJsp" task.' }
 
 task 'clone-pull-tomcat'(dependsOn: pullTomcat) {
     description = 'Will checkout the tomcat app server, generate a war structure and copy it to the just checked out tomcat. If the app server exist instead of a checkout a git pull will be use.'
