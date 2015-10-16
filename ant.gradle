@@ -1,9 +1,9 @@
-task 'clean-tinymce-gz'(type: Delete){
+task clean_tinymce_gz(type: Delete){
     description = "Removes all generated .gz pre-compressed files by tinymce_gzip.jsp"
     delete fileTree("${project.projectDir}/dotCMS/html/js/tinymce/js/tinymce/").include("**/*.gz")
 }
 
-task "clean-jsp"(type: Delete) {
+task clean_jsp(type: Delete) {
     description "Removes all compiled jsp files from the target instance."
     file("${project.'webapp.jspDir'}").listFiles().each({ f ->
         delete f
