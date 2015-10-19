@@ -48,6 +48,7 @@ def usePureGradleBuild(){
     logger.info("Building with incubating Gradle build: ")
     apply from: "${rootDir}/core.gradle"
     clean.dependsOn cleanPre3_5_Files
+    move_war_jboss7.dependsOn undeploy_war_jboss7
 }
 def useNewHotness = project.hasProperty('useNewBuild') ? project['useNewBuild'] != 'false' : project['use-pre-3_5-build'] == 'false'
 if(useNewHotness){

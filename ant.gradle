@@ -46,3 +46,9 @@ task clone_pull_jboss7(dependsOn: cloneJboss7) {
         logger.info("Pulled jboss: version '${project.'jboss7.version'}'")
     }
 }
+
+task undeploy_war_jboss7() {
+	delete "${project.'jboss7.home'}/standalone/deployments/${project.'war.name'}.war.dodeploy"
+	delete "${project.'jboss7.home'}/standalone/deployments/${project.'war.name'}.war"
+}
+

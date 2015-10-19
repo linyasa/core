@@ -819,11 +819,6 @@
     </target>
 
 
-    <target name="undeploy-war-jboss7">
-        <delete file="${jboss7.home}/standalone/deployments/${war.name}.war.dodeploy"/>
-        <delete dir="${jboss7.home}/standalone/deployments/${war.name}.war"/>
-    </target>
-
     <!-- #MigratedToGradle -->
     <target name="deploy-war-tomcat" depends="clone-pull-tomcat, war" description="Will checkout the tomcat app server, generate a war structure and copy it to the just checked out tomcat. If the app server exist instead of a checkout a git pull will be use.">
         <antcall target="move-war-tomcat"/>
@@ -909,7 +904,7 @@
     </target>
 
     <target name="deploy_war_jboss7" depends="war" description="Will checkout the jboss app server, generate a war structure and copy it to the just checked out jboss. If the app server exist instead of a checkout a git pull will be use.">
-        <antcall target="move-war-jboss7"/>
+        <antcall target="move_war_jboss7"/>
     </target>
 
     <target name="deploy-jsp-tomcat" description="Moves the jsp files from a git checkout to the tomcat (Useful for development).">
@@ -965,7 +960,7 @@
         <delete dir="${tomcat.home}/webapps/ROOT/WEB-INF/classes/com"/>
     </target>
 
-    <target name="move-war-jboss7" depends="undeploy-war-jboss7" description="Moves the generated war under the build folder to the jboss deployments folder.">
+    <target name="move_war_jboss7" description="Moves the generated war under the build folder to the jboss deployments folder.">
 
         <touch file="${jboss7.home}/standalone/deployments/${war.name}.war.dodeploy"/>
 
