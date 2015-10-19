@@ -1,16 +1,3 @@
-import org.ajoberstar.grgit.*
-
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    //noinspection GroovyAssignabilityCheck
-    dependencies {
-        classpath 'org.ajoberstar:gradle-git:1.1.0'
-    }
-}
-
 /**
  * Load the properties found at the provided path into the root project, making them accessible via "rootProject.getProperty('foo')".
  * Also adds the properties to the global 'ant' object.
@@ -147,30 +134,6 @@ task pullTomcat(dependsOn: cloneTomcat) {
         def grgit = Grgit.open(dir: "${project.'assembleDir'}/dist/dotserver/tomcat-${project.'tomcat.version'}")
         grgit.pull()
         logger.info("Pulled tomcat: version '${project.'tomcat.version'}'")
-    }
-}
-
-/**
- * Clone the JBoss repo into $jboss7.home if the directory does not exist.
- */
-task cloneJboss7() {
-    onlyIf {
-        return !file("${project.'jboss7.home'}/").exists()
-    }
-
-    doLast {
-        Grgit.clone(uri: 'https://github.com/dotCMS/jboss7.git', refToCheckout: "${project.'jboss7.version'}", dir: "${project.'jboss7.home'}")
-    }
-}
-
-/**
- * Update the JBoss git clone found at $jboss.home
- */
-task pullJboss7(dependsOn: cloneJboss7) {
-    doLast {
-        def grgit = Grgit.open(dir: "${project.'jboss7.home'}")
-        grgit.pull()
-        logger.info("Pulled jboss: version '${project.'jboss7.version'}'")
     }
 }
 

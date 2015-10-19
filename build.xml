@@ -908,7 +908,7 @@
         <antcall target="move-war-tomcat"/>
     </target>
 
-    <target name="deploy-war-jboss7" depends="clone-pull-jboss7, war" description="Will checkout the jboss app server, generate a war structure and copy it to the just checked out jboss. If the app server exist instead of a checkout a git pull will be use.">
+    <target name="deploy_war_jboss7" depends="war" description="Will checkout the jboss app server, generate a war structure and copy it to the just checked out jboss. If the app server exist instead of a checkout a git pull will be use.">
         <antcall target="move-war-jboss7"/>
     </target>
 
@@ -1045,11 +1045,6 @@
     <!-- #MigratedToGradle -->
     <target name="clone-pull-tomcat">
         <git-clone-pull repository="https://github.com/dotCMS/tomcat.git" version="${tomcat.version}" dest="${tomcat.home}"/>
-    </target>
-
-    <!-- #MigratedToGradle -->
-    <target name="clone-pull-jboss7">
-        <git-clone-pull repository="https://github.com/dotCMS/jboss7.git" version="${jboss7.version}" dest="${jboss7.home}"/>
     </target>
 
     <!--++++++++++++++++++++++++++++++++++++++++++-->

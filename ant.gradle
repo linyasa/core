@@ -1,3 +1,16 @@
+import org.ajoberstar.grgit.*
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    //noinspection GroovyAssignabilityCheck
+    dependencies {
+        classpath 'org.ajoberstar:gradle-git:1.1.0'
+    }
+}
+
 task clean_tinymce_gz(type: Delete){
     description = "Removes all generated .gz pre-compressed files by tinymce_gzip.jsp"
     delete fileTree("${project.projectDir}/dotCMS/html/js/tinymce/js/tinymce/").include("**/*.gz")
@@ -8,4 +21,28 @@ task clean_jsp(type: Delete) {
     file("${project.'webapp.jspDir'}").listFiles().each({ f ->
         delete f
     })
+}
+
+/**
+ * Clone the JBoss repo into $jboss7.home if the directory does not exist.
+ */
+task cloneJboss7() {
+    onlyIf {
+        return !file("${project.'jboss7.home'}/").exists()
+    }
+
+    doLast {
+        Grgit.clone(uri: 'https://github.com/dotCMS/jboss7.git', refToCheckout: "${project.'jboss7.version'}", dir: "${project.'jboss7.home'}")
+    }
+}
+
+/**
+ * Update the JBoss git clone found at $jboss.home
+ */
+task clone_pull_jboss7(dependsOn: cloneJboss7) {
+    doLast {
+        def grgit = Grgit.open(dir: "${project.'jboss7.home'}")
+        grgit.pull()
+        logger.info("Pulled jboss: version '${project.'jboss7.version'}'")
+    }
 }

@@ -9,7 +9,6 @@ task 'war-file'(dependsOn: war) { description = 'See documentation for "war" tas
 task 'clone-pull-tomcat'(dependsOn: pullTomcat) {
     description = 'Will checkout the tomcat app server, generate a war structure and copy it to the just checked out tomcat. If the app server exist instead of a checkout a git pull will be use.'
 }
-task 'clone-pull-jboss7'(dependsOn: pullJboss7) {}
 
 task "deploy-war-tomcat"(dependsOn: [installTomcat, cleanDeploy]) {
     description = 'Same as executing "./gradlew pullTomcat distClean deployToCustomTomcat". Will checkout the tomcat app server if missing, generate a war structure and copy it to the just checked out tomcat. If the app server exist instead of a checkout a git pull will be use.'

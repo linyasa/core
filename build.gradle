@@ -54,7 +54,8 @@ if(useNewHotness){
     usePureGradleBuild()
 } else {
     usePre3_5Build()
-    clean.dependsOn('clean-tinymce-gz')
+    clean.dependsOn('clean_tinymce_gz')
+    deploy_war_jboss7.dependsOn(clone_pull_jboss7)
 }
 
 task wrapper(type: Wrapper) {
