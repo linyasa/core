@@ -218,9 +218,13 @@ public class RulesCacheImpl extends RulesCache {
             throw new IllegalArgumentException("Condition Group must have an id.");
         }
         try {
-            return (List<String>) cache.get(conditionGroupId, CONDITION_GROUP_CONDITIONS_CACHE);
+            Object object = cache.get(conditionGroupId, CONDITION_GROUP_CONDITIONS_CACHE);
+            return (List<String>) object;
         } catch (DotCacheException e) {
             Logger.debug(RulesCacheImpl.class, e.getMessage(), e);
+            return null;
+        } catch (Exception e) {
+            Logger.info(RulesCacheImpl.class, e.getMessage());
             return null;
         }
     }
