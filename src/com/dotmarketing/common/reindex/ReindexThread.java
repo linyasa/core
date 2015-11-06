@@ -45,7 +45,7 @@ public class ReindexThread extends Thread {
 	private boolean work = false;
 	private int sleep = 100;
 	private int delay = 7500;
-	private int delayOnError = 500;
+	private int delayOnError = Config.getIntProperty("REINDEX_DELAY_ON_ERROR", 10);
 	private int failedAttemptsCount = 0;
 	private boolean reindexSleepDuringIndex = false;
 	private int reindexSleepDuringIndexTime = 0;
@@ -257,7 +257,15 @@ public class ReindexThread extends Thread {
 							IndexJournal<String> idx = remoteQ.removeFirst();
 
 							try {
+								if(Math.random() > .8){
+									throw new DotDataException("because Math Random!");
+								}
 								writeDocumentToIndex(bulk, idx);
+								
+					
+								
+								
+								
 							} catch ( Exception e ) {
 
 								Logger.error(this, "Unable to index record with id [" + idx.getIdentToIndex() + "]", e);

@@ -163,9 +163,11 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
     @Override
     protected void cleanDistReindexJournal() throws DotDataException {
         DotConnect dc = new DotConnect();
-        dc.setSQL("DELETE From dist_reindex_journal where priority =? or priority=?");
+        dc.setSQL("DELETE From dist_reindex_journal where priority =? or priority=? or priority=?");
         dc.addParam(REINDEX_JOURNAL_PRIORITY_NEWINDEX);
         dc.addParam(REINDEX_JOURNAL_PRIORITY_NEWINDEX-10);
+        dc.addParam(40);
+
         dc.loadResult();
     }
 
@@ -214,7 +216,7 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
     protected void resetServerForReindexEntry ( List<IndexJournal<T>> recordsToModify ) throws DotDataException {
 
         DotConnect dc = new DotConnect();
-        StringBuilder sql = new StringBuilder().append("UPDATE dist_reindex_journal SET serverid=NULL where id in (");
+        StringBuilder sql = new StringBuilder().append("UPDATE dist_reindex_journal SET serverid=NULL, priority=40 where id in (");
         boolean first = true;
         for ( IndexJournal<T> idx : recordsToModify ) {
             if ( !first ) sql.append(',');
