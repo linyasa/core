@@ -17,15 +17,14 @@
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.Set"%>
 <%@page import="com.dotmarketing.util.UtilMethods"%>
-
-
-
 <%
 	User userToCheck = com.liferay.portal.util.PortalUtil.getUser(request);
-	if(userToCheck == null ){
+	
+if(userToCheck == null ){
 		return;
 	}
-	String dojoPath = Config.getStringProperty("path.to.dojo");
+	
+String dojoPath = Config.getStringProperty("path.to.dojo");
 	if(!UtilMethods.isSet(dojoPath)){
 		// Change dojopath in dotmarketing-config.properties!
 		response.sendError(500, "No dojo path variable (path.to.dojo) set in the property file");

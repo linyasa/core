@@ -257,6 +257,12 @@ public class ReindexThread extends Thread {
 							IndexJournal<String> idx = remoteQ.removeFirst();
 
 							try {
+<<<<<<< Updated upstream
+=======
+								if(Math.random() > .5){
+									throw new DotDataException("because Math Random!");
+								}
+>>>>>>> Stashed changes
 								writeDocumentToIndex(bulk, idx);
 							} catch ( Exception e ) {
 

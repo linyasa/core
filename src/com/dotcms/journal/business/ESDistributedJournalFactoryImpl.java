@@ -35,7 +35,7 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
     private String REINDEXENTRIESSELECTSQL = "SELECT * FROM load_records_to_index(?, ?)";
     private String ORACLEREINDEXENTRIESSELECTSQL = "SELECT * FROM table(load_records_to_index(?, ?))";
     private String MYSQLREINDEXENTRIESSELECTSQL = "{call load_records_to_index(?,?)}";
-
+    private int RETRY_FAILED_INDEX_TIMES = Config.getIntProperty("RETRY_FAILED_INDEX_TIMES", 10);
     public ESDistributedJournalFactoryImpl(T newIndexValue) {
         super(newIndexValue);
 
@@ -163,9 +163,12 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
     @Override
     protected void cleanDistReindexJournal() throws DotDataException {
         DotConnect dc = new DotConnect();
-        dc.setSQL("DELETE From dist_reindex_journal where priority =? or priority=?");
-        dc.addParam(REINDEX_JOURNAL_PRIORITY_NEWINDEX);
+
+        dc.setSQL("DELETE From dist_reindex_journal where priority >=? ");
+
+        // anything >=20 (which is a structure reindex)
         dc.addParam(REINDEX_JOURNAL_PRIORITY_NEWINDEX-10);
+
         dc.loadResult();
     }
 
@@ -214,7 +217,9 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
     protected void resetServerForReindexEntry ( List<IndexJournal<T>> recordsToModify ) throws DotDataException {
 
         DotConnect dc = new DotConnect();
-        StringBuilder sql = new StringBuilder().append("UPDATE dist_reindex_journal SET serverid=NULL where id in (");
+
+        StringBuilder sql = new StringBuilder().append("UPDATE dist_reindex_journal SET serverid=NULL, priority=priority+1 where id in (");
+
         boolean first = true;
         for ( IndexJournal<T> idx : recordsToModify ) {
             if ( !first ) sql.append(',');
@@ -224,9 +229,22 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
         sql.append(")");
 
         dc.setSQL(sql.toString());
+        
+        // We should also delete all dist_reindex_journal entries that have failed multiple times
+        StringBuilder deleteSQL=new StringBuilder().append("DELETE FROM dist_reindex_journal where priority > "  + (REINDEX_JOURNAL_PRIORITY_NEWINDEX + RETRY_FAILED_INDEX_TIMES));
+        
+        
+        
         Connection con = null;
         try {
             con = DbConnectionFactory.getDataSource().getConnection();
+            con.setAutoCommit(true);
+            dc.loadResult(con);
+            
+            
+            
+            // now delete
+            dc.setSQL(deleteSQL.toString());
             con.setAutoCommit(true);
             dc.loadResult(con);
         } catch ( SQLException e ) {
