@@ -59,6 +59,7 @@ import com.dotmarketing.servlets.InitServlet;
 import com.dotmarketing.startup.StartupTasksExecutor;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.auth.PrincipalThreadLocal;
 import com.liferay.portal.ejb.CompanyLocalManagerUtil;
 import com.liferay.portal.ejb.PortletManagerUtil;
@@ -313,7 +314,15 @@ public class MainServlet extends ActionServlet {
 				String httpOnly = Config.getBooleanProperty("COOKIES_HTTP_ONLY", false)?CookieUtil.HTTP_ONLY:"";
 					
 				StringBuilder headerStr = new StringBuilder();
-				headerStr.append(CookieKeys.SHARED_SESSION_ID).append("=").append(sharedSessionId).append(";").append(secure).append(";").append(httpOnly).append(";Path=/").append(";Max-Age=86400");
+				headerStr.append(CookieKeys.SHARED_SESSION_ID).append("=").append(sharedSessionId);
+				if(UtilMethods.isSet(secure)){
+					headerStr.append(";").append(secure);
+				}
+				if(UtilMethods.isSet(httpOnly)){
+					headerStr.append(";").append(httpOnly);
+				}
+				headerStr.append(";Path=/").append(";Max-Age=86400");
+				
 				res.addHeader("SET-COOKIE", headerStr.toString());
 
 				_log.debug("Shared session id is " + sharedSessionId);
