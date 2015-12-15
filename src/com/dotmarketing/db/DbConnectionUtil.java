@@ -1,6 +1,8 @@
 package com.dotmarketing.db;
 
+import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.SecurityLogger;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -133,5 +135,45 @@ public class DbConnectionUtil {
             }
         }
     }
+
+    private static final String[] evilSQLWords = { "select", "insert", "delete", "update", "replace", "create", "distinct", 
+		"having", "like", "and ", "or ", "limit","group", "order", "as ", "count",
+		"drop", "alter","truncate", "declair", "where", "exec", "--", "procedure", "pg_", "lock", "unlock","write", "engine", "null","not ","mode", "set "};
+
+    /**
+     * Intended to be used to pass in order clauses, 
+     * this will allow things like 'table_name.title' or
+     * 'table_name.my-field desc, table_name.field2 asc'
+     * but null out most other "clauses"
+     * @param clause
+     * @return
+     * @throws DotSecurityException 
+     */
+    public static String sanitizeSQLClause(final String sqlClause) throws DotSecurityException{
+    	
+        if(sqlClause ==null) return null;
+        
+        String clause= sqlClause.replaceAll("[^A-Za-z0-9_ \\.\\-,]", "");
+        String lowerClause=clause.toLowerCase();
+        for(String word : evilSQLWords){
+        	word = word ;
+        	if(lowerClause.contains(word)){
+        		SecurityLogger.logInfo(DbConnectionUtil.class, "Bad SQL passed in via Param:" + sqlClause);
+        		throw new DotSecurityException("Bad SQL passed in via Param");
+        	}
+        	
+        	
+        }
+        return clause;
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 
 }
