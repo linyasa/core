@@ -13,7 +13,6 @@ import com.dotcms.repackage.org.apache.commons.io.IOUtils;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONArray;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONException;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONObject;
-import com.dotcms.rest.BaseRestPortlet;
 import com.dotcms.rest.InitDataObject;
 import com.dotcms.rest.ResourceResponse;
 import com.dotcms.rest.WebResource;
@@ -36,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 @Path("/es")
-public class ESContentResourcePortlet extends BaseRestPortlet {
+public class ESContentResource {
 
 	ContentletAPI esapi = APILocator.getContentletAPI();
     private final WebResource webResource = new WebResource();

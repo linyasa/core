@@ -3497,18 +3497,18 @@
 	<portlet>
 		<portlet-name>ES_SEARCH_PORTLET</portlet-name>
 		<display-name>ES Query Tool</display-name>
-		<portlet-class>com.dotcms.rest.elasticsearch.ESContentResourcePortlet</portlet-class>
+		<portlet-class>com.liferay.portlet.NoOpPortlet</portlet-class>
 	</portlet>
 	<portlet>
 		<portlet-name>RULES_ENGINE_PORTLET</portlet-name>
 		<display-name>Rules Editor</display-name>
-		<portlet-class>com.dotcms.rest.RulesEnginePortlet</portlet-class>
+		<portlet-class>com.liferay.portlet.NoOpPortlet</portlet-class>
 	</portlet>
 	
 	<portlet>
 		<portlet-name>PERSONAS_PORTLET</portlet-name>
 		<display-name>Personas</display-name>
-		<portlet-class>com.dotcms.rest.personas.PersonasResourcePortlet</portlet-class>
+		<portlet-class>com.liferay.portlet.NoOpPortlet</portlet-class>
 
 	</portlet>
 

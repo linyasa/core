@@ -1,7 +1,6 @@
 package com.dotcms.rest.config;
 
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
-import com.dotcms.rest.RulesEnginePortlet;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.actions.ActionResource;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.ConditionResource;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.ConditionValueResource;
@@ -10,7 +9,8 @@ import com.dotcms.rest.api.v1.sites.ruleengine.rules.RuleResource;
 import com.dotcms.rest.api.v1.system.ruleengine.actionlets.ActionletsResource;
 import com.dotcms.rest.api.v1.system.ruleengine.conditionlets.ConditionletsResource;
 import com.dotcms.rest.api.v1.system.i18n.I18NResource;
-import com.dotcms.rest.personas.PersonasResourcePortlet;
+import com.dotcms.rest.elasticsearch.ESContentResource;
+import com.dotcms.rest.personas.PersonasResource;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -46,14 +46,14 @@ public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Ap
 					REST_CLASSES.add(com.dotcms.rest.WorkflowResource.class);
 
                     REST_CLASSES.add(com.dotcms.rest.RestExamplePortlet.class);
-					REST_CLASSES.add(com.dotcms.rest.elasticsearch.ESContentResourcePortlet.class);
+					REST_CLASSES.add(ESContentResource.class);
 
-					REST_CLASSES.add(RulesEnginePortlet.class);
+//					REST_CLASSES.add(RulesEnginePortlet.class);
 					REST_CLASSES.add(RuleResource.class);
 					REST_CLASSES.add(ConditionGroupResource.class);
 					REST_CLASSES.add(ConditionResource.class);
 					REST_CLASSES.add(ConditionValueResource.class);
-					REST_CLASSES.add(PersonasResourcePortlet.class);
+					REST_CLASSES.add(PersonasResource.class);
 
 
 					REST_CLASSES.add(ConditionletsResource.class);

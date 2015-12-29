@@ -30,7 +30,17 @@ import com.liferay.portal.SystemException;
  * 
  */
 @Path("/portlet")
-public class JSPPortlet extends BaseRestPortlet {
+public class JSPPortlet {
+
+	private RestPortlet restPortlet;
+
+	public JSPPortlet() {
+		this.restPortlet = new RestPortlet();
+	}
+
+	public JSPPortlet(RestPortlet restPortlet) {
+		this.restPortlet = restPortlet;
+	}
 
 	@GET
 	@Path("/{params:.*}")
@@ -38,7 +48,7 @@ public class JSPPortlet extends BaseRestPortlet {
 	public Response layoutGet(@Context HttpServletRequest request, @Context HttpServletResponse response, @PathParam("params") String params) throws DotDataException,
 			DotSecurityException, ServletException, IOException, DotRuntimeException, PortalException, SystemException {
 
-		return super.getLayout(request, response, params);
+		return restPortlet.getLayout(request, response, params);
 	}
 
 	@POST
@@ -47,7 +57,7 @@ public class JSPPortlet extends BaseRestPortlet {
 	public Response layoutPost(@Context HttpServletRequest request, @Context HttpServletResponse response, @PathParam("params") String params) throws DotDataException,
 			DotSecurityException, ServletException, IOException, DotRuntimeException, PortalException, SystemException {
 
-		return super.getLayout(request, response, params);
+		return restPortlet.getLayout(request, response, params);
 	}
 
 }

@@ -1,5 +1,5 @@
 <%@page import="com.dotmarketing.util.Logger"%>
-<%@page import="com.dotcms.rest.BaseRestPortlet"%>
+<%@page import="com.liferay.portlet.NoOpPortlet"%>
 <%@page import="com.liferay.portal.model.Portlet"%>
 <%@page import="com.dotcms.rest.WebResource"%>
 <%@page import="com.dotmarketing.business.APILocator"%>
@@ -32,7 +32,7 @@ var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refre
                 
                 Portlet portlet = (Portlet) APILocator.getPortletAPI().findPortlet(portletIDs.get(0));
                 Object object = Class.forName(portlet.getPortletClass()).newInstance();
-                if(object instanceof BaseRestPortlet){
+                if(object instanceof NoOpPortlet){
                     tabHREF =  "javascript:dotAjaxNav.show('/api/portlet/"+ portletIDs.get(0) + "/', '" + l + "');";
             	}
                 
@@ -68,7 +68,7 @@ var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refre
                                                         }
                                                         try{
                                                         	Object obj = Class.forName(p.getPortletClass()).newInstance();
-	                                                        if(obj instanceof BaseRestPortlet){
+	                                                        if(obj instanceof NoOpPortlet){
 	                                                                linkHREF =  "javascript:dotAjaxNav.show('/api/portlet/"+ portletIDs.get(i) + "/', '" + l + "');";
 	                                                        }
                                                         }

@@ -15,6 +15,7 @@ import com.dotcms.repackage.javax.ws.rs.core.CacheControl;
 import com.dotcms.repackage.javax.ws.rs.core.Context;
 import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.repackage.javax.ws.rs.core.Response.ResponseBuilder;
+import com.dotcms.repackage.org.apache.commons.lang.NotImplementedException;
 import com.dotcms.repackage.org.glassfish.jersey.servlet.internal.ThreadLocalInvoker;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.web.WebAPILocator;
@@ -28,8 +29,6 @@ import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
 import com.liferay.portal.model.User;
-import com.liferay.portlet.RenderRequestImpl;
-import com.liferay.portlet.RenderResponseImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,47 +46,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-public abstract class BaseRestPortlet implements Portlet, Cloneable {
+public class RestPortlet {
 
 	public static final String PORTLET_ID = "PORTLET_ID";
 	public static final String VIEW_JSP = "VIEW_JSP";
-
-    @Override
-	public void destroy() {
-
-	}
-
-	@Override
-	public void init(PortletConfig config) throws PortletException {
-
-	}
-
-	@Override
-	public void processAction(ActionRequest arg0, ActionResponse arg1) throws PortletException, IOException {
-
-	}
-
-	/**
-	 * The render request will always be handled by the "render.jsp" located
-	 * under the /WEB-INF/{classname}/ directory: the folder is based on the
-	 * class name, lowercased, so this portlets jsp would be:
-	 * /WEB-INF/jsp/restportlet/render.jsp
-	 */
-	@Override
-	public void render(RenderRequest req, RenderResponse res)
-
-	throws PortletException, IOException {
-		HttpServletRequest request = ((RenderRequestImpl) req).getHttpServletRequest();
-		HttpServletResponse response = ((RenderResponseImpl) res).getHttpServletResponse();
-
-		try {
-			response.getWriter().write( getJspResponse( request, response, this.getClass().getSimpleName(), "render" ) );
-		} catch (ServletException e) {
-
-			e.printStackTrace();
-		}
-
-	}
 
 	private String getJspResponse ( HttpServletRequest request, HttpServletResponse response, String portletId, String jspName ) throws ServletException,
 			IOException {

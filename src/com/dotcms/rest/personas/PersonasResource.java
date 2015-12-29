@@ -12,10 +12,9 @@ import com.dotcms.repackage.javax.ws.rs.Produces;
 import com.dotcms.repackage.javax.ws.rs.core.Context;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
 import com.dotcms.repackage.org.glassfish.jersey.server.JSONP;
-import com.dotcms.rest.BaseRestPortlet;
 
 @Path("/personas")
-public class PersonasResourcePortlet extends BaseRestPortlet{
+public class PersonasResource {
 
 	
 	/*

@@ -15,7 +15,7 @@ import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
 
 @Path("/restexample")
-public class RestExamplePortlet extends BaseRestPortlet {
+public class RestExamplePortlet extends RestPortlet {
 
         @GET
         @Path("/test/{params:.*}")
