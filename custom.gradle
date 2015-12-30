@@ -17,7 +17,6 @@ ext {
 	revision = git.head().abbreviatedId
 	//revision = git.head().id
 	buildTimestamp = getCurrentTimestamp()
-	println "buildTimestamp = ${buildTimestamp}"
 }
 
 import org.apache.tools.ant.filters.*
