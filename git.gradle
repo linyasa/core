@@ -16,13 +16,15 @@ ext {
 	// Get commit id of HEAD.
 	revision = git.head().abbreviatedId
 	//revision = git.head().id
+	buildTimestamp = getCurrentTimestamp()
+	println "buildTimestamp = ${buildTimestamp}"
 }
 
 import org.apache.tools.ant.filters.*
 afterEvaluate {
 	configure(allProcessResourcesTasks()) {
 		filter(ReplaceTokens,
-		tokens: [version: String.valueOf(project.version), revision: project.ext.revision])
+		tokens: [buildTimestamp: project.ext.buildTimestamp, version: String.valueOf(project.version), revision: project.ext.revision])
 	}
 }
 
@@ -30,4 +32,13 @@ def allProcessResourcesTasks() {
 	sourceSets*.processResourcesTaskName.collect {
 		tasks[it]
 	}
+}
+
+import java.text.SimpleDateFormat
+def getCurrentTimestamp ()
+{
+	Date today = new Date ()
+	// Wed, 05 Aug 2015 17:21:34 -0430
+	SimpleDateFormat df = new SimpleDateFormat ("EEE, dd MMM yyyy HH:mm:ss ZZZZZ")
+	return df.format (today)
 }
