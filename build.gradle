@@ -1,7 +1,7 @@
 apply plugin: 'war'
 
-// sets ext.git and ext.revision using org.ajoberstar:grgit
-apply from: "$rootDir/git.gradle"
+// sets ext.buildTimestamp & sets ext.git and ext.revision using org.ajoberstar:grgit
+apply from: "$rootDir/custom.gradle"
 
 version = 3.5
 sourceCompatibility = 1.8
