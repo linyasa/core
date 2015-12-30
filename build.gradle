@@ -1,0 +1,45 @@
+apply plugin: 'war'
+
+// sets ext.git and ext.revision using org.ajoberstar:grgit
+apply from: "$rootDir/git.gradle"
+
+version = 3.5
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+archivesBaseName = "dotcms-${ext.revision}"
+
+configurations {
+	coreWeb
+}
+
+// TODO - whole sourceSets section could go away if we organized our resources to match the java plugin conventions
+sourceSets {
+	main {
+		java {
+			srcDir 'src'
+		}
+		resources {
+			srcDir 'src'
+			include '**/**.properties'
+			include '**/**.hbm.xml'
+			include '**/**.sql'
+			exclude '/org/apache/velocity/texen/defaults/'
+			exclude '**/category.sql'
+			exclude '**/file.sql'
+			exclude '**/relationshiptable.sql'
+			exclude '**/workflow_tables.sql'
+		}
+	}
+}
+
+//Import and apply the dependencies from the dependencies scripts
+apply from: "$rootDir/dependencies.gradle"
+
+repositories {
+    maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+    maven { url "http://repo.dotcms.com/artifactory/libs-snapshot-local" }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+}

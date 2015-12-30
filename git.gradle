@@ -1,0 +1,19 @@
+
+buildscript {
+	repositories {
+//		mavenCentral()
+	    maven { url "http://repo.dotcms.com/artifactory/libs-release" }
+	    maven { url "http://repo.dotcms.com/artifactory/libs-snapshot-local" }
+	}
+
+	dependencies {
+		classpath group: 'org.ajoberstar', name: 'grgit', version: '1.4.1'
+	}
+}
+
+ext {
+	git = org.ajoberstar.grgit.Grgit.open(file('.'))
+	// Get commit id of HEAD.
+	revision = git.head().abbreviatedId
+	//revision = git.head().id
+}
