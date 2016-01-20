@@ -152,6 +152,11 @@
         <Logger name="com.dotcms.repackage.org.directwebremoting.impl.DefaultConverterManager" level="fatal" additivity="false">
             <AppenderRef ref="generic"/>
         </Logger>
+
+        <Logger name="org.apache.catalina.webresources" level="debug" additivity="false">
+            <AppenderRef ref="generic"/>
+        </Logger>
+
         <Logger name="com.liferay.portal.action.LoginAction" level="info" additivity="false">
             <AppenderRef ref="security"/>
         </Logger>
