@@ -56,11 +56,13 @@ public class RulesAPIFTest extends TestBase {
 
 		createRule(Rule.FireOn.EVERY_REQUEST);
 
-		makeRequest(robotsTxtUrl + System.currentTimeMillis());
+		makeRequest(robotsTxtUrl + System.currentTimeMillis(), "JSESSIONID=" + request.getSession().getId());
 		Integer count = (Integer) request.getServletContext().getAttribute(Rule.FireOn.EVERY_REQUEST.name());
+		assertTrue(count != null);
 
-		makeRequest(robotsTxtUrl + System.currentTimeMillis());
+		makeRequest(robotsTxtUrl + System.currentTimeMillis(), "JSESSIONID=" + request.getSession().getId());
 		Integer newCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.EVERY_REQUEST.name());
+		assertTrue(newCount != null);
 
 		assertTrue(newCount > count);
 
@@ -70,16 +72,19 @@ public class RulesAPIFTest extends TestBase {
 	public void testFireOnEveryPage() throws Exception {
 
 		createRule(Rule.FireOn.EVERY_PAGE);
-		makeRequest(indexUrl);
+		makeRequest(indexUrl, "JSESSIONID=" + request.getSession().getId());
 		Integer firstCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.EVERY_PAGE.name());
+		assertTrue(firstCount != null);
 
-		makeRequest(robotsTxtUrl + System.currentTimeMillis());
+		makeRequest(robotsTxtUrl + System.currentTimeMillis(), "JSESSIONID=" + request.getSession().getId());
 		Integer secondCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.EVERY_PAGE.name());
+		assertTrue(secondCount != null);
 
 		assertEquals(firstCount, secondCount);
 
-		makeRequest(indexUrl);
+		makeRequest(indexUrl, "JSESSIONID=" + request.getSession().getId());
 		Integer thirdCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.EVERY_PAGE.name());
+		assertTrue(thirdCount != null);
 
 		assertTrue(thirdCount > secondCount);
 	}
@@ -92,11 +97,14 @@ public class RulesAPIFTest extends TestBase {
 		URLConnection conn = makeRequest(indexUrl);
 
 		String oncePerVisitCookie = getCookie(conn, com.dotmarketing.util.WebKeys.ONCE_PER_VISIT_COOKIE);
+		//assertTrue(oncePerVisitCookie != null);
 
 		Integer firstCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.ONCE_PER_VISIT.name());
+		assertTrue(firstCount != null);
 
 		makeRequest(indexUrl, oncePerVisitCookie);
 		Integer secondCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.ONCE_PER_VISIT.name());
+		assertTrue(secondCount != null);
 
 		assertEquals(firstCount, secondCount);
 
@@ -112,9 +120,11 @@ public class RulesAPIFTest extends TestBase {
 		String longLivedCookie = getCookie(conn, com.dotmarketing.util.WebKeys.LONG_LIVED_DOTCMS_ID_COOKIE);
 
 		Integer firstCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.ONCE_PER_VISITOR.name());
+		assertTrue(firstCount != null);
 
 		makeRequest(indexUrl, longLivedCookie);
 		Integer secondCount = (Integer) request.getServletContext().getAttribute(Rule.FireOn.ONCE_PER_VISITOR.name());
+		assertTrue(secondCount != null);
 
 		assertEquals(firstCount, secondCount);
 
