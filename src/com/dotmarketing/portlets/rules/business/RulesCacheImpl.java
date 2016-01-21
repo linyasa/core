@@ -5,10 +5,10 @@ import java.util.stream.Collectors;
 
 import com.dotcms.repackage.com.google.common.base.Strings;
 import com.dotcms.rest.validation.constraints.FireOn;
-import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.DotCacheAdministrator;
 import com.dotmarketing.business.DotCacheException;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.portlets.rules.model.*;
 import com.dotmarketing.util.Logger;
 
@@ -84,13 +84,13 @@ public class RulesCacheImpl extends RulesCache {
     }
 
     @Override
-    public void putRulesByHost(Host host, List<Rule> rules) {
-        host = checkNotNull(host, "Host is required");
+    public void putRulesByParent(Treeable parent, List<Rule> rules) {
+    	parent = checkNotNull(parent, "parent is required");
 
-        String hostIdentifier = host.getIdentifier();
+        String hostIdentifier = parent.getIdentifier();
 
         if (Strings.isNullOrEmpty(hostIdentifier)) {
-            throw new IllegalArgumentException("Host must have an identifier.");
+            throw new IllegalArgumentException("parent must have an identifier.");
         }
 
         rules = checkNotNull(rules, "Rules List is required");
@@ -105,12 +105,12 @@ public class RulesCacheImpl extends RulesCache {
     }
 
     @Override
-    public List<String> getRulesIdsByHost(Host host) {
-        host = checkNotNull(host, "Host is required");
-        String hostIdentifier = host.getIdentifier();
+    public List<String> getRulesIdsByParent(Treeable parent) {
+    	parent = checkNotNull(parent, "parent is required");
+        String hostIdentifier = parent.getIdentifier();
 
         if (Strings.isNullOrEmpty(hostIdentifier)) {
-            throw new IllegalArgumentException("Host must have an identifier.");
+            throw new IllegalArgumentException("parent must have an identifier.");
         }
         try {
             return (List<String>) cache.get(hostIdentifier, HOST_RULES_CACHE);
@@ -122,11 +122,11 @@ public class RulesCacheImpl extends RulesCache {
 
 
     @Override
-    public void addRulesByHostFireOn(Set<Rule> rules, String hostIdentifier, Rule.FireOn fireOn) {
+    public void addRulesByParentFireOn(Set<Rule> rules, String hostIdentifier, Rule.FireOn fireOn) {
         rules = checkNotNull(rules, "Rules list is required.");
 
         if (Strings.isNullOrEmpty(hostIdentifier)) {
-            throw new IllegalArgumentException("Invalid host identifier.");
+            throw new IllegalArgumentException("Invalid identifier.");
         }
 
         fireOn = checkNotNull(fireOn, "FireOn is required.");
@@ -136,9 +136,9 @@ public class RulesCacheImpl extends RulesCache {
     }
 
     @Override
-    public Set<Rule> getRulesByHostFireOn(String hostIdentifier, Rule.FireOn fireOn) {
+    public Set<Rule> getRulesByParentFireOn(String hostIdentifier, Rule.FireOn fireOn) {
         if (Strings.isNullOrEmpty(hostIdentifier)) {
-            throw new IllegalArgumentException("Invalid host identifier.");
+            throw new IllegalArgumentException("Invalid identifier.");
         }
 
         fireOn = checkNotNull(fireOn, "FireOn is required.");

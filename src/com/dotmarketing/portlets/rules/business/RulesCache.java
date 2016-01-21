@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.Cachable;
 import com.dotmarketing.business.CacheLocator;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.portlets.folders.model.Folder;
 import com.dotmarketing.portlets.rules.model.*;
 
@@ -63,7 +63,7 @@ public abstract class RulesCache implements Cachable {
      * @param fireOn
      * @return
      */
-    public abstract void addRulesByHostFireOn(Set<Rule> rules, String hostId, Rule.FireOn fireOn);
+    public abstract void addRulesByParentFireOn(Set<Rule> rules, String hostId, Rule.FireOn fireOn);
 
     /**
      * Returns a list of {@link Rule} objects under the {@Link Host} with the given hostId
@@ -72,7 +72,7 @@ public abstract class RulesCache implements Cachable {
      * @param fireOn
      * @return
      */
-    public abstract Set<Rule> getRulesByHostFireOn(String hostId, Rule.FireOn fireOn);
+    public abstract Set<Rule> getRulesByParentFireOn(String parentId, Rule.FireOn fireOn);
 
 
     /**
@@ -92,7 +92,7 @@ public abstract class RulesCache implements Cachable {
 	 *            - The {@link Host}.
 	 * @return The associated list of {@link Rule} objects.
 	 */
-    public abstract List<String> getRulesIdsByHost(Host host);
+    public abstract List<String> getRulesIdsByParent(Treeable host);
 
     /**
      * Puts the list of {@link Rule} objects that have been created for a
@@ -101,7 +101,7 @@ public abstract class RulesCache implements Cachable {
      * @param rules - The list of {@link Rule}.
      */
 
-    public abstract void putRulesByHost(Host host, List<Rule> rules);
+    public abstract void putRulesByParent(Treeable host, List<Rule> rules);
 
 	/**
 	 * Removes the {@link Rule} object from the caching structure.

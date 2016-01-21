@@ -23,6 +23,7 @@ import com.dotcms.rest.exception.InternalServerException;
 import com.dotcms.rest.exception.NotFoundException;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.ApiProvider;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotHibernateException;
@@ -213,9 +214,9 @@ public class RuleResource {
         return webResource.init(true, request, true).getUser();
     }
 
-    private List<RestRule> getRulesInternal(User user, Host host) {
+    private List<RestRule> getRulesInternal(User user, Treeable host) {
         try {
-            List<Rule> rules = rulesAPI.getAllRulesByHost(host, user, false);
+            List<Rule> rules = rulesAPI.getAllRulesByParent(host, user, false);
             return rules.stream().map(ruleTransform.appToRestFn()).collect(Collectors.toList());
         } catch (DotDataException e) {
             throw new BadRequestException(e, e.getMessage());

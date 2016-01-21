@@ -5,6 +5,7 @@ import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Sets;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.CacheLocator;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.common.db.DotConnect;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
@@ -18,6 +19,7 @@ import com.dotmarketing.portlets.rules.model.RuleAction;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UUIDGenerator;
 import com.dotmarketing.util.UtilMethods;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -41,20 +43,44 @@ public class RulesFactoryImpl implements RulesFactory {
     }
 
     @Override
-    public List<Rule> getEnabledRulesByHost(Host host) throws DotDataException {
-        List<Rule> ruleList = getAllRulesByHost(host);
+    public List<Rule> getEnabledRulesByParent(Treeable host) throws DotDataException {
+        List<Rule> ruleList = getAllRulesByParent(host);
         return ruleList.stream().filter(Rule::isEnabled).collect(Collectors.toList());
     }
-
+    
     @Override
-    public List<Rule> getAllRulesByHost(Host host) throws DotDataException {
+    public List<Rule> getAllRules() throws DotDataException {
+
+
+
+
+        List<Rule> rules;
+
+		final DotConnect db = new DotConnect();
+		db.setSQL(sql.SELECT_ALL_RULES);
+		
+		final List<Rule> ret = Lists.newArrayList();
+		try {
+			for (final Map<String, Object> map : db.loadObjectResults()) {
+				ret.add(convertRule(map));
+			}
+		} catch (final Exception e) {
+			throw new DotDataException("cannot convert object to " + Rule.class + " " + e.getMessage(), e);
+		}
+            rules = ret;
+
+        return rules;
+    }
+    
+    @Override
+    public List<Rule> getAllRulesByParent(Treeable host) throws DotDataException {
         host = checkNotNull(host, "Host is required.");
 
         if(Strings.isNullOrEmpty(host.getIdentifier())) {
             throw new IllegalArgumentException("Host must have an id.");
         }
 
-        List<String> rulesIds = cache.getRulesIdsByHost(host);
+        List<String> rulesIds = cache.getRulesIdsByParent(host);
         List<Rule> rules;
         if (rulesIds == null) {
             final DotConnect db = new DotConnect();
@@ -70,7 +96,7 @@ public class RulesFactoryImpl implements RulesFactory {
 
             }
             rules = ret;
-            cache.putRulesByHost(host,rules);
+            cache.putRulesByParent(host,rules);
         } else {
             rules = new ArrayList<>();
             for(String ruleId: rulesIds) {
@@ -84,12 +110,12 @@ public class RulesFactoryImpl implements RulesFactory {
     }
 
     @Override
-    public Set<Rule> getRulesByHost(String host, Rule.FireOn fireOn) throws DotDataException {
-        Set<Rule> ruleList = cache.getRulesByHostFireOn(host, fireOn);
+    public Set<Rule> getRulesByParent(String parent, Rule.FireOn fireOn) throws DotDataException {
+        Set<Rule> ruleList = cache.getRulesByParentFireOn(parent, fireOn);
         if (ruleList == null) {
             final DotConnect db = new DotConnect();
             db.setSQL(sql.SELECT_RULES_BY_HOST_FIRE_ON);
-            db.addParam(host);
+            db.addParam(parent);
             db.addParam(fireOn.toString());
             final Set<Rule> ret = Sets.newHashSet();
             try {
@@ -101,7 +127,7 @@ public class RulesFactoryImpl implements RulesFactory {
 
             }
             ruleList = ret;
-            cache.addRulesByHostFireOn(ruleList, host, fireOn);
+            cache.addRulesByParentFireOn(ruleList, parent, fireOn);
         }
         return ruleList;
     }

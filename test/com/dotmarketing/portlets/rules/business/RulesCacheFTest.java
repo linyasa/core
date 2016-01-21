@@ -42,14 +42,14 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's update the rule
         rule.setName("UpdatedRuleName");
         ruleDataGen.persist(rule);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -65,14 +65,14 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's update the condition
         group.setPriority(100);
         FactoryLocator.getRulesFactory().saveConditionGroup(group);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -89,14 +89,14 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's update the condition
         condition.setName("UpdatedConditionName");
         FactoryLocator.getRulesFactory().saveCondition(condition);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -117,7 +117,7 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's update the condition value
         value.setOwnerId(condition.getId());
@@ -125,7 +125,7 @@ public class RulesCacheFTest {
         FactoryLocator.getRulesFactory().saveConditionValue(value);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -141,13 +141,13 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's delete the condition
         FactoryLocator.getRulesFactory().deleteConditionGroup(group);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -164,13 +164,13 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's delete the conditions by group
         FactoryLocator.getRulesFactory().deleteConditionsByGroup(group);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -187,13 +187,13 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's delete the condition
         FactoryLocator.getRulesFactory().deleteCondition(condition);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -215,13 +215,13 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's delete the condition value
         FactoryLocator.getRulesFactory().deleteConditionValue(value);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
@@ -243,20 +243,20 @@ public class RulesCacheFTest {
         addRuleToHostFireOnCache(rule);
 
         // we should get a set with our rule
-        assertNotNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNotNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
         // let's delete the condition value
         FactoryLocator.getRulesFactory().deleteConditionValues(condition);
 
         // let's check the cache returns null after the update
-        assertNull(cache.getRulesByHostFireOn(rule.getHost(), fireOn));
+        assertNull(cache.getRulesByParentFireOn(rule.getHost(), fireOn));
 
     }
 
     private void addRuleToHostFireOnCache(Rule rule) {
         Set<Rule> ruleSet = new HashSet<>();
         ruleSet.add(rule);
-        cache.addRulesByHostFireOn(ruleSet, rule.getHost(), fireOn);
+        cache.addRulesByParentFireOn(ruleSet, rule.getHost(), fireOn);
     }
 
     @After

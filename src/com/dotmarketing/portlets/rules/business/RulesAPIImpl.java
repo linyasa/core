@@ -9,6 +9,7 @@ import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.business.PermissionAPI;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotRuntimeException;
 import com.dotmarketing.exception.DotSecurityException;
@@ -33,6 +34,7 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 import com.liferay.portal.model.User;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,28 +98,32 @@ public class RulesAPIImpl implements RulesAPI {
         initActionletMap();
     }
 
-    public List<Rule> getEnabledRulesByHost(Host host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
+    public List<Rule> getEnabledRulesByParent(Treeable parent, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
+        if(!UtilMethods.isSet(parent)) {
+            return new ArrayList<>();
+        }
+
+        return perAPI.filterCollection(rulesFactory.getEnabledRulesByParent(parent), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
+    }
+
+    public List<Rule> getAllRulesByParent(Treeable host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
         if(!UtilMethods.isSet(host)) {
             return new ArrayList<>();
         }
 
-        return perAPI.filterCollection(rulesFactory.getEnabledRulesByHost(host), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
+        return perAPI.filterCollection(rulesFactory.getAllRulesByParent(host), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
     }
-
-    public List<Rule> getAllRulesByHost(Host host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
-        if(!UtilMethods.isSet(host)) {
-            return new ArrayList<>();
-        }
-
-        return perAPI.filterCollection(rulesFactory.getAllRulesByHost(host), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
+    
+    public List<Rule> getAllRules(User user,boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
+        return perAPI.filterCollection(rulesFactory.getAllRules(), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
     }
-
-    public Set<Rule> getRulesByHostFireOn(String host, User user, boolean respectFrontendRoles, Rule.FireOn fireOn) throws DotDataException, DotSecurityException {
-        if(!UtilMethods.isSet(host)) {
+    
+    public Set<Rule> getRulesByParentFireOn(String parentId, User user, boolean respectFrontendRoles, Rule.FireOn fireOn) throws DotDataException, DotSecurityException {
+        if(!UtilMethods.isSet(parentId)) {
             return new HashSet<>();
         }
 
-        ArrayList<Rule> rules = new ArrayList<>(rulesFactory.getRulesByHost(host, fireOn));
+        ArrayList<Rule> rules = new ArrayList<>(rulesFactory.getRulesByParent(parentId, fireOn));
         List<Rule> allowedRules = perAPI.filterCollection(rules, PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
         return new HashSet<>(allowedRules);
     }

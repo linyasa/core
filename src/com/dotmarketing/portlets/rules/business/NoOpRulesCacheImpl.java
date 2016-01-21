@@ -1,10 +1,12 @@
 package com.dotmarketing.portlets.rules.business;
 
 import com.dotmarketing.beans.Host;
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.portlets.rules.model.Condition;
 import com.dotmarketing.portlets.rules.model.ConditionGroup;
 import com.dotmarketing.portlets.rules.model.Rule;
 import com.dotmarketing.portlets.rules.model.RuleAction;
+
 import java.util.List;
 import java.util.Set;
 
@@ -19,12 +21,12 @@ public class NoOpRulesCacheImpl extends RulesCache {
     }
 
     @Override
-    public void addRulesByHostFireOn(Set<Rule> rules, String hostId, Rule.FireOn fireOn) {
+    public void addRulesByParentFireOn(Set<Rule> rules, String hostId, Rule.FireOn fireOn) {
 
     }
 
     @Override
-    public Set<Rule> getRulesByHostFireOn(String hostId, Rule.FireOn fireOn) {
+    public Set<Rule> getRulesByParentFireOn(String hostId, Rule.FireOn fireOn) {
         return null;
     }
 
@@ -34,12 +36,12 @@ public class NoOpRulesCacheImpl extends RulesCache {
     }
 
     @Override
-    public List<String> getRulesIdsByHost(Host host) {
+    public List<String> getRulesIdsByParent(Treeable host) {
         return null;
     }
 
     @Override
-    public void putRulesByHost(Host host, List<Rule> rules) {
+    public void putRulesByParent(Treeable host, List<Rule> rules) {
 
     }
 

@@ -1,20 +1,24 @@
 package com.dotmarketing.portlets.rules.business;
 
-import com.dotmarketing.beans.Host;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.portlets.rules.model.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.dotmarketing.business.Treeable;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.portlets.rules.model.Condition;
+import com.dotmarketing.portlets.rules.model.ConditionGroup;
+import com.dotmarketing.portlets.rules.model.ParameterModel;
+import com.dotmarketing.portlets.rules.model.Rule;
+import com.dotmarketing.portlets.rules.model.RuleAction;
+
 public interface RulesFactory {
 
-    List<Rule> getEnabledRulesByHost(Host host) throws DotDataException;
+    List<Rule> getEnabledRulesByParent(Treeable host) throws DotDataException;
 
-    List<Rule> getAllRulesByHost(Host host) throws DotDataException;
+    List<Rule> getAllRulesByParent(Treeable host) throws DotDataException;
 
-    Set<Rule> getRulesByHost(String host, Rule.FireOn fireOn) throws DotDataException;
+    Set<Rule> getRulesByParent(String host, Rule.FireOn fireOn) throws DotDataException;
 
     List<Rule> getRulesByNameFilter(String nameFilter);
 
@@ -65,5 +69,7 @@ public interface RulesFactory {
     void deleteConditionValues(Condition condition) throws DotDataException;
 
     Map<String, ParameterModel> getRuleActionParameters(RuleAction action) throws DotDataException;
+
+	List<Rule> getAllRules() throws DotDataException;
 
 }

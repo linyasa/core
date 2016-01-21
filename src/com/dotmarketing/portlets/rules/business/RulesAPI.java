@@ -1,6 +1,7 @@
 package com.dotmarketing.portlets.rules.business;
 
-import com.dotmarketing.beans.Host;
+
+import com.dotmarketing.business.Treeable;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.portlets.rules.actionlet.RuleActionlet;
@@ -18,36 +19,36 @@ public interface RulesAPI extends ConditionletOSGIService, RuleActionletOSGIServ
 
     /**
      *
-     * @param host
+     * @param parent
      * @param user
      * @param respectFrontendRoles
      * @return
      * @throws DotDataException
      * @throws DotSecurityException
      */
-    List<Rule> getEnabledRulesByHost(Host host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException;
+    List<Rule> getEnabledRulesByParent(Treeable parent, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException;
 
     /**
      *
-     * @param host
+     * @param parent
      * @param user
      * @param respectFrontendRoles
      * @return
      * @throws DotDataException
      * @throws DotSecurityException
      */
-    List<Rule> getAllRulesByHost(Host host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException;
+    List<Rule> getAllRulesByParent(Treeable parent, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException;
 
     /**
      *
-     * @param host
+     * @param parentId
      * @param user
      * @param respectFrontendRoles
      * @return
      * @throws DotDataException
      * @throws DotSecurityException
      */
-    Set<Rule> getRulesByHostFireOn(String host, User user, boolean respectFrontendRoles, Rule.FireOn fireOn) throws DotDataException, DotSecurityException;
+    Set<Rule> getRulesByParentFireOn(String parentId, User user, boolean respectFrontendRoles, Rule.FireOn fireOn) throws DotDataException, DotSecurityException;
 
     /**
      *
