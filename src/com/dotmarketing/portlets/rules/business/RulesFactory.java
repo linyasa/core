@@ -14,11 +14,11 @@ import com.dotmarketing.portlets.rules.model.RuleAction;
 
 public interface RulesFactory {
 
-    List<Rule> getEnabledRulesByParent(Treeable host) throws DotDataException;
+    List<Rule> getEnabledRulesByParent(Treeable parent) throws DotDataException;
 
-    List<Rule> getAllRulesByParent(Treeable host) throws DotDataException;
+    List<Rule> getAllRulesByParent(Treeable parent) throws DotDataException;
 
-    Set<Rule> getRulesByParent(String host, Rule.FireOn fireOn) throws DotDataException;
+    Set<Rule> getRulesByParent(String parentId, Rule.FireOn fireOn) throws DotDataException;
 
     List<Rule> getRulesByNameFilter(String nameFilter);
 

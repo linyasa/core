@@ -5,7 +5,6 @@ import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import com.dotcms.rest.validation.Preconditions;
-import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.business.PermissionAPI;
@@ -106,12 +105,12 @@ public class RulesAPIImpl implements RulesAPI {
         return perAPI.filterCollection(rulesFactory.getEnabledRulesByParent(parent), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
     }
 
-    public List<Rule> getAllRulesByParent(Treeable host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
-        if(!UtilMethods.isSet(host)) {
+    public List<Rule> getAllRulesByParent(Treeable parent, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {
+        if(!UtilMethods.isSet(parent)) {
             return new ArrayList<>();
         }
 
-        return perAPI.filterCollection(rulesFactory.getAllRulesByParent(host), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
+        return perAPI.filterCollection(rulesFactory.getAllRulesByParent(parent), PermissionAPI.PERMISSION_READ, respectFrontendRoles, user);
     }
     
     public List<Rule> getAllRules(User user,boolean respectFrontendRoles) throws DotDataException, DotSecurityException {

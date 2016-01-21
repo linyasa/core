@@ -3,7 +3,6 @@ package com.dotmarketing.portlets.rules.business;
 import com.dotcms.repackage.com.google.common.base.Strings;
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Sets;
-import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.Treeable;
 import com.dotmarketing.common.db.DotConnect;
@@ -43,8 +42,8 @@ public class RulesFactoryImpl implements RulesFactory {
     }
 
     @Override
-    public List<Rule> getEnabledRulesByParent(Treeable host) throws DotDataException {
-        List<Rule> ruleList = getAllRulesByParent(host);
+    public List<Rule> getEnabledRulesByParent(Treeable parent) throws DotDataException {
+        List<Rule> ruleList = getAllRulesByParent(parent);
         return ruleList.stream().filter(Rule::isEnabled).collect(Collectors.toList());
     }
     
@@ -73,19 +72,19 @@ public class RulesFactoryImpl implements RulesFactory {
     }
     
     @Override
-    public List<Rule> getAllRulesByParent(Treeable host) throws DotDataException {
-        host = checkNotNull(host, "Host is required.");
+    public List<Rule> getAllRulesByParent(Treeable parent) throws DotDataException {
+    	parent = checkNotNull(parent, "parent is required.");
 
-        if(Strings.isNullOrEmpty(host.getIdentifier())) {
-            throw new IllegalArgumentException("Host must have an id.");
+        if(Strings.isNullOrEmpty(parent.getIdentifier())) {
+            throw new IllegalArgumentException("parent must have an id.");
         }
 
-        List<String> rulesIds = cache.getRulesIdsByParent(host);
+        List<String> rulesIds = cache.getRulesIdsByParent(parent);
         List<Rule> rules;
         if (rulesIds == null) {
             final DotConnect db = new DotConnect();
             db.setSQL(sql.SELECT_ALL_RULES_BY_HOST);
-            db.addParam(host.getIdentifier());
+            db.addParam(parent.getIdentifier());
             final List<Rule> ret = Lists.newArrayList();
             try {
                 for (final Map<String, Object> map : db.loadObjectResults()) {
@@ -96,7 +95,7 @@ public class RulesFactoryImpl implements RulesFactory {
 
             }
             rules = ret;
-            cache.putRulesByParent(host,rules);
+            cache.putRulesByParent(parent,rules);
         } else {
             rules = new ArrayList<>();
             for(String ruleId: rulesIds) {

@@ -55,7 +55,7 @@ public abstract class RulesCache implements Cachable {
 	public abstract void addRule(Rule rule);
 
     /**
-     * Adds a list of {@link Rule} objects under the {@Link Host} with the given hostId
+     * Adds a list of {@link Rule} objects under the {@Link Treeable} with the given identifier
      * and whose 'Fire On' matches the given fireOn
      *
      * @param rules
@@ -63,7 +63,7 @@ public abstract class RulesCache implements Cachable {
      * @param fireOn
      * @return
      */
-    public abstract void addRulesByParentFireOn(Set<Rule> rules, String hostId, Rule.FireOn fireOn);
+    public abstract void addRulesByParentFireOn(Set<Rule> rules, String parentId, Rule.FireOn fireOn);
 
     /**
      * Returns a list of {@link Rule} objects under the {@Link Host} with the given hostId
@@ -89,19 +89,19 @@ public abstract class RulesCache implements Cachable {
 	 * specific site (host).
 	 * 
 	 * @param host
-	 *            - The {@link Host}.
+	 *            - The {@link Treeable}.
 	 * @return The associated list of {@link Rule} objects.
 	 */
-    public abstract List<String> getRulesIdsByParent(Treeable host);
+    public abstract List<String> getRulesIdsByParent(Treeable parent);
 
     /**
      * Puts the list of {@link Rule} objects that have been created for a
      * specific site (host).
-     * @param host - The {@link Host}.
+     * @param host - The {@link Treeable}.
      * @param rules - The list of {@link Rule}.
      */
 
-    public abstract void putRulesByParent(Treeable host, List<Rule> rules);
+    public abstract void putRulesByParent(Treeable parent, List<Rule> rules);
 
 	/**
 	 * Removes the {@link Rule} object from the caching structure.
