@@ -1,8 +1,11 @@
 package com.dotcms.publisher.assets.business;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.repackage.com.google.common.base.Preconditions;
+import com.dotcms.repackage.com.google.common.base.Strings;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.exception.DotDataException;
@@ -90,17 +93,11 @@ public class PushedAssetsAPIImpl implements PushedAssetsAPI {
 	
 	
 	@Override
-	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException{
-		if(!UtilMethods.isSet(environmentId) ||!UtilMethods.isSet(assetId)) {
-			return null;
-		}
-		
-		
-		
-		
-		
+	public Optional<PushedAsset> getPushForAsset(String assetId, String environmentId)  throws DotDataException{
+		Preconditions.checkArgument(Strings.isNullOrEmpty(assetId), "assetId can't be null or empty");
+		Preconditions.checkArgument(Strings.isNullOrEmpty(environmentId), "environmentId can't be null or empty");
+
 		return pushedAssetsFactory.getLastPushForAsset(assetId,environmentId);
-		
 	}
 
 }

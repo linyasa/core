@@ -1,9 +1,6 @@
 package com.dotcms.publisher.util;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotcms.publisher.assets.business.PushedAssetsCache;
@@ -100,15 +97,15 @@ public class DependencySet extends HashSet<String> {
 
         if ( !isForcePush && !isDownload && isPublish ) {
             for (Environment env : envs) {
-				PushedAsset asset;
+				Optional<PushedAsset> asset;
 				try {
-					asset = APILocator.getPushedAssetsAPI().getLastPushForAsset(assetId, env.getId());
+					asset = APILocator.getPushedAssetsAPI().getPushForAsset(assetId, env.getId());
 				} catch (DotDataException e1) {
 					// Asset does not exist in db or cache, return true;
 					return true;
 				}
 
-				modified = (asset==null || (assetModDate!=null && asset.getPushDate().before(assetModDate)));
+				modified = (!asset.isPresent() || (assetModDate!=null && asset.get().getPushDate().before(assetModDate)));
 				
 				try {
 				    if(!modified && assetType.equals("content")) {

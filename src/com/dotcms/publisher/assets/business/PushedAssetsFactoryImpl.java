@@ -3,6 +3,7 @@ package com.dotcms.publisher.assets.business;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotcms.publisher.util.PublisherUtil;
@@ -139,26 +140,25 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 	}
 	
 	
-	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException{
+	public Optional<PushedAsset> getLastPushForAsset(String assetId, String environmentId) throws DotDataException{
 		
-		PushedAsset asset = cache.getPushedAsset(assetId, environmentId);
-		if(asset==null){
+		Optional<PushedAsset> asset = Optional.ofNullable(cache.getPushedAsset(assetId, environmentId));
+
+		if(!asset.isPresent()){
 			DotConnect dc = new DotConnect();
 			dc.setSQL(SELECT_ASSET_LAST_PUSHED);
 			dc.addParam(assetId);
 			dc.addParam(environmentId);
 			dc.setMaxRows(1);
 			List<Map<String, Object>> res = dc.loadObjectResults();
-	
-			for(Map<String, Object> row : res){
-				asset = PublisherUtil.getPushedAssetByMap(row);
-				cache.add(asset);
+
+			if(res!=null && !res.isEmpty()) {
+				asset = Optional.of(PublisherUtil.getPushedAssetByMap(res.get(0)));
+				cache.add(asset.get());
 			}
 		}
-		
+
 		return asset;
-		
-		
 	}
 
 }
