@@ -65,10 +65,16 @@ public interface PushedAssetsAPI {
 	public List<PushedAsset> getPushedAssets(String assetId)  throws DotDataException;
 
 
-
+	/**
+	 * Returns an {@code Optional} describing a {@code PushedAsset} object with the specified asset id and environment id, if any.
+	 * If no {@code PushedAsset} object is found, returns an empty {@code Optional}.
+	 *
+	 * @param assetId
+	 * @param environmentId
+	 * @return an Optional with the pushed asset
+	 * @throws DotDataException
+     */
 	public Optional<PushedAsset> getPushForAsset(String assetId, String environmentId)  throws DotDataException;
 
 
-	
-	
 }

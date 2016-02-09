@@ -3384,6 +3384,16 @@ CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id);
 CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (environment_id);
 CREATE INDEX idx_pushed_assets_3 ON publishing_pushed_assets (asset_id, environment_id);
 
+create table publishing_push_history(
+	bundle_id varchar2(36) NOT NULL,
+	asset_id varchar2(36) NOT NULL,
+	asset_type varchar2(255) NOT NULL,
+	push_date TIMESTAMP,
+	environment_id varchar2(36) NOT NULL
+);
+
+CREATE INDEX idx_push_history ON publishing_push_history (asset_id);
+
 alter table publishing_bundle add force_push number(1,0) ;
 
 CREATE INDEX idx_pub_qa_1 ON publishing_queue_audit (status);

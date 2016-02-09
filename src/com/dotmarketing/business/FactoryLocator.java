@@ -9,6 +9,7 @@ import com.dotcms.enterprise.ServerActionFactoryImplProxy;
 import com.dotcms.enterprise.cluster.ServerFactoryImpl;
 import com.dotcms.enterprise.cluster.action.business.ServerActionFactory;
 import com.dotcms.enterprise.linkchecker.LinkCheckerFactoryImpl;
+import com.dotcms.publisher.assets.business.PushHistoryFactory;
 import com.dotmarketing.portlets.personas.business.PersonaFactory;
 import com.dotmarketing.portlets.personas.business.PersonaFactoryImpl;
 import com.dotcms.journal.business.ESDistributedJournalFactoryImpl;
@@ -206,6 +207,10 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     	return (PushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
     }
 
+    public static PushHistoryFactory getPushHistoryFactory(){
+        return (PushHistoryFactory) getInstance(FactoryIndex.PUSH_HISTORY_FACTORY);
+    }
+
     public static ServerFactory getServerFactory(){
         return (ServerFactory) getInstance(FactoryIndex.SERVER_FACTORY);
     }
@@ -292,6 +297,7 @@ enum FactoryIndex
 	ENVIRONMENT_FACTORY,
 	BUNDLE_FACTORY,
 	PUSHED_ASSETS_FACTORY,
+	PUSH_HISTORY_FACTORY,
 	SERVER_FACTORY,
 	NOTIFICATION_FACTORY, 
 	SERVER_ACTION_FACTORY,
