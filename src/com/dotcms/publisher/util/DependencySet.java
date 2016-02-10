@@ -2,8 +2,10 @@ package com.dotcms.publisher.util;
 
 import java.util.*;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
-import com.dotcms.publisher.assets.business.PushedAssetsCache;
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
+import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
+import com.dotcms.publisher.assets.business.PushedItemsAPI;
 import com.dotcms.publisher.bundle.bean.Bundle;
 import com.dotcms.publisher.environment.bean.Environment;
 import com.dotmarketing.beans.VersionInfo;
@@ -21,13 +23,14 @@ public class DependencySet extends HashSet<String> {
 	 *
 	 */
 	private static final long serialVersionUID = 3048299770146564147L;
-	private PushedAssetsCache cache;
+	private HistoricalPushedAssetsCache cache;
 	private List<Environment> envs = new ArrayList<Environment>();
 	private String assetType;
 	private String bundleId;
 	private Bundle bundle;
 	private boolean isDownload;
 	private boolean isPublish;
+	private PushedItemsAPI pushedItemsAPI;
 
 	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish) {
 		super();
@@ -48,39 +51,41 @@ public class DependencySet extends HashSet<String> {
 		} catch (DotDataException e) {
 			Logger.error(getClass(), "Can't get bundle. Bundle Id: " + bundleId , e);
 		}
+
+		pushedItemsAPI = APILocator.getPushedItemsAPI();
 	}
 
 	public boolean add(String assetId, Date assetModDate) {
-        return addOrClean( assetId, assetModDate, false );
-    }
+		return addOrClean( assetId, assetModDate, false );
+	}
 
-    /**
-     * Is this method is called and in case of an <strong>UN-PUBLISH</strong> instead of adding elements it will remove them
-     * from cache.<br>
-     * For <strong>PUBLISH</strong> do the same as the <strong>add</strong> method.
-     *
-     * @param assetId
-     * @param assetModDate
-     * @return
-     */
-    public boolean addOrClean ( String assetId, Date assetModDate) {
-        return addOrClean( assetId, assetModDate, true );
-    }
+	/**
+	 * Is this method is called and in case of an <strong>UN-PUBLISH</strong> instead of adding elements it will remove them
+	 * from cache.<br>
+	 * For <strong>PUBLISH</strong> do the same as the <strong>add</strong> method.
+	 *
+	 * @param assetId
+	 * @param assetModDate
+	 * @return
+	 */
+	public boolean addOrClean ( String assetId, Date assetModDate) {
+		return addOrClean( assetId, assetModDate, true );
+	}
 
-    private boolean addOrClean ( String assetId, Date assetModDate, Boolean cleanForUnpublish ) {
+	private boolean addOrClean ( String assetId, Date assetModDate, Boolean cleanForUnpublish ) {
 
-        if ( !isPublish ) {
+		if ( !isPublish ) {
 
-            //For un-publish we always remove the asset from cache
-            for ( Environment env : envs ) {
-                cache.removePushedAssetById( assetId, env.getId() );
-            }
+			//For un-publish we always remove the asset from cache
+			for ( Environment env : envs ) {
+				cache.removePushedAssetById( assetId, env.getId() );
+			}
 
-            //Return if we are here just to clean up dependencies from cache
-            if ( cleanForUnpublish ) {
-                return true;
-            }
-        }
+			//Return if we are here just to clean up dependencies from cache
+			if ( cleanForUnpublish ) {
+				return true;
+			}
+		}
 
 		boolean modified = false;
 
@@ -90,68 +95,63 @@ public class DependencySet extends HashSet<String> {
 		// if the asset hasn't been sent to at least one environment or an older version was sen't,
 		// we need to add it to the cache
 
-        Boolean isForcePush = false;
-        if ( bundle != null ) {
-            isForcePush = bundle.isForcePush();
-        }
+		Boolean isForcePush = false;
+		if ( bundle != null ) {
+			isForcePush = bundle.isForcePush();
+		}
 
-        if ( !isForcePush && !isDownload && isPublish ) {
-            for (Environment env : envs) {
-				Optional<PushedAsset> asset;
+		if ( !isForcePush && !isDownload && isPublish ) {
+			for (Environment env : envs) {
+				Optional<PushedItem> pushedItem;
 				try {
-					asset = APILocator.getPushedAssetsAPI().getPushForAsset(assetId, env.getId());
+					pushedItem = pushedItemsAPI.getPushedItem(assetId, env.getId());
 				} catch (DotDataException e1) {
 					// Asset does not exist in db or cache, return true;
 					return true;
 				}
 
-				modified = (!asset.isPresent() || (assetModDate!=null && asset.get().getPushDate().before(assetModDate)));
-				
+				modified = (!pushedItem.isPresent()
+						|| pushedItem.get().getPushDate()==null
+						|| (assetModDate!=null && (pushedItem.get().getPushDate().before(assetModDate))));
+
 				try {
-				    if(!modified && assetType.equals("content")) {
-				        // check for versionInfo TS on content
-				        for(Language lang : APILocator.getLanguageAPI().getLanguages()) {
-                            ContentletVersionInfo info=APILocator.getVersionableAPI().getContentletVersionInfo(assetId, lang.getId());
-                            if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                                modified = modified || (null == info.getVersionTs()) || assetModDate.before(info.getVersionTs()); 
-                            }
-				        }
-				    }
-				    if(!modified && (assetType.equals("template") || assetType.equals("links") || assetType.equals("container") || assetType.equals("htmlpage"))) {
-				        // check for versionInfo TS
-                        VersionInfo info=APILocator.getVersionableAPI().getVersionInfo(assetId);
-                        if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                            modified = assetModDate.before(info.getVersionTs()); 
-                        }
-				    }
-				} catch (Exception e) {
-                    Logger.warn(getClass(), "Error checking versionInfo for assetType:"+assetType+" assetId:"+assetId+
-                            " process continues without checking versionInfo.ts",e);
-                }
-				
-				if(modified) {
-					try {
-						//We need to check if the assetID is already in the bundle.
-						//1.Get all the pushed assests records with same Asset ID.
-						List<PushedAsset> pushedAssests = APILocator.getPushedAssetsAPI().getPushedAssets(assetId);
-						boolean isAlreadyInPushedBunble = false;
-						
-						//Check through the records to see if match env and bundle ID.
-						for(PushedAsset pushedAsset : pushedAssests){
-							if(pushedAsset.getBundleId().equals(bundleId)
-									&& pushedAsset.getEnvironmentId().equals(env.getId())){
-								isAlreadyInPushedBunble = true;
+					if(!modified && assetType.equals("content")) {
+						// check for versionInfo TS on content
+						for(Language lang : APILocator.getLanguageAPI().getLanguages()) {
+							ContentletVersionInfo info=APILocator.getVersionableAPI().getContentletVersionInfo(assetId, lang.getId());
+							if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
+								modified = modified || (null == info.getVersionTs()) || assetModDate.before(info.getVersionTs());
 							}
 						}
-						
-						//If it is not already in the bundle, we can push the record.
-						if(!isAlreadyInPushedBunble){
-							asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
-							APILocator.getPushedAssetsAPI().savePushedAsset(asset);
+					}
+					if(!modified && (assetType.equals("template") || assetType.equals("links") || assetType.equals("container") || assetType.equals("htmlpage"))) {
+						// check for versionInfo TS
+						VersionInfo info=APILocator.getVersionableAPI().getVersionInfo(assetId);
+						if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
+							modified = assetModDate.before(info.getVersionTs());
 						}
-						
-						//cache.add(asset);
-						
+					}
+				} catch (Exception e) {
+					Logger.warn(getClass(), "Error checking versionInfo for assetType:"+assetType+" assetId:"+assetId+
+							" process continues without checking versionInfo.ts",e);
+				}
+
+				if(modified) {
+					try {
+						if(pushedItem.isPresent()) {
+							PushedItem existingPushedItem = pushedItem.get();
+							existingPushedItem.setPushDate(new Date());
+							pushedItemsAPI.savePushedAsset(existingPushedItem);
+						} else {
+							PushedItem newPushItem = new PushedItem(assetId, env.getId(), new Date());
+							pushedItemsAPI.savePushedAsset(newPushItem);
+						}
+
+						// This is merely for historical purposes
+						HistoricalPushedAsset newHistoricalAsset = new HistoricalPushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
+						APILocator.getHistoricalPushedAssetsAPI().savePushedAsset(newHistoricalAsset);
+
+
 					} catch (DotDataException e) {
 						Logger.error(getClass(), "Could not save PushedAsset. "
 								+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
@@ -160,10 +160,10 @@ public class DependencySet extends HashSet<String> {
 			}
 		}
 
-        if ( isForcePush || isDownload || !isPublish || modified ) {
-            super.add( assetId );
-            return true;
-        }
+		if ( isForcePush || isDownload || !isPublish || modified ) {
+			super.add( assetId );
+			return true;
+		}
 
 		return false;
 	}

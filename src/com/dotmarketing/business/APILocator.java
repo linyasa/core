@@ -17,8 +17,10 @@ import com.dotcms.enterprise.linkchecker.LinkCheckerAPIImpl;
 import com.dotcms.enterprise.publishing.sitesearch.ESSiteSearchAPI;
 import com.dotcms.notifications.business.NotificationAPI;
 import com.dotcms.notifications.business.NotificationAPIImpl;
-import com.dotcms.publisher.assets.business.PushedAssetsAPI;
-import com.dotcms.publisher.assets.business.PushedAssetsAPIImpl;
+import com.dotcms.publisher.assets.business.PushedItemsAPI;
+import com.dotcms.publisher.assets.business.PushedItemsAPIImpl;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsAPI;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsAPIImpl;
 import com.dotcms.publisher.bundle.business.BundleAPI;
 import com.dotcms.publisher.bundle.business.BundleAPIImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointAPI;
@@ -327,9 +329,14 @@ public class APILocator extends Locator<APIIndex>{
 		return (BundleAPI)getInstance(APIIndex.BUNDLE_API);
 	}
 
-	public static PushedAssetsAPI getPushedAssetsAPI() {
-		return (PushedAssetsAPI)getInstance(APIIndex.PUSHED_ASSETS_API);
+	public static HistoricalPushedAssetsAPI getHistoricalPushedAssetsAPI() {
+		return (HistoricalPushedAssetsAPI)getInstance(APIIndex.PUSHED_ASSETS_API);
 	}
+
+	public static PushedItemsAPI getPushedItemsAPI() {
+		return (PushedItemsAPI)getInstance(APIIndex.PUSH_HISTORY_API);
+	}
+
 
 	public static ServerAPI getServerAPI() {
 		return (ServerAPI)getInstance(APIIndex.SERVER_API);
@@ -450,6 +457,7 @@ enum APIIndex
 	BUNDLE_API,
 	SERVER_API,
 	PUSHED_ASSETS_API,
+	PUSH_HISTORY_API,
 	NOTIFICATION_API,
 
 	HTMLPAGE_ASSET_API,
@@ -511,7 +519,7 @@ enum APIIndex
 		case SITE_SEARCH_AUDIT_API: return new SiteSearchAuditAPIImpl();
 		case ENVIRONMENT_API: return new EnvironmentAPIImpl();
 		case BUNDLE_API: return new BundleAPIImpl();
-		case PUSHED_ASSETS_API: return new PushedAssetsAPIImpl();
+		case PUSHED_ASSETS_API: return new HistoricalPushedAssetsAPIImpl();
 		case SERVER_API: return new ServerAPIImpl();
 		case NOTIFICATION_API: return new NotificationAPIImpl();
 
@@ -523,6 +531,7 @@ enum APIIndex
 		case ES_SEARCH_API: return new ESSearchProxy();
 		case RULES_API: return new RulesAPIImpl();
 		case VISITOR_API: return new VisitorAPIImpl();
+		case PUSH_HISTORY_API: return new PushedItemsAPIImpl();
 
 		
 		}

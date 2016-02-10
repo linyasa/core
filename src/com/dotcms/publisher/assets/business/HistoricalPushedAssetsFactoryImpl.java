@@ -3,18 +3,19 @@ package com.dotcms.publisher.assets.business;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
+import com.dotcms.publisher.environment.bean.Environment;
 import com.dotcms.publisher.util.PublisherUtil;
 import com.dotmarketing.business.CacheLocator;
+import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.common.db.DotConnect;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.util.UtilMethods;
 
-public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
-	private PushedAssetsCache cache=CacheLocator.getPushedAssetsCache();
-	public void savePushedAsset(PushedAsset asset) throws DotDataException {
+public class HistoricalPushedAssetsFactoryImpl extends HistoricalPushedAssetsFactory {
+	private HistoricalPushedAssetsCache cache=CacheLocator.getPushedAssetsCache();
+	public void savePushedAsset(HistoricalPushedAsset asset) throws DotDataException {
 		final DotConnect db = new DotConnect();
 		db.setSQL(INSERT_ASSETS);
 		db.addParam(asset.getBundleId());
@@ -45,7 +46,12 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		db.setSQL(DELETE_ASSETS_BY_ASSET_ID);
 		db.addParam(assetId);
 		db.loadResult();
-		cache.clearCache();
+
+		// remove from cache for all environments
+		List<Environment> environments = FactoryLocator.getEnvironmentFactory().getEnvironments();
+		for (Environment environment : environments) {
+			cache.removePushedAssetById(assetId, environment.getId());
+		}
 	}
 
 	@Override
@@ -59,9 +65,9 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 	}
 
 	@Override
-	public List<PushedAsset> getPushedAssets(String bundleId, String environmentId)
+	public List<HistoricalPushedAsset> getPushedAssets(String bundleId, String environmentId)
 			throws DotDataException {
-		List<PushedAsset> assets = new ArrayList<PushedAsset>();
+		List<HistoricalPushedAsset> assets = new ArrayList<HistoricalPushedAsset>();
 
 		if(!UtilMethods.isSet(bundleId) || !UtilMethods.isSet(environmentId)) {
 			return assets;
@@ -75,7 +81,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		List<Map<String, Object>> res = dc.loadObjectResults();
 
 		for(Map<String, Object> row : res){
-			PushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
+			HistoricalPushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
 			assets.add(asset);
 		}
 
@@ -94,9 +100,9 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 	}
 
 	@Override
-	public List<PushedAsset> getPushedAssets(String assetId)
+	public List<HistoricalPushedAsset> getPushedAssets(String assetId)
 			throws DotDataException {
-		List<PushedAsset> assets = new ArrayList<PushedAsset>();
+		List<HistoricalPushedAsset> assets = new ArrayList<HistoricalPushedAsset>();
 
 		if(!UtilMethods.isSet(assetId)) {
 			return assets;
@@ -109,7 +115,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		List<Map<String, Object>> res = dc.loadObjectResults();
 
 		for(Map<String, Object> row : res){
-			PushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
+			HistoricalPushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
 			assets.add(asset);
 		}
 
@@ -117,9 +123,9 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 	}
 
 	@Override
-	public List<PushedAsset> getPushedAssetsByEnvironment(String environmentId)
+	public List<HistoricalPushedAsset> getPushedAssetsByEnvironment(String environmentId)
 			throws DotDataException {
-		List<PushedAsset> assets = new ArrayList<PushedAsset>();
+		List<HistoricalPushedAsset> assets = new ArrayList<HistoricalPushedAsset>();
 
 		if(!UtilMethods.isSet(environmentId)) {
 			return assets;
@@ -132,33 +138,12 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		List<Map<String, Object>> res = dc.loadObjectResults();
 
 		for(Map<String, Object> row : res){
-			PushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
+			HistoricalPushedAsset asset = PublisherUtil.getPushedAssetByMap(row);
 			assets.add(asset);
 		}
 
 		return assets;
 	}
-	
-	
-	public Optional<PushedAsset> getLastPushForAsset(String assetId, String environmentId) throws DotDataException{
-		
-		Optional<PushedAsset> asset = Optional.ofNullable(cache.getPushedAsset(assetId, environmentId));
 
-		if(!asset.isPresent()){
-			DotConnect dc = new DotConnect();
-			dc.setSQL(SELECT_ASSET_LAST_PUSHED);
-			dc.addParam(assetId);
-			dc.addParam(environmentId);
-			dc.setMaxRows(1);
-			List<Map<String, Object>> res = dc.loadObjectResults();
-
-			if(res!=null && !res.isEmpty()) {
-				asset = Optional.of(PublisherUtil.getPushedAssetByMap(res.get(0)));
-				cache.add(asset.get());
-			}
-		}
-
-		return asset;
-	}
 
 }

@@ -152,7 +152,8 @@ public class BundleResource {
                 return responseResource.response( "false" );
 			}
 
-			APILocator.getPushedAssetsAPI().deletePushedAssets(assetId);
+			APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(assetId);
+			APILocator.getPushedItemsAPI().resetPushDateOfItem(assetId);
 
 		} catch (DotDataException e) {
 			Logger.error(getClass(), "Error trying to delete Pushed Assets for asset Id: " + assetId);
@@ -179,7 +180,8 @@ public class BundleResource {
                 return responseResource.response( "false" );
 			}
 
-			APILocator.getPushedAssetsAPI().deletePushedAssetsByEnvironment(environmentId);
+			APILocator.getHistoricalPushedAssetsAPI().deletePushedAssetsByEnvironment(environmentId);
+			APILocator.getPushedItemsAPI().resetPushDateOfItemsInEnvironment(environmentId);
 
 		} catch (DotDataException e) {
 			Logger.error(getClass(), "Error trying to delete Pushed Assets for environment Id: " + environmentId);

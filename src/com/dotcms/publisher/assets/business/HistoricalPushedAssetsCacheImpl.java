@@ -1,6 +1,6 @@
 package com.dotcms.publisher.assets.business;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
 import com.dotmarketing.business.Cachable;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.DotCacheAdministrator;
@@ -9,20 +9,20 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 
-public class PushedAssetsCacheImpl implements PushedAssetsCache, Cachable {
+public class HistoricalPushedAssetsCacheImpl implements HistoricalPushedAssetsCache, Cachable {
 	private final static String cacheGroup = "PushedAssetsCache";
 	private final static String[] cacheGroups = {cacheGroup};
 	private DotCacheAdministrator cache;
 
-	public PushedAssetsCacheImpl() {
+	public HistoricalPushedAssetsCacheImpl() {
 		cache = CacheLocator.getCacheAdministrator();
 	}
 
 
-	public  PushedAsset getPushedAsset(String assetId, String environmentId) {
-		PushedAsset asset = null;
+	public HistoricalPushedAsset getPushedAsset(String assetId, String environmentId) {
+		HistoricalPushedAsset asset = null;
 		try {
-			asset = (PushedAsset) cache.get(assetId + "|" + environmentId, cacheGroup);
+			asset = (HistoricalPushedAsset) cache.get(assetId + "|" + environmentId, cacheGroup);
 		}
 		catch(DotCacheException e) {
 			Logger.debug(this, "PublishingEndPoint cache entry not found for: " + assetId + "|" + environmentId);
@@ -30,7 +30,7 @@ public class PushedAssetsCacheImpl implements PushedAssetsCache, Cachable {
 		return asset;
 	}
 
-	public  void add(PushedAsset asset) {
+	public  void add(HistoricalPushedAsset asset) {
 		if(asset != null) {
 			cache.put(asset.getAssetId() + "|" + asset.getEnvironmentId() , asset, cacheGroup);
 		}

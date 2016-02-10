@@ -10,8 +10,9 @@ import com.dotcms.csspreproc.CSSCache;
 import com.dotcms.csspreproc.CSSCacheImpl;
 import com.dotcms.notifications.business.NewNotificationCache;
 import com.dotcms.notifications.business.NewNotificationCacheImpl;
-import com.dotcms.publisher.assets.business.PushedAssetsCache;
-import com.dotcms.publisher.assets.business.PushedAssetsCacheImpl;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCacheImpl;
+import com.dotcms.publisher.assets.business.PushedItemsCache;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCache;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCacheImpl;
 import com.dotmarketing.business.cache.transport.CacheTransport;
@@ -263,8 +264,12 @@ public class CacheLocator extends Locator<CacheIndex>{
 		return (PublishingEndPointCache)getInstance(CacheIndex.PublishingEndPoint);
 	}
 
-	public static PushedAssetsCache getPushedAssetsCache() {
-		return (PushedAssetsCache)getInstance(CacheIndex.PushedAssets);
+	public static HistoricalPushedAssetsCache getPushedAssetsCache() {
+		return (HistoricalPushedAssetsCache)getInstance(CacheIndex.PushedAssets);
+	}
+
+	public static PushedItemsCache getPushedItemsCache() {
+		return (PushedItemsCache)getInstance(CacheIndex.PushedItems);
 	}
 
 	public static CSSCache getCSSCache() {
@@ -369,6 +374,7 @@ enum CacheIndex
 	NavTool("Navigation Tool"),
 	PublishingEndPoint("PublishingEndPoint Cache"),
 	PushedAssets("PushedAssets Cache"),
+	PushedItems("PushedItems Cache"),
 	CSSCache("Processed CSS Cache"),
 	RulesCache("Rules Cache"),
 	SiteVisitCache("Rules Engine - Site Visits"),
@@ -408,7 +414,7 @@ enum CacheIndex
       	case Indicies: return new IndiciesCacheImpl();
       	case NavTool: return new NavToolCacheImpl();
       	case PublishingEndPoint: return new PublishingEndPointCacheImpl();
-      	case PushedAssets: return new PushedAssetsCacheImpl();
+      	case PushedAssets: return new HistoricalPushedAssetsCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
       	case RulesCache : return new RulesCacheImpl();

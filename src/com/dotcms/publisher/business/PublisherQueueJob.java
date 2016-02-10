@@ -258,7 +258,8 @@ public class PublisherQueueJob implements StatefulJob {
 					// and some groups could not be published
 					List<Environment> environments = APILocator.getEnvironmentAPI().findEnvironmentsByBundleId(bundleAudit.getBundleId());
 					for(Environment environment : environments){
-						APILocator.getPushedAssetsAPI().deletePushedAssets(bundleAudit.getBundleId(), environment.getId());
+						APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(bundleAudit.getBundleId(), environment.getId());
+						APILocator.getPushedItemsAPI().resetPushDateOfItemsInBundle(bundleAudit.getBundleId(), environment.getId());
 					}
 					pubAuditAPI.updatePublishAuditStatus(bundleAudit.getBundleId(),
 							PublishAuditStatus.Status.FAILED_TO_PUBLISH,

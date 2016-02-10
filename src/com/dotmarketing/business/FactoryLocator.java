@@ -9,14 +9,14 @@ import com.dotcms.enterprise.ServerActionFactoryImplProxy;
 import com.dotcms.enterprise.cluster.ServerFactoryImpl;
 import com.dotcms.enterprise.cluster.action.business.ServerActionFactory;
 import com.dotcms.enterprise.linkchecker.LinkCheckerFactoryImpl;
-import com.dotcms.publisher.assets.business.PushHistoryFactory;
+import com.dotcms.publisher.assets.business.PushedItemsFactory;
 import com.dotmarketing.portlets.personas.business.PersonaFactory;
 import com.dotmarketing.portlets.personas.business.PersonaFactoryImpl;
 import com.dotcms.journal.business.ESDistributedJournalFactoryImpl;
 import com.dotcms.notifications.business.NotificationFactory;
 import com.dotcms.notifications.business.NotificationFactoryImpl;
-import com.dotcms.publisher.assets.business.PushedAssetsFactory;
-import com.dotcms.publisher.assets.business.PushedAssetsFactoryImpl;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsFactory;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsFactoryImpl;
 import com.dotcms.publisher.bundle.business.BundleFactory;
 import com.dotcms.publisher.bundle.business.BundleFactoryImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointFactory;
@@ -203,12 +203,12 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     	return (BundleFactory) getInstance(FactoryIndex.BUNDLE_FACTORY);
     }
 
-    public static PushedAssetsFactory getPushedAssetsFactory(){
-    	return (PushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
+    public static HistoricalPushedAssetsFactory getHistoricalPushedAssetsFactory(){
+    	return (HistoricalPushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
     }
 
-    public static PushHistoryFactory getPushHistoryFactory(){
-        return (PushHistoryFactory) getInstance(FactoryIndex.PUSH_HISTORY_FACTORY);
+    public static PushedItemsFactory getPushedItemsFactory(){
+        return (PushedItemsFactory) getInstance(FactoryIndex.PUSH_HISTORY_FACTORY);
     }
 
     public static ServerFactory getServerFactory(){
@@ -336,7 +336,7 @@ enum FactoryIndex
             case PUBLISHER_END_POINT_FACTORY: return new PublishingEndPointFactoryImpl();
             case ENVIRONMENT_FACTORY: return new EnvironmentFactoryImpl();
             case BUNDLE_FACTORY: return new BundleFactoryImpl();
-            case PUSHED_ASSETS_FACTORY: return new PushedAssetsFactoryImpl();
+            case PUSHED_ASSETS_FACTORY: return new HistoricalPushedAssetsFactoryImpl();
             case SERVER_FACTORY: return new ServerFactoryImpl();
             case NOTIFICATION_FACTORY: return new NotificationFactoryImpl();
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();

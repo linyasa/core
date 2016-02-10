@@ -236,7 +236,8 @@ public class CMSMaintenanceAjax {
 
 		try {
 
-			APILocator.getPushedAssetsAPI().deleteAllPushedAssets();
+			APILocator.getHistoricalPushedAssetsAPI().deleteAllPushedAssets();
+			APILocator.getPushedItemsAPI().deleteAllPushedItems();
 
 		} catch(Exception e) {
 			Logger.error(getClass(), e.getMessage(), e);

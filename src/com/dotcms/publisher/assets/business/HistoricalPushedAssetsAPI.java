@@ -1,12 +1,11 @@
 package com.dotcms.publisher.assets.business;
 
 import java.util.List;
-import java.util.Optional;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
 import com.dotmarketing.exception.DotDataException;
 
-public interface PushedAssetsAPI {
+public interface HistoricalPushedAssetsAPI {
 
 	/**
 	 * persists the given PushedAsset object to the underlying data layer.
@@ -15,7 +14,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public void savePushedAsset(PushedAsset asset)  throws DotDataException;
+	void savePushedAsset(HistoricalPushedAsset asset)  throws DotDataException;
 
 	/**
 	 * deletes the push assets entries for the given Bundle Id and Environment Id.
@@ -25,7 +24,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public void deletePushedAssets(String bundleId, String environmentId)  throws DotDataException;
+	void deletePushedAssets(String bundleId, String environmentId)  throws DotDataException;
 
 	/**
 	 * deletes all the push assets entries
@@ -33,7 +32,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public void deleteAllPushedAssets()  throws DotDataException;
+	void deleteAllPushedAssets()  throws DotDataException;
 
 	/**
 	 * deletes the push assets entries for the given Asset Id.
@@ -43,7 +42,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public void deletePushedAssets(String assetId)  throws DotDataException;
+	void deletePushedAssets(String assetId)  throws DotDataException;
 
 	/**
 	 * deletes the push assets entries for the given environment Id.
@@ -53,7 +52,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public void deletePushedAssetsByEnvironment(String environmentId)  throws DotDataException;
+	void deletePushedAssetsByEnvironment(String environmentId)  throws DotDataException;
 
 	/**
 	 * returns all the push assets for a given assetId
@@ -62,19 +61,7 @@ public interface PushedAssetsAPI {
 	 * @throws	DotDataException	thrown when an error in the underlying data layer occurs
 	 */
 
-	public List<PushedAsset> getPushedAssets(String assetId)  throws DotDataException;
-
-
-	/**
-	 * Returns an {@code Optional} describing a {@code PushedAsset} object with the specified asset id and environment id, if any.
-	 * If no {@code PushedAsset} object is found, returns an empty {@code Optional}.
-	 *
-	 * @param assetId
-	 * @param environmentId
-	 * @return an Optional with the pushed asset
-	 * @throws DotDataException
-     */
-	public Optional<PushedAsset> getPushForAsset(String assetId, String environmentId)  throws DotDataException;
+	List<HistoricalPushedAsset> getPushedAssets(String assetId)  throws DotDataException;
 
 
 }

@@ -1,46 +1,24 @@
 package com.dotcms.publisher.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.activation.MimetypesFileTypeMap;
+import com.dotcms.publisher.assets.bean.PushedItem;
 
-import com.dotcms.repackage.org.apache.tika.metadata.Metadata;
-import com.dotcms.repackage.org.apache.tika.parser.AutoDetectParser;
-import com.dotcms.repackage.org.apache.tika.parser.ParseContext;
-import com.dotcms.repackage.org.apache.tika.parser.Parser;
-import com.dotcms.repackage.org.apache.tika.sax.BodyContentHandler;
-import com.dotcms.repackage.org.xml.sax.ContentHandler;
-
-import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
 import com.dotcms.publisher.bundle.bean.Bundle;
-import com.dotcms.publisher.business.DotPublisherException;
 import com.dotcms.publisher.business.PublishQueueElement;
 import com.dotcms.publisher.endpoint.bean.PublishingEndPoint;
 import com.dotcms.publisher.environment.bean.Environment;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.common.model.ContentletSearch;
 import com.dotmarketing.db.DbConnectionFactory;
-import com.dotmarketing.portlets.categories.model.Category;
-import com.dotmarketing.portlets.fileassets.business.FileAssetAPI;
-import com.dotmarketing.portlets.structure.model.Field;
-import com.dotmarketing.portlets.structure.model.FieldVariable;
-import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.StringUtils;
-import com.dotmarketing.util.UtilMethods;
-import com.liferay.portal.model.User;
 
-import com.dotcms.repackage.edu.emory.mathcs.backport.java.util.Arrays;
 /**
  * This class manage all the operation we can do over a from/to a PublishQueue index (search, add and delete)
  * @author Oswaldo
@@ -112,13 +90,19 @@ public class PublisherUtil {
 		return b;
 	}
 
-	public static PushedAsset getPushedAssetByMap(Map<String, Object> row){
-		PushedAsset b = new PushedAsset();
+	public static HistoricalPushedAsset getPushedAssetByMap(Map<String, Object> row){
+		HistoricalPushedAsset b = new HistoricalPushedAsset();
 		b.setBundleId(row.get("bundle_id").toString());
 		b.setAssetId(row.get("asset_id").toString());
 		b.setAssetType(row.get("asset_type").toString());
 		b.setPushDate((Date)row.get("push_date"));
 		b.setEnvironmentId(row.get("environment_id").toString());
+		return b;
+	}
+	public static PushedItem getPushedItemByMap(Map<String, Object> row){
+		PushedItem b = new PushedItem(row.get("asset_id").toString(),
+				row.get("environment_id").toString(),
+				(Date)row.get("push_date"));
 		return b;
 	}
 
