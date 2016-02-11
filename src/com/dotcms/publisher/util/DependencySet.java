@@ -104,7 +104,7 @@ public class DependencySet extends HashSet<String> {
 			for (Environment env : envs) {
 				Optional<LastPush> lastPush;
 				try {
-					lastPush = lastPushAPI.getPushedItem(assetId, env.getId());
+					lastPush = lastPushAPI.getLastPush(assetId, env.getId());
 				} catch (DotDataException e1) {
 					// Asset does not exist in db or cache, return true;
 					return true;
@@ -143,10 +143,10 @@ public class DependencySet extends HashSet<String> {
 						if(lastPush.isPresent()) {
 							LastPush existingLastPush = lastPush.get();
 							existingLastPush.setPushDate(new Date());
-							lastPushAPI.savePushedAsset(existingLastPush);
+							lastPushAPI.saveLastPush(existingLastPush);
 						} else {
 							LastPush newPushItem = new LastPush(assetId, env.getId(), new Date());
-							lastPushAPI.savePushedAsset(newPushItem);
+							lastPushAPI.saveLastPush(newPushItem);
 						}
 					} catch (DotDataException e) {
 						Logger.error(getClass(), "Could not save LastPush. "

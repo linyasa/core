@@ -10,7 +10,7 @@ import com.dotmarketing.util.UtilMethods;
 
 
 public class LastPushCacheImpl implements LastPushCache, Cachable {
-	private final static String cacheGroup = "PushedItemsCache";
+	private final static String cacheGroup = "LastPushCache";
 	private final static String[] cacheGroups = {cacheGroup};
 	private DotCacheAdministrator cache;
 

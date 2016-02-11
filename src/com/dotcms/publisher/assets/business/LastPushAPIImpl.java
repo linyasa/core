@@ -15,32 +15,32 @@ public class LastPushAPIImpl implements LastPushAPI {
     }
 
     @Override
-    public Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException {
+    public Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException {
         return lastPushFactory.getLastPush(assetId, environmentId);
     }
 
     @Override
-    public void savePushedAsset(LastPush asset) throws DotDataException {
+    public void saveLastPush(LastPush asset) throws DotDataException {
         lastPushFactory.saveLastPush(asset);
     }
 
     @Override
-    public void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException {
+    public void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException {
         lastPushFactory.deleteLastPushesInBundle(bundleId, environmentId);
     }
 
     @Override
-    public void deleteAllPushedItems() throws DotDataException {
+    public void deleteAllLastPushes() throws DotDataException {
         lastPushFactory.deleteAllLastPushes();
     }
 
     @Override
-    public void deletePushedItemByAsset(String assetId) throws DotDataException {
+    public void deleteLastPushesByAsset(String assetId) throws DotDataException {
         lastPushFactory.deleteLastPushesByAsset(assetId);
     }
 
     @Override
-    public void deletePushedItemsByEnvironment(String environmentId) throws DotDataException {
+    public void deleteLastPushesByEnvironment(String environmentId) throws DotDataException {
         lastPushFactory.deleteLastPushesByEnvironment(environmentId);
     }
 }

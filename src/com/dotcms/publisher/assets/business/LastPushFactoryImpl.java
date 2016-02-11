@@ -21,7 +21,7 @@ import java.util.*;
 
 public class LastPushFactoryImpl implements LastPushFactory {
 
-    private LastPushCache cache= CacheLocator.getPushedItemsCache();
+    private LastPushCache cache= CacheLocator.getLastPushCache();
 
     public Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException{
 

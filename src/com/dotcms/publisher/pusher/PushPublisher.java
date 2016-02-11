@@ -149,7 +149,7 @@ public class PushPublisher extends Publisher {
 
 	        				if(currentStatusHistory.getNumTries()==PublisherQueueJob.MAX_NUM_TRIES) {
 		        				APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(config.getId(), environment.getId());
-		        				APILocator.getLastPushAPI().deletePushedItemsInBundle(config.getId(), environment.getId());
+		        				APILocator.getLastPushAPI().deleteLastPushesInBundle(config.getId(), environment.getId());
 		        			}
 	        				detail.setStatus(PublishAuditStatus.Status.FAILED_TO_SENT.getCode());
 	        				detail.setInfo(
@@ -162,7 +162,7 @@ public class PushPublisher extends Publisher {
 
 	        			// if the bundle can't be sent after the total num of tries, delete the pushed assets for this bundle
 	        			if(currentStatusHistory.getNumTries()==PublisherQueueJob.MAX_NUM_TRIES) {
-							APILocator.getLastPushAPI().deletePushedItemsInBundle(config.getId(), environment.getId());
+							APILocator.getLastPushAPI().deleteLastPushesInBundle(config.getId(), environment.getId());
 							APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(config.getId(), environment.getId());
 	        			}
 //	        			hasError = true;

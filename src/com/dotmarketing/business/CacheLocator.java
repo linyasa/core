@@ -281,8 +281,8 @@ public class CacheLocator extends Locator<CacheIndex>{
 		return (HistoricalPushedAssetsCache)getInstance(CacheIndex.PushedAssets);
 	}
 
-	public static LastPushCache getPushedItemsCache() {
-		return (LastPushCache)getInstance(CacheIndex.PushedItems);
+	public static LastPushCache getLastPushCache() {
+		return (LastPushCache)getInstance(CacheIndex.LastPush);
 	}
 
 	public static CSSCache getCSSCache() {
@@ -389,7 +389,7 @@ enum CacheIndex
 	NavTool("Navigation Tool"),
 	PublishingEndPoint("PublishingEndPoint Cache"),
 	PushedAssets("PushedAssets Cache"),
-	PushedItems("PushedItems Cache"),
+	LastPush("LastPush Cache"),
 	CSSCache("Processed CSS Cache"),
 	RulesCache("Rules Cache"),
 	SiteVisitCache("Rules Engine - Site Visits"),
@@ -432,7 +432,7 @@ enum CacheIndex
       	case NavTool: return new NavToolCacheImpl();
       	case PublishingEndPoint: return new PublishingEndPointCacheImpl();
       	case PushedAssets: return new HistoricalPushedAssetsCacheImpl();
-      	case PushedItems: return new LastPushCacheImpl();
+      	case LastPush: return new LastPushCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
       	case RulesCache : return new RulesCacheImpl();
