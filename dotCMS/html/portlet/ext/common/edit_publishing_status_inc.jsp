@@ -5,7 +5,7 @@
 <%@page import="com.dotmarketing.business.IdentifierFactory" %>
 <%@page import="com.liferay.portal.language.LanguageUtil"%>
 <%@page import="com.dotmarketing.factories.WebAssetFactory" %>
-<%@page import="com.dotcms.publisher.assets.bean.PushedAsset" %>
+<%@page import="com.dotcms.publisher.assets.bean.HistoricalPushedAsset" %>
 <%@page import="com.dotmarketing.portlets.htmlpages.model.HTMLPage" %>
 <%@page import="com.dotmarketing.portlets.folders.model.Folder" %>
 <%@page import="com.dotmarketing.portlets.structure.model.Structure" %>
@@ -19,7 +19,7 @@
                         (assetObject instanceof Inode ? ((Inode)assetObject).getIdentifier() :
                             (assetObject instanceof Contentlet ? ((Contentlet)assetObject).getIdentifier() : ""));
 
-	List<PushedAsset> pushedAssets = assetObject!=null ? APILocator.getPushedAssetsAPI().getPushedAssets(assetId) : new ArrayList<PushedAsset>();
+	List<HistoricalPushedAsset> historicalPushedAssets = assetObject!=null ? APILocator.getHistoricalPushedAssetsAPI().getPushedAssets(assetId) : new ArrayList<HistoricalPushedAsset>();
 
 %>
 
@@ -62,7 +62,7 @@ function deletePushHistory() {
 	</div>
 
 	<div class="yui-u" style="text-align:right;">
-		<button dojoType="dijit.form.Button" onClick="deletePushHistory();" iconClass="deleteIcon" disabled='<%=pushedAssets.isEmpty()%>'>
+		<button dojoType="dijit.form.Button" onClick="deletePushHistory();" iconClass="deleteIcon" disabled='<%=historicalPushedAssets.isEmpty()%>'>
 			<%= LanguageUtil.get(pageContext, "publisher_delete_asset_history") %>
 		</button>
 	</div>
@@ -76,23 +76,23 @@ function deletePushHistory() {
 		<th width="10%" nowrap><%= LanguageUtil.get(pageContext, "publisher_Identifier") %></th>
 	</tr>
 <%
-	for(PushedAsset pushedAsset: pushedAssets) {
+	for(HistoricalPushedAsset historicalPushedAsset : historicalPushedAssets) {
 
-		Environment env = APILocator.getEnvironmentAPI().findEnvironmentById(pushedAsset.getEnvironmentId());
-		Bundle bundle = APILocator.getBundleAPI().getBundleById(pushedAsset.getBundleId());
+		Environment env = APILocator.getEnvironmentAPI().findEnvironmentById(historicalPushedAsset.getEnvironmentId());
+		Bundle bundle = APILocator.getBundleAPI().getBundleById(historicalPushedAsset.getBundleId());
 		User owner = APILocator.getUserAPI().loadUserById(bundle.getOwner());
 
 
 %>
 	<tr  >
 		<td><%= owner.getFullName() %></td>
-		<td><%= UtilMethods.dateToHTMLDate(pushedAsset.getPushDate()) %> - <%= UtilMethods.dateToHTMLTime(pushedAsset.getPushDate()) %></td>
+		<td><%= UtilMethods.dateToHTMLDate(historicalPushedAsset.getPushDate()) %> - <%= UtilMethods.dateToHTMLTime(historicalPushedAsset.getPushDate()) %></td>
 		 <td><%= (env != null) ? env.getName() : LanguageUtil.get(pageContext, "deleted") %></td>
 		 <td nowrap="nowrap">
-			<%= pushedAsset.getBundleId() %>
+			<%= historicalPushedAsset.getBundleId() %>
 		</td>
 	</tr>
-<% } if (pushedAssets.size() == 0) { %>
+<% } if (historicalPushedAsset.size() == 0) { %>
 	<tr>
 		<td colspan="5">
 			<div class="noResultsMessage"><%= LanguageUtil.get(pageContext, "publisher_status_no_push_history") %></div>

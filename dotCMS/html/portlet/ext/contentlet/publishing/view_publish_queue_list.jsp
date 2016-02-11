@@ -32,6 +32,7 @@
 <%@ page import="com.dotmarketing.portlets.containers.model.Container"%>
 <%@ page import="com.dotmarketing.portlets.structure.model.Structure"%>
 <%@ page import="com.dotmarketing.cache.StructureCache"%>
+<%@page import="com.dotmarketing.util.Logger"%>
 <%@ include file="/html/portlet/ext/contentlet/publishing/init.jsp" %>
 <%
 
@@ -325,7 +326,10 @@
 							<%=structureName %>
 					    </div>
 
-					<%}catch(Exception e){nastyError=e.getMessage();%>
+					<%}catch(Exception e){
+						nastyError=e.getMessage();
+						Logger.error(this, "******ERROR DISPLAYING ELEMENT IN PUBLISHING QUEUE", e);
+					%>
 						<span style="color:red"><%= LanguageUtil.get(pageContext, "publisher_No_Title") %></span>
 					<%} %>
 
