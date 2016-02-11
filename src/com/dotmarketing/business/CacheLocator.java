@@ -61,6 +61,10 @@ import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkCache;
 import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkCacheImpl;
 import com.dotmarketing.portlets.workflows.business.WorkflowCache;
 import com.dotmarketing.portlets.workflows.business.WorkflowCacheImpl;
+import com.dotmarketing.tag.business.TagCache;
+import com.dotmarketing.tag.business.TagCacheImpl;
+import com.dotmarketing.tag.business.TagInodeCache;
+import com.dotmarketing.tag.business.TagInodeCacheImpl;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.velocity.DotResourceCache;
@@ -163,6 +167,14 @@ public class CacheLocator extends Locator<CacheIndex>{
 
 	public static CategoryCache getCategoryCache() {
 		return (CategoryCache)getInstance(CacheIndex.Category);
+	}
+
+	public static TagCache getTagCache() {
+		return (TagCache)getInstance(CacheIndex.Tag);
+	}
+
+	public static TagInodeCache getTagInodeCache() {
+		return (TagInodeCache)getInstance(CacheIndex.TagInode);
 	}
 
 	public static ContentletCache getContentletCache() {
@@ -347,6 +359,8 @@ enum CacheIndex
 	CMSRole("CMS Role"),
 	Role("Role"),
 	Category("Category"),
+	Tag("Tag"),
+	TagInode("TagInode"),
 	Contentlet("Contentlet"),
 	Chain("Chain"),
 	LogMapper("LogMapper"),
@@ -386,6 +400,8 @@ enum CacheIndex
 		switch(this) {
 		case Permission: return new PermissionCacheImpl();
       	case Category: return new CategoryCacheImpl();
+      	case Tag: return new TagCacheImpl();
+      	case TagInode: return new TagInodeCacheImpl();
       	case Role: return new RoleCacheImpl();
       	case Contentlet: return new ContentletCacheImpl();
       	case Velocity : return new DotResourceCache();

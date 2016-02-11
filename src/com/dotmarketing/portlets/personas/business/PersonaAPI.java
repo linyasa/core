@@ -54,23 +54,35 @@ public interface PersonaAPI {
 	
 	List<Persona> getPersonas(Treeable parent, boolean live, boolean deleted, int limit, int offset, String sortBy, User user,boolean respectFrontEndRoles) throws DotDataException,DotSecurityException;
 
+	/**
+	 * @param id The Persona identifier.
+	 * @param user The User with Permissions to find the Persona.
+	 * @param respectFrontEndRoles true if call comes from FrontEnd, otherwise false.
+	 * @return Persona object from Contentlet, null if not present.
+	 * @throws DotDataException
+	 * @throws DotSecurityException
+	 */
 	Persona find(String id,  User user, boolean respectFrontEndRoles)throws DotDataException, DotSecurityException;
 
 	Persona fromContentlet(Contentlet con) throws DotDataException, DotSecurityException, IllegalAccessException, InvocationTargetException;
 
 	Structure getDefaultPersonaStructure() throws DotSecurityException, DotDataException;
 
-
-
 	List<Field> getBasePersonaFields(Structure structure);
 
 	void validatePersona(Contentlet c) throws DotContentletValidationException;
 
+	/**
+	 * A Persona key tag should be persist as a Tag, when the @enable param is true the tag will be created if does not
+	 * already exist.
+	 *
+	 * @param personaContentlet
+	 * @param enable            When false the tag created based on the Persona key tag will be handle as a regular tag
+	 * @throws DotDataException
+	 * @throws DotSecurityException
+	 */
+	public void enableDisablePersonaTag ( Contentlet personaContentlet, boolean enable ) throws DotDataException, DotSecurityException;
+
 	void createDefaultPersonaStructure() throws DotDataException;
-
-
-
-
-
 
 }

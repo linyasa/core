@@ -61,6 +61,8 @@ import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkFactory;
 import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkFactoryImpl;
 import com.dotmarketing.portlets.workflows.business.WorkFlowFactory;
 import com.dotmarketing.portlets.workflows.business.WorkflowFactoryImpl;
+import com.dotmarketing.tag.business.TagFactory;
+import com.dotmarketing.tag.business.TagFactoryImpl;
 import com.dotmarketing.util.Logger;
 
 /**
@@ -227,6 +229,10 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     public static RulesFactory getRulesFactory(){
         return (RulesFactory) getInstance(FactoryIndex.RULES_FACTORY);
     }
+
+    public static TagFactory getTagFactory(){
+        return (TagFactory) getInstance(FactoryIndex.TAG_FACTORY);
+    }
     
     public static PersonaFactory getPersonaFactory(){
         return (PersonaFactory) getInstance(FactoryIndex.PERSONA_FACTORY);
@@ -303,6 +309,7 @@ enum FactoryIndex
 	NOTIFICATION_FACTORY, 
 	SERVER_ACTION_FACTORY,
 	RULES_FACTORY,
+	TAG_FACTORY,
 	PERSONA_FACTORY;
 
 	Object create() {
@@ -344,6 +351,7 @@ enum FactoryIndex
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();
             case RULES_FACTORY: return new RulesFactoryImpl();
             case PERSONA_FACTORY: return new PersonaFactoryImpl();
+            case TAG_FACTORY: return new TagFactoryImpl();
 		}
 		throw new AssertionError("Unknown Factory Index: " + this);
 	}
