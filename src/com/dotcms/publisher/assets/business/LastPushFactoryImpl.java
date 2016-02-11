@@ -32,7 +32,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
 
         if(!asset.isPresent()){
             DotConnect dc = new DotConnect();
-            dc.setSQL("SELECT * FROM publishing_pushed_items WHERE asset_id = ? and environment_id = ?");
+            dc.setSQL("SELECT * FROM publishing_last_push WHERE asset_id = ? and environment_id = ?");
             dc.addParam(assetId);
             dc.addParam(environmentId);
             List<Map<String, Object>> res = dc.loadObjectResults();
@@ -54,14 +54,14 @@ public class LastPushFactoryImpl implements LastPushFactory {
         final DotConnect db = new DotConnect();
 
         if(existingPushedItem.isPresent()) {
-            db.setSQL("UPDATE publishing_pushed_items SET push_date = ? WHERE asset_id = ? AND environment_id = ?");
+            db.setSQL("UPDATE publishing_last_push SET push_date = ? WHERE asset_id = ? AND environment_id = ?");
             db.addParam(asset.getPushDate());
             db.addParam(asset.getAssetId());
             db.addParam(asset.getEnvironmentId());
             db.loadResult();
             cache.removePushedItemById(asset.getAssetId(), asset.getEnvironmentId());
         } else {
-            db.setSQL("INSERT INTO publishing_pushed_items VALUES (?,?,?)");
+            db.setSQL("INSERT INTO publishing_last_push VALUES (?,?,?)");
             db.addParam(asset.getAssetId());
             db.addParam(asset.getEnvironmentId());
             db.addParam(asset.getPushDate());
@@ -82,7 +82,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
 
         try {
 
-            statement = conn.prepareCall("DELETE FROM publishing_pushed_items WHERE asset_id = ? AND environment_id = ? ");
+            statement = conn.prepareCall("DELETE FROM publishing_last_push WHERE asset_id = ? AND environment_id = ? ");
 
             for (HistoricalPushedAsset asset : assets) {
                 statement.setObject(1, asset.getAssetId());
@@ -109,7 +109,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     @Override
     public void deleteAllLastPushes() throws DotDataException {
         final DotConnect db = new DotConnect();
-        db.setSQL("TRUNCATE publishing_pushed_items ");
+        db.setSQL("TRUNCATE publishing_last_push ");
         db.loadResult();
         cache.clearCache();
     }
@@ -119,7 +119,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(assetId), "Bundle Id can't be null or empty");
 
         final DotConnect db = new DotConnect();
-        db.setSQL("DELETE FROM publishing_pushed_items WHERE asset_id = ? ");
+        db.setSQL("DELETE FROM publishing_last_push WHERE asset_id = ? ");
         db.addParam(assetId);
         db.loadResult();
 
@@ -138,7 +138,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
         List<String> assetsToRemoteFromCache = new ArrayList<>();
         final DotConnect db = new DotConnect();
 
-        db.setSQL("SELECT asset_id FROM publishing_pushed_items WHERE environment_id = ?");
+        db.setSQL("SELECT asset_id FROM publishing_last_push WHERE environment_id = ?");
         db.addParam(environmentId);
         List<Map<String, Object>> res = db.loadObjectResults();
 
@@ -146,7 +146,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
             assetsToRemoteFromCache.add(re.get("asset_id").toString());
         }
 
-        db.setSQL("DELETE FROM publishing_pushed_items WHERE environment_id = ? ");
+        db.setSQL("DELETE FROM publishing_last_push WHERE environment_id = ? ");
         db.addParam(environmentId);
         db.loadResult();
 
