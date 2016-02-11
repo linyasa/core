@@ -52,7 +52,7 @@ public class DependencySet extends HashSet<String> {
 			Logger.error(getClass(), "Can't get bundle. Bundle Id: " + bundleId , e);
 		}
 
-		lastPushAPI = APILocator.getPushedItemsAPI();
+		lastPushAPI = APILocator.getLastPushAPI();
 	}
 
 	public boolean add(String assetId, Date assetModDate) {

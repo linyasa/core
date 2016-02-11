@@ -11,36 +11,36 @@ public class LastPushAPIImpl implements LastPushAPI {
     private LastPushFactory lastPushFactory;
 
     public LastPushAPIImpl() {
-        lastPushFactory = FactoryLocator.getPushedItemsFactory();
+        lastPushFactory = FactoryLocator.getLastPushFactory();
     }
 
     @Override
     public Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException {
-        return lastPushFactory.getPushedItem(assetId, environmentId);
+        return lastPushFactory.getLastPush(assetId, environmentId);
     }
 
     @Override
     public void savePushedAsset(LastPush asset) throws DotDataException {
-        lastPushFactory.savePushedAsset(asset);
+        lastPushFactory.saveLastPush(asset);
     }
 
     @Override
     public void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException {
-        lastPushFactory.deletePushedItemsInBundle(bundleId, environmentId);
+        lastPushFactory.deleteLastPushesInBundle(bundleId, environmentId);
     }
 
     @Override
     public void deleteAllPushedItems() throws DotDataException {
-        lastPushFactory.deleteAllPushedItems();
+        lastPushFactory.deleteAllLastPushes();
     }
 
     @Override
     public void deletePushedItemByAsset(String assetId) throws DotDataException {
-        lastPushFactory.deletePushedItemByAsset(assetId);
+        lastPushFactory.deleteLastPushesByAsset(assetId);
     }
 
     @Override
     public void deletePushedItemsByEnvironment(String environmentId) throws DotDataException {
-        lastPushFactory.deletePushedItemsByEnvironment(environmentId);
+        lastPushFactory.deleteLastPushesByEnvironment(environmentId);
     }
 }

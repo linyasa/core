@@ -80,7 +80,9 @@ public class EnvironmentAPIImpl implements EnvironmentAPI {
 
 		// delete related pushed-assets history
 
+		FactoryLocator.getLastPushFactory().deleteLastPushesByEnvironment(id);
 		FactoryLocator.getHistoricalPushedAssetsFactory().deletePushedAssetsByEnvironment(id);
+
 
 		environmentFactory.deleteEnvironmentById(id);
 	}

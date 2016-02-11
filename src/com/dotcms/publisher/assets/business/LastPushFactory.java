@@ -7,15 +7,15 @@ import java.util.Optional;
 
 public interface LastPushFactory {
 
-    Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException;
+    Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException;
 
-    void savePushedAsset(LastPush asset) throws DotDataException;
+    void saveLastPush(LastPush asset) throws DotDataException;
 
-    void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException;
+    void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException;
 
-    void deleteAllPushedItems() throws DotDataException;
+    void deleteAllLastPushes() throws DotDataException;
 
-    void deletePushedItemByAsset(String assetId) throws DotDataException;
+    void deleteLastPushesByAsset(String assetId) throws DotDataException;
 
-    void deletePushedItemsByEnvironment(String environmentId) throws DotDataException;
+    void deleteLastPushesByEnvironment(String environmentId) throws DotDataException;
 }

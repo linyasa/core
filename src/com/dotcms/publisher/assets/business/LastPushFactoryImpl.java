@@ -23,7 +23,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
 
     private LastPushCache cache= CacheLocator.getPushedItemsCache();
 
-    public Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException{
+    public Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException{
 
         Optional<LastPush> asset = Optional.ofNullable(cache.getPushedItem(assetId, environmentId));
 
@@ -44,10 +44,10 @@ public class LastPushFactoryImpl implements LastPushFactory {
     }
 
     @Override
-    public void savePushedAsset(LastPush asset) throws DotDataException {
+    public void saveLastPush(LastPush asset) throws DotDataException {
         Preconditions.checkNotNull(asset, "Asset cannot be null");
 
-        Optional<LastPush> existingPushedItem = getPushedItem(asset.getAssetId(), asset.getEnvironmentId());
+        Optional<LastPush> existingPushedItem = getLastPush(asset.getAssetId(), asset.getEnvironmentId());
         final DotConnect db = new DotConnect();
 
         if(existingPushedItem.isPresent()) {
@@ -67,7 +67,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     }
 
     @Override
-    public void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException {
+    public void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(bundleId), "Bundle Id can't be null or empty");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environment Id can't be null or empty");
 
@@ -104,7 +104,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     }
 
     @Override
-    public void deleteAllPushedItems() throws DotDataException {
+    public void deleteAllLastPushes() throws DotDataException {
         final DotConnect db = new DotConnect();
         db.setSQL("TRUNCATE publishing_pushed_items ");
         db.loadResult();
@@ -112,7 +112,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     }
 
     @Override
-    public void deletePushedItemByAsset(String assetId) throws DotDataException {
+    public void deleteLastPushesByAsset(String assetId) throws DotDataException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(assetId), "Bundle Id can't be null or empty");
 
         final DotConnect db = new DotConnect();
@@ -129,7 +129,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     }
 
     @Override
-    public void deletePushedItemsByEnvironment(String environmentId) throws DotDataException {
+    public void deleteLastPushesByEnvironment(String environmentId) throws DotDataException {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environmetn Id can't be null or empty");
 
         List<String> assetsToRemoteFromCache = new ArrayList<>();

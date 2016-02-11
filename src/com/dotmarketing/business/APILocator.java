@@ -333,7 +333,7 @@ public class APILocator extends Locator<APIIndex>{
 		return (HistoricalPushedAssetsAPI)getInstance(APIIndex.PUSHED_ASSETS_API);
 	}
 
-	public static LastPushAPI getPushedItemsAPI() {
+	public static LastPushAPI getLastPushAPI() {
 		return (LastPushAPI)getInstance(APIIndex.PUSHED_ITEMS_API);
 	}
 

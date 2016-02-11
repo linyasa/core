@@ -210,8 +210,8 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     	return (HistoricalPushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
     }
 
-    public static LastPushFactory getPushedItemsFactory(){
-        return (LastPushFactory) getInstance(FactoryIndex.PUSHED_ITEMS_FACTORY);
+    public static LastPushFactory getLastPushFactory(){
+        return (LastPushFactory) getInstance(FactoryIndex.LAST_PUSH_FACTORY);
     }
 
     public static ServerFactory getServerFactory(){
@@ -304,7 +304,7 @@ enum FactoryIndex
 	ENVIRONMENT_FACTORY,
 	BUNDLE_FACTORY,
 	PUSHED_ASSETS_FACTORY,
-    PUSHED_ITEMS_FACTORY,
+    LAST_PUSH_FACTORY,
 	SERVER_FACTORY,
 	NOTIFICATION_FACTORY, 
 	SERVER_ACTION_FACTORY,
@@ -345,7 +345,7 @@ enum FactoryIndex
             case ENVIRONMENT_FACTORY: return new EnvironmentFactoryImpl();
             case BUNDLE_FACTORY: return new BundleFactoryImpl();
             case PUSHED_ASSETS_FACTORY: return new HistoricalPushedAssetsFactoryImpl();
-            case PUSHED_ITEMS_FACTORY: return new LastPushFactoryImpl();
+            case LAST_PUSH_FACTORY: return new LastPushFactoryImpl();
             case SERVER_FACTORY: return new ServerFactoryImpl();
             case NOTIFICATION_FACTORY: return new NotificationFactoryImpl();
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();
