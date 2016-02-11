@@ -10,6 +10,8 @@ public interface LastPushFactory {
 
     void saveLastPush(LastPush asset) throws DotDataException;
 
+    void removeLastPush(String assetId, String environmentId) throws DotDataException;
+
     void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException;
 
     void deleteAllLastPushes() throws DotDataException;

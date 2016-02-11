@@ -26,6 +26,16 @@ public interface LastPushAPI {
     void saveLastPush(LastPush asset) throws DotDataException;
 
     /**
+     * Removes the {@code PushedItem} whose id matches the provided asset id
+     * and whose environment id matches the provided environment id
+     *
+     * @param assetId the id of the asset to remove
+     * @param environmentId the environment id associated to the asset to remove
+     * @throws DotDataException when an error in the underlying data layer occurs
+     */
+    void removeLastPush(String assetId, String environmentId) throws DotDataException;
+
+    /**
      * Resets the push date of the items included in the bundle with the given bundle id
      * and that were sent to environment with the given environment id
      *
