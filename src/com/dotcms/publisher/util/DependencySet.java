@@ -76,7 +76,11 @@ public class DependencySet extends HashSet<String> {
 
 			//For un-publish we always remove the asset from cache
 			for ( Environment env : envs ) {
-				cache.removePushedAssetById( assetId, env.getId() );
+				try {
+					lastPushAPI.removeLastPush(assetId, env.getId());
+				} catch(DotDataException e) {
+					Logger.error(this, String.format("Error deleting Last Push. AssetId: %s. EnvId: %s", assetId, env.getId()), e);
+				}
 			}
 
 			//Return if we are here just to clean up dependencies from cache
