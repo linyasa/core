@@ -3385,9 +3385,8 @@ create table publishing_pushed_assets(
 	environment_id varchar2(36) NOT NULL
 );
 
-CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id);
-CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (environment_id);
-CREATE INDEX idx_pushed_assets_3 ON publishing_pushed_assets (asset_id, environment_id);
+CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);
+CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);
 
 create table publishing_pushed_items(
 	asset_id varchar2(36) NOT NULL,

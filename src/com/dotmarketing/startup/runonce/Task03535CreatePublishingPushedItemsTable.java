@@ -18,7 +18,12 @@ public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStart
                 "environment_id varchar(36) NOT NULL," +
                 "push_date TIMESTAMP," +
                 "PRIMARY KEY (asset_id, environment_id)" +
-                ");";
+                ");" +
+                "DROP INDEX idx_pushed_assets_1;" +
+                "DROP INDEX idx_pushed_assets_2;" +
+                "DROP INDEX idx_pushed_assets_3;" +
+                "CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);" +
+                "CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);";
     }
 
     @Override
@@ -28,7 +33,12 @@ public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStart
                 "environment_id varchar(36) NOT NULL," +
                 "push_date DATETIME," +
                 "PRIMARY KEY (asset_id, environment_id)" +
-                ");";
+                ");" +
+                "DROP INDEX idx_pushed_assets_1 on publishing_pushed_items;" +
+                "DROP INDEX idx_pushed_assets_2 on publishing_pushed_items;" +
+                "DROP INDEX idx_pushed_assets_3 on publishing_pushed_items;" +
+                "CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);" +
+                "CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);";
     }
 
     @Override
@@ -38,7 +48,13 @@ public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStart
                 "environment_id varchar2(36) NOT NULL," +
                 "push_date TIMESTAMP," +
                 "PRIMARY KEY (asset_id, environment_id)" +
-                ");";
+                ");" +
+                "DROP INDEX idx_pushed_assets_1;" +
+                "DROP INDEX idx_pushed_assets_2;" +
+                "DROP INDEX idx_pushed_assets_3;" +
+                "CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);" +
+                "CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);";
+
     }
 
     @Override
@@ -48,7 +64,12 @@ public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStart
                 "environment_id varchar(36) NOT NULL," +
                 "push_date DATETIME," +
                 "PRIMARY KEY (asset_id, environment_id)" +
-                ");";
+                ");" +
+                "DROP INDEX idx_pushed_assets_1 ON publishing_pushed_items;" +
+                "DROP INDEX idx_pushed_assets_2 ON publishing_pushed_items;" +
+                "DROP INDEX idx_pushed_assets_3 ON publishing_pushed_items;" +
+                "CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);" +
+                "CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);";
     }
 
     @Override
@@ -58,7 +79,12 @@ public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStart
                 "environment_id varchar(36) NOT NULL," +
                 "push_date TIMESTAMP," +
                 "PRIMARY KEY (asset_id, environment_id)" +
-                ");";
+                ");" +
+                "DROP INDEX idx_pushed_assets_1;" +
+                "DROP INDEX idx_pushed_assets_2;" +
+                "DROP INDEX idx_pushed_assets_3;" +
+                "CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);" +
+                "CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);";
     }
 
     @Override
