@@ -10,8 +10,10 @@ import com.dotcms.csspreproc.CSSCache;
 import com.dotcms.csspreproc.CSSCacheImpl;
 import com.dotcms.notifications.business.NewNotificationCache;
 import com.dotcms.notifications.business.NewNotificationCacheImpl;
-import com.dotcms.publisher.assets.business.PushedAssetsCache;
-import com.dotcms.publisher.assets.business.PushedAssetsCacheImpl;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCacheImpl;
+import com.dotcms.publisher.assets.business.LastPushCache;
+import com.dotcms.publisher.assets.business.LastPushCacheImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCache;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCacheImpl;
 import com.dotcms.repackage.org.jgroups.JChannel;
@@ -243,8 +245,12 @@ public class CacheLocator extends Locator<CacheIndex>{
 		return (PublishingEndPointCache)getInstance(CacheIndex.PublishingEndPoint);
 	}
 
-	public static PushedAssetsCache getPushedAssetsCache() {
-		return (PushedAssetsCache)getInstance(CacheIndex.PushedAssets);
+	public static HistoricalPushedAssetsCache getPushedAssetsCache() {
+		return (HistoricalPushedAssetsCache) getInstance(CacheIndex.PushedAssets);
+	}
+
+	public static LastPushCache getLastPushCache() {
+		return (LastPushCache) getInstance(CacheIndex.LastPush);
 	}
 
 	public static CSSCache getCSSCache() {
@@ -339,6 +345,7 @@ enum CacheIndex
 	NavTool("Navigation Tool"),
 	PublishingEndPoint("PublishingEndPoint Cache"),
 	PushedAssets("PushedAssets Cache"),
+	LastPush("LastPush Cache"),
 	CSSCache("Processed CSS Cache"),
 	NewNotification("NewNotification Cache");
 
@@ -375,7 +382,8 @@ enum CacheIndex
       	case Indicies: return new IndiciesCacheImpl();
       	case NavTool: return new NavToolCacheImpl();
       	case PublishingEndPoint: return new PublishingEndPointCacheImpl();
-      	case PushedAssets: return new PushedAssetsCacheImpl();
+		case PushedAssets: return new HistoricalPushedAssetsCacheImpl();
+		case LastPush: return new LastPushCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
 		}

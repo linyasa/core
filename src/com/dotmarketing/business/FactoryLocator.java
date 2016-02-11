@@ -12,8 +12,10 @@ import com.dotcms.enterprise.linkchecker.LinkCheckerFactoryImpl;
 import com.dotcms.journal.business.ESDistributedJournalFactoryImpl;
 import com.dotcms.notifications.business.NotificationFactory;
 import com.dotcms.notifications.business.NotificationFactoryImpl;
-import com.dotcms.publisher.assets.business.PushedAssetsFactory;
-import com.dotcms.publisher.assets.business.PushedAssetsFactoryImpl;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsFactory;
+import com.dotcms.publisher.assets.business.HistoricalPushedAssetsFactoryImpl;
+import com.dotcms.publisher.assets.business.LastPushFactory;
+import com.dotcms.publisher.assets.business.LastPushFactoryImpl;
 import com.dotcms.publisher.bundle.business.BundleFactory;
 import com.dotcms.publisher.bundle.business.BundleFactoryImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointFactory;
@@ -198,8 +200,12 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     	return (BundleFactory) getInstance(FactoryIndex.BUNDLE_FACTORY);
     }
 
-    public static PushedAssetsFactory getPushedAssetsFactory(){
-    	return (PushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
+    public static HistoricalPushedAssetsFactory getHistoricalPushedAssetsFactory() {
+        return (HistoricalPushedAssetsFactory) getInstance(FactoryIndex.PUSHED_ASSETS_FACTORY);
+    }
+
+    public static LastPushFactory getLastPushFactory() {
+        return (LastPushFactory) getInstance(FactoryIndex.LAST_PUSH_FACTORY);
     }
 
     public static ServerFactory getServerFactory(){
@@ -279,6 +285,7 @@ enum FactoryIndex
 	ENVIRONMENT_FACTORY,
 	BUNDLE_FACTORY,
 	PUSHED_ASSETS_FACTORY,
+    LAST_PUSH_FACTORY,
 	SERVER_FACTORY,
 	NOTIFICATION_FACTORY, 
 	SERVER_ACTION_FACTORY;
@@ -315,7 +322,8 @@ enum FactoryIndex
             case PUBLISHER_END_POINT_FACTORY: return new PublishingEndPointFactoryImpl();
             case ENVIRONMENT_FACTORY: return new EnvironmentFactoryImpl();
             case BUNDLE_FACTORY: return new BundleFactoryImpl();
-            case PUSHED_ASSETS_FACTORY: return new PushedAssetsFactoryImpl();
+            case PUSHED_ASSETS_FACTORY: return new HistoricalPushedAssetsFactoryImpl();
+            case LAST_PUSH_FACTORY: return new LastPushFactoryImpl();
             case SERVER_FACTORY: return new ServerFactoryImpl();
             case NOTIFICATION_FACTORY: return new NotificationFactoryImpl();
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();

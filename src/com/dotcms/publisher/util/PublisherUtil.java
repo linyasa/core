@@ -14,6 +14,8 @@ import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
 
+import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
+import com.dotcms.publisher.assets.bean.LastPush;
 import com.dotcms.repackage.org.apache.tika.metadata.Metadata;
 import com.dotcms.repackage.org.apache.tika.parser.AutoDetectParser;
 import com.dotcms.repackage.org.apache.tika.parser.ParseContext;
@@ -21,7 +23,6 @@ import com.dotcms.repackage.org.apache.tika.parser.Parser;
 import com.dotcms.repackage.org.apache.tika.sax.BodyContentHandler;
 import com.dotcms.repackage.org.xml.sax.ContentHandler;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotcms.publisher.bundle.bean.Bundle;
 import com.dotcms.publisher.business.DotPublisherException;
 import com.dotcms.publisher.business.PublishQueueElement;
@@ -112,13 +113,19 @@ public class PublisherUtil {
 		return b;
 	}
 
-	public static PushedAsset getPushedAssetByMap(Map<String, Object> row){
-		PushedAsset b = new PushedAsset();
+	public static HistoricalPushedAsset getPushedAssetByMap(Map<String, Object> row){
+		HistoricalPushedAsset b = new HistoricalPushedAsset();
 		b.setBundleId(row.get("bundle_id").toString());
 		b.setAssetId(row.get("asset_id").toString());
 		b.setAssetType(row.get("asset_type").toString());
 		b.setPushDate((Date)row.get("push_date"));
 		b.setEnvironmentId(row.get("environment_id").toString());
+		return b;
+	}
+	public static LastPush getPushedItemByMap(Map<String, Object> row){
+		LastPush b = new LastPush(row.get("asset_id").toString(),
+				row.get("environment_id").toString(),
+				(Date)row.get("push_date"));
 		return b;
 	}
 
