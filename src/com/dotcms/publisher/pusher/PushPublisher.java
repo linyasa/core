@@ -148,9 +148,9 @@ public class PushPublisher extends Publisher {
 	        			} else {
 
 	        				if(currentStatusHistory.getNumTries()==PublisherQueueJob.MAX_NUM_TRIES) {
-		        				APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(config.getId(), environment.getId());
 		        				APILocator.getLastPushAPI().deleteLastPushesInBundle(config.getId(), environment.getId());
-		        			}
+								APILocator.getHistoricalPushedAssetsAPI().deletePushedAssets(config.getId(), environment.getId());
+							}
 	        				detail.setStatus(PublishAuditStatus.Status.FAILED_TO_SENT.getCode());
 	        				detail.setInfo(
 	        						"Returned "+response.getStatus()+ " status code " +

@@ -34,7 +34,6 @@ public class DependencySet extends HashSet<String> {
 
 	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish) {
 		super();
-		cache = CacheLocator.getPushedAssetsCache();
 		this.assetType = assetType;
 		this.bundleId = bundleId;
 		this.isDownload = isDownload;
