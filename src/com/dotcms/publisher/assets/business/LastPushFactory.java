@@ -1,15 +1,15 @@
 package com.dotcms.publisher.assets.business;
 
-import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.bean.LastPush;
 import com.dotmarketing.exception.DotDataException;
 
 import java.util.Optional;
 
-public interface PushedItemsFactory {
+public interface LastPushFactory {
 
-    Optional<PushedItem> getPushedItem(String assetId, String environmentId) throws DotDataException;
+    Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException;
 
-    void savePushedAsset(PushedItem asset) throws DotDataException;
+    void savePushedAsset(LastPush asset) throws DotDataException;
 
     void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException;
 

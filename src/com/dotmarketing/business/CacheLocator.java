@@ -12,8 +12,8 @@ import com.dotcms.notifications.business.NewNotificationCache;
 import com.dotcms.notifications.business.NewNotificationCacheImpl;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCacheImpl;
-import com.dotcms.publisher.assets.business.PushedItemsCache;
-import com.dotcms.publisher.assets.business.PushedItemsCacheImpl;
+import com.dotcms.publisher.assets.business.LastPushCache;
+import com.dotcms.publisher.assets.business.LastPushCacheImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCache;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCacheImpl;
 import com.dotmarketing.business.cache.transport.CacheTransport;
@@ -281,8 +281,8 @@ public class CacheLocator extends Locator<CacheIndex>{
 		return (HistoricalPushedAssetsCache)getInstance(CacheIndex.PushedAssets);
 	}
 
-	public static PushedItemsCache getPushedItemsCache() {
-		return (PushedItemsCache)getInstance(CacheIndex.PushedItems);
+	public static LastPushCache getPushedItemsCache() {
+		return (LastPushCache)getInstance(CacheIndex.PushedItems);
 	}
 
 	public static CSSCache getCSSCache() {
@@ -432,7 +432,7 @@ enum CacheIndex
       	case NavTool: return new NavToolCacheImpl();
       	case PublishingEndPoint: return new PublishingEndPointCacheImpl();
       	case PushedAssets: return new HistoricalPushedAssetsCacheImpl();
-      	case PushedItems: return new PushedItemsCacheImpl();
+      	case PushedItems: return new LastPushCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
       	case RulesCache : return new RulesCacheImpl();

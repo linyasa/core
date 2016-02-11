@@ -3,9 +3,9 @@ package com.dotcms.publisher.util;
 import java.util.*;
 
 import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
-import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.bean.LastPush;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
-import com.dotcms.publisher.assets.business.PushedItemsAPI;
+import com.dotcms.publisher.assets.business.LastPushAPI;
 import com.dotcms.publisher.bundle.bean.Bundle;
 import com.dotcms.publisher.environment.bean.Environment;
 import com.dotmarketing.beans.VersionInfo;
@@ -30,7 +30,7 @@ public class DependencySet extends HashSet<String> {
 	private Bundle bundle;
 	private boolean isDownload;
 	private boolean isPublish;
-	private PushedItemsAPI pushedItemsAPI;
+	private LastPushAPI lastPushAPI;
 
 	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish) {
 		super();
@@ -52,7 +52,7 @@ public class DependencySet extends HashSet<String> {
 			Logger.error(getClass(), "Can't get bundle. Bundle Id: " + bundleId , e);
 		}
 
-		pushedItemsAPI = APILocator.getPushedItemsAPI();
+		lastPushAPI = APILocator.getPushedItemsAPI();
 	}
 
 	public boolean add(String assetId, Date assetModDate) {
@@ -87,7 +87,7 @@ public class DependencySet extends HashSet<String> {
 			}
 		}
 
-		boolean modified = false;
+		boolean push = false;
 
 		// we need to check if all environments have the last version of the asset in
 		// order to skip adding it to the Set
@@ -95,24 +95,26 @@ public class DependencySet extends HashSet<String> {
 		// if the asset hasn't been sent to at least one environment or an older version was sen't,
 		// we need to add it to the cache
 
-		Boolean isForcePush = false;
+		boolean forcePush = false;
 		if ( bundle != null ) {
-			isForcePush = bundle.isForcePush();
+			forcePush = bundle.isForcePush();
 		}
 
-		if ( !isForcePush && !isDownload && isPublish ) {
+		if ( !forcePush && !isDownload && isPublish ) {
 			for (Environment env : envs) {
-				Optional<PushedItem> pushedItem;
+				Optional<LastPush> lastPush;
 				try {
-					pushedItem = pushedItemsAPI.getPushedItem(assetId, env.getId());
+					lastPush = lastPushAPI.getPushedItem(assetId, env.getId());
 				} catch (DotDataException e1) {
 					// Asset does not exist in db or cache, return true;
 					return true;
 				}
 
-				modified = (!pushedItem.isPresent()
-						|| pushedItem.get().getPushDate()==null
-						|| (assetModDate!=null && (pushedItem.get().getPushDate().before(assetModDate))));
+				boolean modified = (!lastPush.isPresent()
+						|| lastPush.get().getPushDate()==null
+						|| (assetModDate!=null && (lastPush.get().getPushDate().before(assetModDate))));
+
+				push = push || modified;
 
 				try {
 					if(!modified && assetType.equals("content")) {
@@ -138,34 +140,47 @@ public class DependencySet extends HashSet<String> {
 
 				if(modified) {
 					try {
-						if(pushedItem.isPresent()) {
-							PushedItem existingPushedItem = pushedItem.get();
-							existingPushedItem.setPushDate(new Date());
-							pushedItemsAPI.savePushedAsset(existingPushedItem);
+						if(lastPush.isPresent()) {
+							LastPush existingLastPush = lastPush.get();
+							existingLastPush.setPushDate(new Date());
+							lastPushAPI.savePushedAsset(existingLastPush);
 						} else {
-							PushedItem newPushItem = new PushedItem(assetId, env.getId(), new Date());
-							pushedItemsAPI.savePushedAsset(newPushItem);
+							LastPush newPushItem = new LastPush(assetId, env.getId(), new Date());
+							lastPushAPI.savePushedAsset(newPushItem);
 						}
-
-						// This is merely for historical purposes
-						HistoricalPushedAsset newHistoricalAsset = new HistoricalPushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
-						APILocator.getHistoricalPushedAssetsAPI().savePushedAsset(newHistoricalAsset);
-
-
 					} catch (DotDataException e) {
-						Logger.error(getClass(), "Could not save PushedAsset. "
-								+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
+						Logger.error(getClass(), "Could not save LastPush. "
+								+ "AssetId: " + assetId + ". Env Id: " + env.getId(), e);
 					}
+
+					// This is merely for historical purposes
+					saveHistorical(assetId, env);
 				}
 			}
 		}
 
-		if ( isForcePush || isDownload || !isPublish || modified ) {
+		if(forcePush) {
+			for (Environment env : envs) {
+				saveHistorical(assetId, env);
+			}
+		}
+
+		if ( forcePush || isDownload || !isPublish || push ) {
 			super.add( assetId );
 			return true;
 		}
 
 		return false;
+	}
+
+	private void saveHistorical(String assetId, Environment env)  {
+		try {
+			HistoricalPushedAsset newHistoricalAsset = new HistoricalPushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
+			APILocator.getHistoricalPushedAssetsAPI().savePushedAsset(newHistoricalAsset);
+		} catch (DotDataException e) {
+			Logger.error(getClass(), "Could not save HistoricalPushedAsset. "
+					+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
+		}
 	}
 
 }

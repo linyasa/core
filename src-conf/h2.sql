@@ -3004,7 +3004,7 @@ create table publishing_pushed_assets(
 CREATE INDEX idx_pushed_assets_1 ON publishing_pushed_assets (bundle_id, environment_id);
 CREATE INDEX idx_pushed_assets_2 ON publishing_pushed_assets (asset_id, push_date);
 
-create table publishing_pushed_items(
+create table publishing_last_push(
 	asset_id varchar(36) NOT NULL,
 	environment_id varchar(36) NOT NULL,
 	push_date TIMESTAMP,

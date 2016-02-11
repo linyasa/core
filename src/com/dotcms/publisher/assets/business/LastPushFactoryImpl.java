@@ -1,7 +1,7 @@
 package com.dotcms.publisher.assets.business;
 
 import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
-import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.bean.LastPush;
 import com.dotcms.publisher.environment.bean.Environment;
 import com.dotcms.publisher.util.PublisherUtil;
 import com.dotcms.repackage.com.google.common.base.Preconditions;
@@ -19,13 +19,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-public class PushedItemsFactoryImpl implements PushedItemsFactory {
+public class LastPushFactoryImpl implements LastPushFactory {
 
-    private PushedItemsCache cache= CacheLocator.getPushedItemsCache();
+    private LastPushCache cache= CacheLocator.getPushedItemsCache();
 
-    public Optional<PushedItem> getPushedItem(String assetId, String environmentId) throws DotDataException{
+    public Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException{
 
-        Optional<PushedItem> asset = Optional.ofNullable(cache.getPushedItem(assetId, environmentId));
+        Optional<LastPush> asset = Optional.ofNullable(cache.getPushedItem(assetId, environmentId));
 
         if(!asset.isPresent()){
             DotConnect dc = new DotConnect();
@@ -44,10 +44,10 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
     }
 
     @Override
-    public void savePushedAsset(PushedItem asset) throws DotDataException {
+    public void savePushedAsset(LastPush asset) throws DotDataException {
         Preconditions.checkNotNull(asset, "Asset cannot be null");
 
-        Optional<PushedItem> existingPushedItem = getPushedItem(asset.getAssetId(), asset.getEnvironmentId());
+        Optional<LastPush> existingPushedItem = getPushedItem(asset.getAssetId(), asset.getEnvironmentId());
         final DotConnect db = new DotConnect();
 
         if(existingPushedItem.isPresent()) {

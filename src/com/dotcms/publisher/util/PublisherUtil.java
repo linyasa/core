@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.bean.LastPush;
 
 import com.dotcms.publisher.assets.bean.HistoricalPushedAsset;
 import com.dotcms.publisher.bundle.bean.Bundle;
@@ -99,8 +99,8 @@ public class PublisherUtil {
 		b.setEnvironmentId(row.get("environment_id").toString());
 		return b;
 	}
-	public static PushedItem getPushedItemByMap(Map<String, Object> row){
-		PushedItem b = new PushedItem(row.get("asset_id").toString(),
+	public static LastPush getPushedItemByMap(Map<String, Object> row){
+		LastPush b = new LastPush(row.get("asset_id").toString(),
 				row.get("environment_id").toString(),
 				(Date)row.get("push_date"));
 		return b;

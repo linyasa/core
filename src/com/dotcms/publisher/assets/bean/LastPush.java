@@ -3,12 +3,12 @@ package com.dotcms.publisher.assets.bean;
 import java.io.Serializable;
 import java.util.Date;
 
-public class PushedItem implements Serializable {
+public class LastPush implements Serializable {
     private final String assetId;
     private final String environmentId;
     private Date pushDate;
 
-    public PushedItem(String assetId, String environmentId, Date pushDate) {
+    public LastPush(String assetId, String environmentId, Date pushDate) {
         this.assetId = assetId;
         this.environmentId = environmentId;
         this.pushDate = pushDate;

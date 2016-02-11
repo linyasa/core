@@ -1,11 +1,11 @@
 package com.dotcms.publisher.assets.business;
 
-import com.dotcms.publisher.assets.bean.PushedItem;
+import com.dotcms.publisher.assets.bean.LastPush;
 import com.dotmarketing.exception.DotDataException;
 
 import java.util.Optional;
 
-public interface PushedItemsAPI {
+public interface LastPushAPI {
 
     /**
      * Returns an {@code Optional} with a {@code PushedItem} that has the asset id and environment id provided,
@@ -16,7 +16,7 @@ public interface PushedItemsAPI {
      * @return an {@code Optional} with a {@code PushedItem} if exists, otherwise an empty {@code Optional}
      * @throws DotDataException when an error in the underlying data layer occurs
      */
-    Optional<PushedItem> getPushedItem(String assetId, String environmentId) throws DotDataException;
+    Optional<LastPush> getPushedItem(String assetId, String environmentId) throws DotDataException;
 
     /**
      * Persists the given {@code PushedItem} object, if valid.
@@ -24,7 +24,7 @@ public interface PushedItemsAPI {
      * @param asset the asset object to persist
      * @throws DotDataException when an error in the underlying data layer occurs
      */
-    void savePushedAsset(PushedItem asset) throws DotDataException;
+    void savePushedAsset(LastPush asset) throws DotDataException;
 
     /**
      * Resets the push date of the items included in the bundle with the given bundle id

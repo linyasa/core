@@ -17,8 +17,8 @@ import com.dotcms.enterprise.linkchecker.LinkCheckerAPIImpl;
 import com.dotcms.enterprise.publishing.sitesearch.ESSiteSearchAPI;
 import com.dotcms.notifications.business.NotificationAPI;
 import com.dotcms.notifications.business.NotificationAPIImpl;
-import com.dotcms.publisher.assets.business.PushedItemsAPI;
-import com.dotcms.publisher.assets.business.PushedItemsAPIImpl;
+import com.dotcms.publisher.assets.business.LastPushAPI;
+import com.dotcms.publisher.assets.business.LastPushAPIImpl;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsAPI;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsAPIImpl;
 import com.dotcms.publisher.bundle.business.BundleAPI;
@@ -333,8 +333,8 @@ public class APILocator extends Locator<APIIndex>{
 		return (HistoricalPushedAssetsAPI)getInstance(APIIndex.PUSHED_ASSETS_API);
 	}
 
-	public static PushedItemsAPI getPushedItemsAPI() {
-		return (PushedItemsAPI)getInstance(APIIndex.PUSHED_ITEMS_API);
+	public static LastPushAPI getPushedItemsAPI() {
+		return (LastPushAPI)getInstance(APIIndex.PUSHED_ITEMS_API);
 	}
 
 
@@ -531,7 +531,7 @@ enum APIIndex
 		case ES_SEARCH_API: return new ESSearchProxy();
 		case RULES_API: return new RulesAPIImpl();
 		case VISITOR_API: return new VisitorAPIImpl();
-		case PUSHED_ITEMS_API: return new PushedItemsAPIImpl();
+		case PUSHED_ITEMS_API: return new LastPushAPIImpl();
 
 		
 		}
