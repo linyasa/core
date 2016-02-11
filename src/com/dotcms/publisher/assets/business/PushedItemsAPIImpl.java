@@ -25,8 +25,8 @@ public class PushedItemsAPIImpl implements PushedItemsAPI {
     }
 
     @Override
-    public void resetPushDateOfItemsInBundle(String bundleId, String environmentId) throws DotDataException {
-        pushedItemsFactory.resetPushDateOfItemsInBundle(bundleId, environmentId);
+    public void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException {
+        pushedItemsFactory.deletePushedItemsInBundle(bundleId, environmentId);
     }
 
     @Override
@@ -35,12 +35,12 @@ public class PushedItemsAPIImpl implements PushedItemsAPI {
     }
 
     @Override
-    public void resetPushDateOfItem(String assetId) throws DotDataException {
-        pushedItemsFactory.resetPushDateOfItem(assetId);
+    public void deletePushedItemByAsset(String assetId) throws DotDataException {
+        pushedItemsFactory.deletePushedItemByAsset(assetId);
     }
 
     @Override
-    public void resetPushDateOfItemsInEnvironment(String environmentId) throws DotDataException {
-        pushedItemsFactory.resetPushDateOfItemsInEnvironment(environmentId);
+    public void deletePushedItemsByEnvironment(String environmentId) throws DotDataException {
+        pushedItemsFactory.deletePushedItemsByEnvironment(environmentId);
     }
 }

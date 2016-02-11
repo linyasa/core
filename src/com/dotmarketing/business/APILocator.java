@@ -334,7 +334,7 @@ public class APILocator extends Locator<APIIndex>{
 	}
 
 	public static PushedItemsAPI getPushedItemsAPI() {
-		return (PushedItemsAPI)getInstance(APIIndex.PUSH_HISTORY_API);
+		return (PushedItemsAPI)getInstance(APIIndex.PUSHED_ITEMS_API);
 	}
 
 
@@ -457,7 +457,7 @@ enum APIIndex
 	BUNDLE_API,
 	SERVER_API,
 	PUSHED_ASSETS_API,
-	PUSH_HISTORY_API,
+	PUSHED_ITEMS_API,
 	NOTIFICATION_API,
 
 	HTMLPAGE_ASSET_API,
@@ -531,7 +531,7 @@ enum APIIndex
 		case ES_SEARCH_API: return new ESSearchProxy();
 		case RULES_API: return new RulesAPIImpl();
 		case VISITOR_API: return new VisitorAPIImpl();
-		case PUSH_HISTORY_API: return new PushedItemsAPIImpl();
+		case PUSHED_ITEMS_API: return new PushedItemsAPIImpl();
 
 		
 		}

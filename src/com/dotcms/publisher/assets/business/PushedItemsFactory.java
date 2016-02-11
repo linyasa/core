@@ -11,11 +11,11 @@ public interface PushedItemsFactory {
 
     void savePushedAsset(PushedItem asset) throws DotDataException;
 
-    void resetPushDateOfItemsInBundle(String bundleId, String environmentId) throws DotDataException;
+    void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException;
 
     void deleteAllPushedItems() throws DotDataException;
 
-    void resetPushDateOfItem(String assetId) throws DotDataException;
+    void deletePushedItemByAsset(String assetId) throws DotDataException;
 
-    void resetPushDateOfItemsInEnvironment(String environmentId) throws DotDataException;
+    void deletePushedItemsByEnvironment(String environmentId) throws DotDataException;
 }

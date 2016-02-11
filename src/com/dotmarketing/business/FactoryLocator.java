@@ -10,6 +10,7 @@ import com.dotcms.enterprise.cluster.ServerFactoryImpl;
 import com.dotcms.enterprise.cluster.action.business.ServerActionFactory;
 import com.dotcms.enterprise.linkchecker.LinkCheckerFactoryImpl;
 import com.dotcms.publisher.assets.business.PushedItemsFactory;
+import com.dotcms.publisher.assets.business.PushedItemsFactoryImpl;
 import com.dotmarketing.portlets.personas.business.PersonaFactory;
 import com.dotmarketing.portlets.personas.business.PersonaFactoryImpl;
 import com.dotcms.journal.business.ESDistributedJournalFactoryImpl;
@@ -208,7 +209,7 @@ public class FactoryLocator extends Locator<FactoryIndex>{
     }
 
     public static PushedItemsFactory getPushedItemsFactory(){
-        return (PushedItemsFactory) getInstance(FactoryIndex.PUSH_HISTORY_FACTORY);
+        return (PushedItemsFactory) getInstance(FactoryIndex.PUSHED_ITEMS_FACTORY);
     }
 
     public static ServerFactory getServerFactory(){
@@ -297,7 +298,7 @@ enum FactoryIndex
 	ENVIRONMENT_FACTORY,
 	BUNDLE_FACTORY,
 	PUSHED_ASSETS_FACTORY,
-	PUSH_HISTORY_FACTORY,
+    PUSHED_ITEMS_FACTORY,
 	SERVER_FACTORY,
 	NOTIFICATION_FACTORY, 
 	SERVER_ACTION_FACTORY,
@@ -337,6 +338,7 @@ enum FactoryIndex
             case ENVIRONMENT_FACTORY: return new EnvironmentFactoryImpl();
             case BUNDLE_FACTORY: return new BundleFactoryImpl();
             case PUSHED_ASSETS_FACTORY: return new HistoricalPushedAssetsFactoryImpl();
+            case PUSHED_ITEMS_FACTORY: return new PushedItemsFactoryImpl();
             case SERVER_FACTORY: return new ServerFactoryImpl();
             case NOTIFICATION_FACTORY: return new NotificationFactoryImpl();
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();

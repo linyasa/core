@@ -58,7 +58,7 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
             db.loadResult();
             cache.removePushedItemById(asset.getAssetId(), asset.getEnvironmentId());
         } else {
-            db.setSQL("INSERT INTO publishing_pushed_items VALUES (?,?,?,?,?)");
+            db.setSQL("INSERT INTO publishing_pushed_items VALUES (?,?,?)");
             db.addParam(asset.getAssetId());
             db.addParam(asset.getEnvironmentId());
             db.addParam(asset.getPushDate());
@@ -67,9 +67,9 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
     }
 
     @Override
-    public void resetPushDateOfItemsInBundle(String bundleId, String environmentId) throws DotDataException {
-        Preconditions.checkArgument(Strings.isNullOrEmpty(bundleId), "Bundle Id can't be null or empty");
-        Preconditions.checkArgument(Strings.isNullOrEmpty(environmentId), "Environment Id can't be null or empty");
+    public void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(bundleId), "Bundle Id can't be null or empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environment Id can't be null or empty");
 
         List<HistoricalPushedAsset> assets = FactoryLocator.getHistoricalPushedAssetsFactory().getPushedAssets(bundleId, environmentId);
 
@@ -79,12 +79,11 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
 
         try {
 
-            statement = conn.prepareCall("UPDATE publishing_pushed_items SET push_date = ? WHERE asset_id = ? AND environment_id = ? ");
+            statement = conn.prepareCall("DELETE FROM publishing_pushed_items WHERE asset_id = ? AND environment_id = ? ");
 
             for (HistoricalPushedAsset asset : assets) {
-                statement.setObject(1, null);
-                statement.setObject(2, asset.getAssetId());
-                statement.setObject(3, environmentId);
+                statement.setObject(1, asset.getAssetId());
+                statement.setObject(2, environmentId);
                 statement.addBatch();
             }
 
@@ -107,14 +106,14 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
     @Override
     public void deleteAllPushedItems() throws DotDataException {
         final DotConnect db = new DotConnect();
-        db.setSQL("DELETE FROM publishing_pushed_items ");
+        db.setSQL("TRUNCATE publishing_pushed_items ");
         db.loadResult();
         cache.clearCache();
     }
 
     @Override
-    public void resetPushDateOfItem(String assetId) throws DotDataException {
-        Preconditions.checkArgument(Strings.isNullOrEmpty(assetId), "Bundle Id can't be null or empty");
+    public void deletePushedItemByAsset(String assetId) throws DotDataException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(assetId), "Bundle Id can't be null or empty");
 
         final DotConnect db = new DotConnect();
         db.setSQL("DELETE FROM publishing_pushed_items WHERE asset_id = ? ");
@@ -130,8 +129,8 @@ public class PushedItemsFactoryImpl implements PushedItemsFactory {
     }
 
     @Override
-    public void resetPushDateOfItemsInEnvironment(String environmentId) throws DotDataException {
-        Preconditions.checkArgument(Strings.isNullOrEmpty(environmentId), "Environmetn Id can't be null or empty");
+    public void deletePushedItemsByEnvironment(String environmentId) throws DotDataException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environmetn Id can't be null or empty");
 
         List<String> assetsToRemoteFromCache = new ArrayList<>();
         final DotConnect db = new DotConnect();

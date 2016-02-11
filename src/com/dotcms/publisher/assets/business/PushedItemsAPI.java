@@ -34,7 +34,7 @@ public interface PushedItemsAPI {
      * @param environmentId the id of the environment
      * @throws DotDataException when an error in the underlying data layer occurs
      */
-    void resetPushDateOfItemsInBundle(String bundleId, String environmentId) throws DotDataException;
+    void deletePushedItemsInBundle(String bundleId, String environmentId) throws DotDataException;
 
     /**
      * Deletes all the {@code PushedItem} objects from the persistence layer
@@ -49,7 +49,7 @@ public interface PushedItemsAPI {
      * @param assetId id of the asset whose push date will be reset
      * @throws DotDataException when an error in the underlying persistence layer occurs
      */
-    void resetPushDateOfItem(String assetId) throws DotDataException;
+    void deletePushedItemByAsset(String assetId) throws DotDataException;
 
     /**
      * Resets the push date of the {@code PushedAsset} objects sent to the environment with
@@ -58,5 +58,5 @@ public interface PushedItemsAPI {
      * @param environmentId the id of the environment
      * @throws DotDataException when an error in the underlying persistence layer occurs
      */
-    void resetPushDateOfItemsInEnvironment(String environmentId) throws DotDataException;
+    void deletePushedItemsByEnvironment(String environmentId) throws DotDataException;
 }

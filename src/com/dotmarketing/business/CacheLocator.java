@@ -13,6 +13,7 @@ import com.dotcms.notifications.business.NewNotificationCacheImpl;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCache;
 import com.dotcms.publisher.assets.business.HistoricalPushedAssetsCacheImpl;
 import com.dotcms.publisher.assets.business.PushedItemsCache;
+import com.dotcms.publisher.assets.business.PushedItemsCacheImpl;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCache;
 import com.dotcms.publisher.endpoint.business.PublishingEndPointCacheImpl;
 import com.dotmarketing.business.cache.transport.CacheTransport;
@@ -415,6 +416,7 @@ enum CacheIndex
       	case NavTool: return new NavToolCacheImpl();
       	case PublishingEndPoint: return new PublishingEndPointCacheImpl();
       	case PushedAssets: return new HistoricalPushedAssetsCacheImpl();
+      	case PushedItems: return new PushedItemsCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
       	case RulesCache : return new RulesCacheImpl();
