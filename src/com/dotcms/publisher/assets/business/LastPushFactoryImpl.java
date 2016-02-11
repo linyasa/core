@@ -24,6 +24,8 @@ public class LastPushFactoryImpl implements LastPushFactory {
     private LastPushCache cache= CacheLocator.getLastPushCache();
 
     public Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException{
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(assetId), "Asset Id can't be null or empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environment Id can't be null or empty");
 
         Optional<LastPush> asset = Optional.ofNullable(cache.getPushedItem(assetId, environmentId));
 
@@ -153,5 +155,20 @@ public class LastPushFactoryImpl implements LastPushFactory {
             cache.removePushedItemById(assetId, environmentId);
         }
 
+    }
+
+    @Override
+    public void removeLastPush(String assetId, String environmentId) throws DotDataException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(assetId), "Asset Id can't be null or empty");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(environmentId), "Environment Id can't be null or empty");
+
+        final DotConnect db = new DotConnect();
+        db.setSQL("DELETE FROM publishing_last_push WHERE asset_id = ? AND environment_id = ? ");
+        db.addParam(assetId);
+        db.addParam(environmentId);
+        db.loadResult();
+
+        // remove from cache
+        cache.removePushedItemById(assetId, environmentId);
     }
 }

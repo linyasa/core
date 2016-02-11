@@ -23,7 +23,6 @@ public class DependencySet extends HashSet<String> {
 	 *
 	 */
 	private static final long serialVersionUID = 3048299770146564147L;
-	private HistoricalPushedAssetsCache cache;
 	private List<Environment> envs = new ArrayList<Environment>();
 	private String assetType;
 	private String bundleId;

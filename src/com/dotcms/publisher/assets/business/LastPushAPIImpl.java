@@ -25,6 +25,11 @@ public class LastPushAPIImpl implements LastPushAPI {
     }
 
     @Override
+    public void removeLastPush(String assetId, String environmentId) throws DotDataException {
+        lastPushFactory.removeLastPush(assetId, environmentId);
+    }
+
+    @Override
     public void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException {
         lastPushFactory.deleteLastPushesInBundle(bundleId, environmentId);
     }

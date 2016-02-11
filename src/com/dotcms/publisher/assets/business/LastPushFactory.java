@@ -18,4 +18,6 @@ public interface LastPushFactory {
     void deleteLastPushesByAsset(String assetId) throws DotDataException;
 
     void deleteLastPushesByEnvironment(String environmentId) throws DotDataException;
+
+    void removeLastPush(String assetId, String environmentId) throws DotDataException;
 }
