@@ -106,7 +106,7 @@ public class LastPushFactoryImpl implements LastPushFactory {
     @Override
     public void deleteAllLastPushes() throws DotDataException {
         final DotConnect db = new DotConnect();
-        db.setSQL("TRUNCATE publishing_pushed_items ");
+        db.setSQL("TRUNCATE publishing_last_push ");
         db.loadResult();
         cache.clearCache();
     }
