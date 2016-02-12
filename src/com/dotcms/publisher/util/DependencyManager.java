@@ -928,7 +928,8 @@ public class DependencyManager {
 			Folder f = APILocator.getFolderAPI().find(con.getFolder(), user, false);
         	folders.addOrClean( con.getFolder(), f.getModDate()); // adding content folder
 
-        	languages.addOrClean(Long.toString(con.getLanguageId()), new Date()); // will be included only when hasn't been sent ever
+			languages.addOrClean(Long.toString(con.getLanguageId()), APILocator.getLanguageAPI().getLastModDate(con.getLanguageId())); // will be included only when hasn't been sent ever
+
 
 			try {
 				if (Config.getBooleanProperty("PUSH_PUBLISHING_PUSH_ALL_FOLDER_PAGES", false)

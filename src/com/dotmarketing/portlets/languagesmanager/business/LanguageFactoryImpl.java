@@ -538,4 +538,40 @@ public class LanguageFactoryImpl extends LanguageFactory {
 
 
 	}
+
+	@Override
+	protected Date getLastModDate(long langId) {
+		Language lang = getLanguage(langId);
+		String langCodeAndCountryCode = lang.getLanguageCode() + "_" + lang.getCountryCode();
+		String langCode = lang.getLanguageCode();
+
+		String filePath = getGlobalVariablesPath() + "cms_language_" + langCodeAndCountryCode + ".properties";
+		File langCodeAndCountryCodeFile = new java.io.File(filePath);
+		Date langCodeAndCountryCodeDate = null;
+
+		if (langCodeAndCountryCodeFile.exists()) {
+			langCodeAndCountryCodeDate = new Date(langCodeAndCountryCodeFile.lastModified());
+		}
+
+		filePath = getGlobalVariablesPath() + "cms_language_" + langCode + ".properties";
+		File langCodeFile = new java.io.File(filePath);
+		Date langCodeDate = null;
+
+		if (langCodeFile.exists()) {
+			langCodeDate = new Date(langCodeFile.lastModified());
+		}
+
+		Date modDate;
+
+		if(langCodeAndCountryCodeDate!=null && langCodeDate!=null) {
+			modDate = langCodeDate.after(langCodeAndCountryCodeDate)?langCodeDate:langCodeAndCountryCodeDate;
+		} else if (langCodeAndCountryCodeDate!=null) {
+			modDate = langCodeAndCountryCodeDate;
+		} else {
+			modDate = langCodeDate;
+		}
+
+		return modDate;
+
+	}
 }

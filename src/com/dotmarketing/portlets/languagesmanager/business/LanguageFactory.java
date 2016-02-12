@@ -1,5 +1,6 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,5 +48,6 @@ public abstract class LanguageFactory {
 	protected abstract void createLanguageFiles(Language lang);
 
 	protected abstract void saveLanguageKeys(Language lang, Map<String, String> generalKeys, Map<String, String> specificKeys, Set<String> toDeleteKeys) throws DotDataException;
-    
+
+    protected abstract Date getLastModDate(long langId);
 }

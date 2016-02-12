@@ -1,5 +1,6 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,5 +82,7 @@ public interface LanguageAPI {
      * @return true if its a language type, otherwise returns false
      */
     public boolean isAssetTypeLanguage(String id);
+
+	Date getLastModDate(long langId);
     
 }
