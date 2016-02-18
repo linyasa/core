@@ -2,12 +2,9 @@ package com.dotmarketing.portlets.rules.model;
 
 import com.dotcms.repackage.com.google.common.collect.Maps;
 import com.dotmarketing.business.APILocator;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.portlets.rules.RuleComponentInstance;
 import com.dotmarketing.portlets.rules.RuleComponentModel;
 import com.dotmarketing.portlets.rules.conditionlet.Conditionlet;
-import com.dotmarketing.util.Logger;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -17,28 +14,17 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class Condition implements RuleComponentModel, Serializable, Comparable {
+public class Condition implements RuleComponentModel, Serializable, Comparable<Condition> {
 
     private static final long serialVersionUID = 1L;
     private transient RuleComponentInstance instance;
 
-    public enum Operator {
-        AND,
-        OR;
-
-        @Override
-        public String toString() {
-            return super.name();
-        }
-    }
-
     private String id;
-    private String name;
     private String conditionletId;
     private String conditionGroup;
     private List<ParameterModel> values;
     private Date modDate;
-    private Operator operator;
+    private LogicalOperator operator;
     private int priority;
     private transient Conditionlet conditionlet;
 
@@ -48,14 +34,6 @@ public class Condition implements RuleComponentModel, Serializable, Comparable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getConditionletId() {
@@ -115,11 +93,11 @@ public class Condition implements RuleComponentModel, Serializable, Comparable {
         this.modDate = modDate;
     }
 
-    public Operator getOperator() {
+    public LogicalOperator getOperator() {
         return operator;
     }
 
-    public void setOperator(Operator operator) {
+    public void setOperator(LogicalOperator operator) {
         this.operator = operator;
     }
 
@@ -150,17 +128,15 @@ public class Condition implements RuleComponentModel, Serializable, Comparable {
 
 	@Override
 	public String toString() {
-		return "Condition [id=" + id + ", name=" + name
-                + ", conditionletId=" + conditionletId + ", conditionGroup="
+		return "Condition [id=" + id + ", conditionletId=" + conditionletId + ", conditionGroup="
 				+ conditionGroup + ", values="
 				+ values + ", modDate=" + modDate + ", operator=" + operator
 				+ ", priority=" + priority + "]";
 	}
 
     @Override
-    public int compareTo(Object o) {
-        Condition c = (Condition) o;
-        return this.priority - c.getPriority();
+    public int compareTo(Condition c) {
+        return Integer.compare(this.priority, c.getPriority());
     }
 
 }

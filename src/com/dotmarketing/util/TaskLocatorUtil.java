@@ -145,7 +145,9 @@ public class TaskLocatorUtil {
 		ret.add(Task03520AlterTagsForPersonas.class);
 		ret.add(Task03525LowerTagsTagname.class);
 		ret.add(Task03530AlterTagInode.class);
-		ret.add(Task03535CreatePublishingPushedItemsTable.class);
+		ret.add(Task03535RemoveTagsWithoutATagname.class);
+		ret.add(Task03540UpdateTagInodesReferences.class);
+		ret.add(Task03545CreatePublishingPushedItemsTable.class);
 		return ret;
     }
 

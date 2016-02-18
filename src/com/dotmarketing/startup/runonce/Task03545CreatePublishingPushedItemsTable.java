@@ -4,7 +4,7 @@ import com.dotmarketing.startup.AbstractJDBCStartupTask;
 
 import java.util.List;
 
-public class Task03535CreatePublishingPushedItemsTable extends AbstractJDBCStartupTask {
+public class Task03545CreatePublishingPushedItemsTable extends AbstractJDBCStartupTask {
 
     @Override
     public boolean forceRun() {

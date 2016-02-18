@@ -115,7 +115,7 @@ function suggestTagsForSearch(e) {
 		if (!tagsContainer || tagsContainer == "") {
 				tagsContainer = document.getElementById("widget_" + tagVelocityVarName);
 		}
-		suggestedDiv = tagVelocityVarName + "suggestedTagsDiv";
+		suggestedDiv = tagVelocityVarName + "SuggestedTagsDiv";
 		var inputTags = document.getElementById(tagVelocityVarName).value;
 		inputTags = RTrim(inputTags);
 		inputTags = LTrim(inputTags);
@@ -152,30 +152,68 @@ function suggestTagsForSearch(e) {
 		}
 }
 
-function showTagsForSearch(result) {
+var pos;
+var keyboardEvents;
+var keys = dojo.require("dojo.keys");
+var query = dojo.require("dojo.query");
 
+function focusSelectedTag(e) {
+	var tagsOptionsLinks = query("#" + tagVelocityVarName + "SuggestedTagsDiv a");
+	var lastPos = tagsOptionsLinks.length - 1;
+	switch(e.keyCode) {
+		case keys.UP_ARROW:
+			e.preventDefault();
+			if (pos === null) {
+				pos = lastPos;
+			} else if (pos > 0) {
+				pos--;
+			}
+			tagsOptionsLinks[pos].focus();
+			break;
+		case keys.DOWN_ARROW:
+			e.preventDefault();
+
+			if (pos === null) {
+				pos = 0
+			} else if (pos < lastPos) {
+				pos++;
+			}
+			tagsOptionsLinks[pos].focus();
+			break;
+		case keys.ENTER:
+			e.target.click();
+			break;
+	}
+}
+
+function showTagsForSearch(result) {
 		if (result.length > 0) {
-				var tags = "<h3>Tags</h3>";
-				var personasTags = "<h3>Personas</h3>";
+				var tags = "";
+				var personasTags = "<div style='background-color: #fff;height:7px'></div>";
 				result.each(function(tag) {
 						var tagName = tag.tagName;
 						tagName = RTrim(tagName);
 						tagName = LTrim(tagName);
 						if (tag.persona) {
-								personasTags += "<a class=\"persona\" onClick=\"useThisTagForSearch(event)\">" + tagName + "</a>";
+								personasTags += "<a href=\"#\" style=\"white-space:nowrap\" class=\"persona\" onClick=\"useThisTagForSearch(event)\"><span class=\"personaIcon\" style='margin-right:5px;opacity:.7'></span>" + tagName + "</a>";
 						} else {
-								tags += "<a onClick=\"useThisTagForSearch(event)\">" + tagName + "</a>";
+								tags += "<a href=\"#\" onClick=\"useThisTagForSearch(event)\"><span class=\"tagIcon\" style='margin-right:5px;opacity:.6'></span>" + tagName + "</a>";
 						}
 				});
 
 				if (tagVelocityVarName) {
 						var tagDiv = document.getElementById(suggestedDiv);
-						tagDiv.innerHTML = tags + personasTags;
+						tagDiv.innerHTML = personasTags + tags;
 
-						if (dojo.byId(tagVelocityVarName + "suggestedTagsWrapper")) {
-								dojo.style(tagVelocityVarName + "suggestedTagsWrapper", "display", "block");
-								dojo.style(tagVelocityVarName + "suggestedTagsWrapper", "left", getInputPosition());
-								dojo.style(tagVelocityVarName + "suggestedTagsWrapper", "top", getInputHeight());
+						if (dojo.byId(tagVelocityVarName + "SuggestedTagsDiv")) {
+								dojo.style(tagVelocityVarName + "SuggestedTagsDiv", "display", "block");
+								dojo.style(tagVelocityVarName + "SuggestedTagsDiv", "left", getInputPosition());
+								dojo.style(tagVelocityVarName + "SuggestedTagsDiv", "top", getInputHeight());
+						}
+						pos = null;
+						if (!keyboardEvents) {
+							var tagsOptionsLinksWrapper = dojo.byId(tagVelocityVarName + "Wrapper");
+							keyboardEvents = dojo.require("dojo.on")(tagsOptionsLinksWrapper, "keydown", focusSelectedTag);
 						}
 				}
 		} else {
@@ -185,11 +223,11 @@ function showTagsForSearch(result) {
 
 function clearSuggestTagsForSearch() {
 		if (tagVelocityVarName) {
-
-				if (dojo.byId(tagVelocityVarName + "suggestedTagsWrapper")) {
-						dojo.style(tagVelocityVarName + "suggestedTagsWrapper", "display", "none");
+				if (dojo.byId(tagVelocityVarName + "SuggestedTagsDiv")) {
+						dojo.style(tagVelocityVarName + "SuggestedTagsDiv", "display", "none");
 				}
 				document.getElementById(suggestedDiv).innerHTML = "";
+				dojo.byId(tagVelocityVarName).focus();
 				tagVelocityVarName = null;
 				suggestedDiv = null;
 				tagsContainer = null;
@@ -199,7 +237,29 @@ function clearSuggestTagsForSearch() {
 function useThisTagForSearch(e) {
 		var tagLink = e.target;
 		var tagSuggested = tagLink.text || tagLink.value;
-		if (tagVelocityVarName && !isTagAdded(tagSuggested)) {
+		var tagExists = isTagAdded(tagSuggested);
+		if(tagExists){
+			var existingTag = dojo.byId(getTagId(tagSuggested));
+
+			var endColor = dojo.style(existingTag, "background-color");
+			console.log(endColor)
+		 	dojo.animateProperty({
+	            node: dojo.byId(getTagId(tagSuggested)),
+	            duration: 1000,
+	            properties: {
+	                backgroundColor: {
+	                    start: "#FA5858",
+	                    end: endColor
+	                },
+
+	            },
+	            onEnd: function() {
+
+	            }
+	        }).play();
+
+		}
+		else if (tagVelocityVarName) {
 				var inputTags = document.getElementById(tagVelocityVarName).value;
 				inputTags = RTrim(inputTags);
 				inputTags = LTrim(inputTags);
@@ -291,7 +351,8 @@ function fillExistingTags(elementId, value) {
 		}
 		var existingTags = value.split(",");
 		fillExistingTagsMap(existingTags);
-		fillExistingTagsLinks(existingTags);
+		fillExistingTagsOptionsLinks(existingTags);
+
 		tagVelocityVarName = null;
 		tagsContainer = null;
 }
@@ -302,22 +363,32 @@ function fillExistingTagsMap(tags) {
 				tag = RTrim(tag);
 				tag = LTrim(tag);
 
-				addTagToMap(tag);
+				if (tag.indexOf(":persona") != -1) {
+					tag = tag.replace(":persona","");
+					addTagToMap(tag, true);
+				} else {
+					addTagToMap(tag, false);
+				}
+
 		});
 }
 
-function fillExistingTagsLinks(tags) {
+function fillExistingTagsOptionsLinks(tags) {
 		tags.forEach(function(tag) {
 
 				tag = RTrim(tag);
 				tag = LTrim(tag);
+
+				if (tag.indexOf(":persona") != -1) {
+					tag = tag.replace(":persona","");
+				}
 
 				addTagLink(tag);
 		});
 }
 
 function getTagId(tag) {
-		return tag.toLowerCase()
+		return "tag-" + tag.toLowerCase()
 				.replace(/ /g, "-")
 				.replace(/[^\w-]+/g, "");
 }
