@@ -8,18 +8,18 @@ import java.util.Optional;
 public interface LastPushAPI {
 
     /**
-     * Returns an {@code Optional} with a {@code PushedItem} that has the asset id and environment id provided,
+     * Returns an {@code Optional} with a {@code LastPush} that has the asset id and environment id provided,
      * if non-null, otherwise returns an empty {@code Optional}.
      *
      * @param assetId the id of the item to get
      * @param environmentId to environment id of the item to get
-     * @return an {@code Optional} with a {@code PushedItem} if exists, otherwise an empty {@code Optional}
+     * @return an {@code Optional} with a {@code LastPush} if exists, otherwise an empty {@code Optional}
      * @throws DotDataException when an error in the underlying data layer occurs
      */
     Optional<LastPush> getLastPush(String assetId, String environmentId) throws DotDataException;
 
     /**
-     * Persists the given {@code PushedItem} object, if valid.
+     * Persists the given {@code LastPush} object, if valid.
      *
      * @param asset the asset object to persist
      * @throws DotDataException when an error in the underlying data layer occurs
@@ -27,7 +27,7 @@ public interface LastPushAPI {
     void saveLastPush(LastPush asset) throws DotDataException;
 
     /**
-     * Removes the {@code PushedItem} whose id matches the provided asset id
+     * Removes the {@code LastPush} whose id matches the provided asset id
      * and whose environment id matches the provided environment id
      *
      * @param assetId the id of the asset to remove
@@ -47,14 +47,14 @@ public interface LastPushAPI {
     void deleteLastPushesInBundle(String bundleId, String environmentId) throws DotDataException;
 
     /**
-     * Deletes all the {@code PushedItem} objects from the persistence layer
+     * Deletes all the {@code LastPush} objects from the persistence layer
      *
      * @throws DotDataException when an error in the underlying persistence layer occurs
      */
     void deleteAllLastPushes() throws DotDataException;
 
     /**
-     * Resets the push date of the {@code PushedAsset} with the given id
+     * Resets the push date of the {@code LastPush} with the given id
      *
      * @param assetId id of the asset whose push date will be reset
      * @throws DotDataException when an error in the underlying persistence layer occurs
@@ -62,7 +62,7 @@ public interface LastPushAPI {
     void deleteLastPushesByAsset(String assetId) throws DotDataException;
 
     /**
-     * Resets the push date of the {@code PushedAsset} objects sent to the environment with
+     * Resets the push date of the {@code LastPush} objects sent to the environment with
      * the given environment id
      *
      * @param environmentId the id of the environment
