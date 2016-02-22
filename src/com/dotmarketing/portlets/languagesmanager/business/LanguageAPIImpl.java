@@ -1,5 +1,7 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
+import com.dotcms.repackage.edu.emory.mathcs.backport.java.util.Collections;
+import com.dotcms.repackage.org.apache.commons.lang.math.NumberUtils;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.FactoryLocator;
@@ -7,10 +9,10 @@ import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.portlets.languagesmanager.model.LanguageKey;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.language.LanguageException;
 import com.liferay.portal.language.LanguageUtil;
 import com.liferay.portal.model.User;
-import com.dotcms.repackage.edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.context.ViewContext;
 
@@ -42,14 +44,27 @@ public class LanguageAPIImpl implements LanguageAPI {
 		return factory.getLanguage(languageCode, countryCode);
 	}
 
+    public boolean isAssetTypeLanguage(String id) {
+        if (!NumberUtils.isDigits(id)) {
+            return false;
+        }
+
+        try {
+            Language language = factory.getLanguage(Long.parseLong(id));
+            if (language != null && UtilMethods.isSet(language.getLanguage())) {
+                return true;
+            }
+        } catch (Exception e) {}
+
+        return false;
+    }
+	
 	public Language getLanguage(String id) {
 		return factory.getLanguage(id);
-
 	}
 
 	public Language createDefaultLanguage() {
 		return factory.createDefaultLanguage();
-
 	}
 
 	public Language getLanguage(long id) {
@@ -229,5 +244,9 @@ public class LanguageAPIImpl implements LanguageAPI {
 
 	public void clearCache(){
 		CacheLocator.getLanguageCache().clearCache();
+	}
+
+	public Date getLastModDate(long langId) {
+		return factory.getLastModDate(langId);
 	}
 }

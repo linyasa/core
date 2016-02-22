@@ -1,21 +1,25 @@
 package com.dotcms.publisher.assets.business;
 
-import java.util.List;
-
 import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotmarketing.exception.DotDataException;
+
+import java.util.List;
 
 public abstract class PushedAssetsFactory {
 
 	protected static String INSERT_ASSETS = "INSERT INTO publishing_pushed_assets VALUES (?,?,?,?,?)";
 	protected static String SELECT_ASSETS_BY_BUNDLE_ENV= "SELECT * FROM publishing_pushed_assets WHERE bundle_id = ? and environment_id = ?";
-	protected static String SELECT_ASSETS_BY_ASSET_ID= "SELECT * FROM publishing_pushed_assets WHERE asset_id = ? ORDER BY push_date";
+	protected static String SELECT_ASSETS_BY_ASSET_ID= "SELECT * FROM publishing_pushed_assets WHERE asset_id = ? ORDER BY push_date DESC";
 	protected static String SELECT_ASSETS_BY_ENV_ID= "SELECT * FROM publishing_pushed_assets WHERE environment_id = ?";
 	protected static String DELETE_ASSETS_BY_BUNDLE_ENV= "DELETE FROM publishing_pushed_assets WHERE bundle_id = ? and environment_id = ?";
+	protected static String DELETE_ASSETS_BY_ASSET_ENV= "DELETE FROM publishing_pushed_assets WHERE asset_id = ? and environment_id = ?";
 	protected static String DELETE_ASSETS_BY_ASSET_ID= "DELETE FROM publishing_pushed_assets WHERE asset_id = ?";
 	protected static String DELETE_ASSETS_BY_ENVIRONMENT_ID= "DELETE FROM publishing_pushed_assets WHERE environment_id = ?";
 	protected static String DELETE_ALL_ASSETS= "TRUNCATE publishing_pushed_assets";
-
+	protected static String SELECT_ASSET_LAST_PUSHED = "SELECT * FROM publishing_pushed_assets WHERE asset_id = ? AND environment_id = ? ORDER BY push_date DESC";
+	
+	
+	
 	public abstract void savePushedAsset(PushedAsset asset) throws DotDataException;
 
 	public abstract void deletePushedAssets(String bundleId, String environmentId)  throws DotDataException;
@@ -32,4 +36,9 @@ public abstract class PushedAssetsFactory {
 
 	public abstract List<PushedAsset> getPushedAssetsByEnvironment(String assetId) throws DotDataException;
 
+	public abstract PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException;
+
+	public abstract void deletePushedAssetsByAssetEnv(String assetId, String environmentId) throws DotDataException;
+
+	public abstract List<PushedAsset> getPushedAssets(String bundleId, String assetId, String environmentId) throws DotDataException;
 }

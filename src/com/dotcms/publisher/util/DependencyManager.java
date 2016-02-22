@@ -1,12 +1,5 @@
 package com.dotcms.publisher.util;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.dotcms.publisher.business.PublishQueueElement;
 import com.dotcms.publisher.pusher.PushPublisherConfig;
 import com.dotcms.publisher.pusher.PushPublisherConfig.Operation;
@@ -15,7 +8,6 @@ import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.beans.MultiTree;
-import com.dotmarketing.beans.WebAsset;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.DotIdentifierStateException;
 import com.dotmarketing.business.DotStateException;
@@ -45,6 +37,8 @@ import com.dotmarketing.util.InodeUtils;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
+
+import java.util.*;
 
 public class DependencyManager {
 
@@ -890,7 +884,7 @@ public class DependencyManager {
 			Folder f = APILocator.getFolderAPI().find(con.getFolder(), user, false);
         	folders.addOrClean( con.getFolder(), f.getModDate()); // adding content folder
 
-        	languages.addOrClean(Long.toString(con.getLanguageId()), new Date()); // will be included only when hasn't been sent ever
+			languages.addOrClean(Long.toString(con.getLanguageId()), APILocator.getLanguageAPI().getLastModDate(con.getLanguageId())); // will be included only when hasn't been sent ever
 
 			try {
 				if(Config.getBooleanProperty("PUSH_PUBLISHING_PUSH_ALL_FOLDER_PAGES",false)) {

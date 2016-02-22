@@ -1,25 +1,6 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
-import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.dotcms.repackage.org.apache.struts.Globals;
-
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.DotCacheException;
 import com.dotmarketing.db.HibernateUtil;
@@ -33,6 +14,10 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.struts.MultiMessageResources;
 import com.liferay.util.FileUtil;
+
+import java.io.*;
+import java.nio.channels.FileChannel;
+import java.util.*;
 
 /**
  *
@@ -274,7 +259,7 @@ public class LanguageFactoryImpl extends LanguageFactory {
 			Date lastReadTime = readTimeStamps.get(filePath);
 	        int refreshInterval = Config.getIntProperty("LANGUAGES_REFRESH_INTERVAL", 1);
 			if(new Date().getTime() - lastReadTime.getTime() > refreshInterval * 1000 * 60) {
-				File from = new java.io.File(filePath);
+				File from = new File(filePath);
 				if(from.lastModified() > lastReadTime.getTime())
 					forceRead = true;
 			}
@@ -294,7 +279,7 @@ public class LanguageFactoryImpl extends LanguageFactory {
 
 		if (list == null) {
 			// Create empty file
-			File from = new java.io.File(filePath);
+			File from = new File(filePath);
 			if (!from.exists()) {
 				return new ArrayList<LanguageKey>();
 			}
@@ -369,7 +354,7 @@ public class LanguageFactoryImpl extends LanguageFactory {
 
             String filePath = getGlobalVariablesPath()+"cms_language_" + langCodeAndCountryCode + ".properties";
             // Create empty file
-            File from = new java.io.File(filePath);
+            File from = new File(filePath);
 
             if (!from.exists()) {
             	if (!from.getParentFile().exists()) {
@@ -381,7 +366,7 @@ public class LanguageFactoryImpl extends LanguageFactory {
 
             filePath = getGlobalVariablesPath()+"cms_language_" + langCode + ".properties";
             // Create empty file
-            from = new java.io.File(filePath);
+            from = new File(filePath);
             if (!from.exists()) {
             	from.createNewFile();
             	pw2 = new PrintWriter(filePath, "UTF8");
@@ -399,6 +384,42 @@ public class LanguageFactoryImpl extends LanguageFactory {
         }
 	}
 
+	@Override
+	protected Date getLastModDate(long langId) {
+		Language lang = getLanguage(langId);
+		String langCodeAndCountryCode = lang.getLanguageCode() + "_" + lang.getCountryCode();
+		String langCode = lang.getLanguageCode();
+
+		String filePath = getGlobalVariablesPath() + "cms_language_" + langCodeAndCountryCode + ".properties";
+		File langCodeAndCountryCodeFile = new File(filePath);
+		Date langCodeAndCountryCodeDate = null;
+
+		if (langCodeAndCountryCodeFile.exists()) {
+			langCodeAndCountryCodeDate = new Date(langCodeAndCountryCodeFile.lastModified());
+		}
+
+		filePath = getGlobalVariablesPath() + "cms_language_" + langCode + ".properties";
+		File langCodeFile = new File(filePath);
+		Date langCodeDate = null;
+
+		if (langCodeFile.exists()) {
+			langCodeDate = new Date(langCodeFile.lastModified());
+		}
+
+		Date modDate;
+
+		if(langCodeAndCountryCodeDate!=null && langCodeDate!=null) {
+			modDate = langCodeDate.after(langCodeAndCountryCodeDate)?langCodeDate:langCodeAndCountryCodeDate;
+		} else if (langCodeAndCountryCodeDate!=null) {
+			modDate = langCodeAndCountryCodeDate;
+		} else {
+			modDate = langCodeDate;
+		}
+
+		return modDate;
+
+	}
+
 	private void saveLanguageKeys(String fileLangName, Map<String, String> keys, Set<String> toDeleteKeys) throws IOException {
 
 		if(keys == null)
@@ -408,9 +429,9 @@ public class LanguageFactoryImpl extends LanguageFactory {
 		PrintWriter tempFileWriter = null;
 
 		String filePath = getGlobalVariablesPath() + "cms_language_" + fileLangName + ".properties";
-		File file = new java.io.File(filePath);
+		File file = new File(filePath);
 		String tempFilePath = getGlobalVariablesPath() + "cms_language_" + fileLangName + ".properties.temp";
-		File tempFile = new java.io.File(tempFilePath);
+		File tempFile = new File(tempFilePath);
 
 		try {
 			if (tempFile.exists())

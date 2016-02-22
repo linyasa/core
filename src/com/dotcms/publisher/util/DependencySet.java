@@ -1,22 +1,20 @@
 package com.dotcms.publisher.util;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-
 import com.dotcms.publisher.assets.bean.PushedAsset;
-import com.dotcms.publisher.assets.business.PushedAssetsCache;
 import com.dotcms.publisher.bundle.bean.Bundle;
 import com.dotcms.publisher.environment.bean.Environment;
 import com.dotmarketing.beans.VersionInfo;
 import com.dotmarketing.business.APILocator;
-import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.portlets.contentlet.model.ContentletVersionInfo;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.util.InodeUtils;
 import com.dotmarketing.util.Logger;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 
 public class DependencySet extends HashSet<String> {
 
@@ -24,7 +22,6 @@ public class DependencySet extends HashSet<String> {
 	 *
 	 */
 	private static final long serialVersionUID = 3048299770146564147L;
-	private PushedAssetsCache cache;
 	private List<Environment> envs = new ArrayList<Environment>();
 	private String assetType;
 	private String bundleId;
@@ -34,7 +31,6 @@ public class DependencySet extends HashSet<String> {
 
 	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish) {
 		super();
-		cache = CacheLocator.getPushedAssetsCache();
 		this.assetType = assetType;
 		this.bundleId = bundleId;
 		this.isDownload = isDownload;
@@ -76,7 +72,11 @@ public class DependencySet extends HashSet<String> {
 
             //For un-publish we always remove the asset from cache
             for ( Environment env : envs ) {
-                cache.removePushedAssetById( assetId, env.getId() );
+				try {
+					APILocator.getPushedAssetsAPI().deletePushedAssetsByAssetEnv(assetId, env.getId());
+				} catch(DotDataException e) {
+					Logger.error(this, String.format("Error deleting Pushed Asset. AssetId: %s. EnvId: %s", assetId, env.getId()), e);
+				}
             }
 
             //Return if we are here just to clean up dependencies from cache
@@ -85,7 +85,7 @@ public class DependencySet extends HashSet<String> {
             }
         }
 
-		boolean modified = false;
+		boolean push = true;
 
 		// we need to check if all environments have the last version of the asset in
 		// order to skip adding it to the Set
@@ -100,9 +100,17 @@ public class DependencySet extends HashSet<String> {
 
         if ( !isForcePush && !isDownload && isPublish ) {
             for (Environment env : envs) {
-				PushedAsset asset = cache.getPushedAsset(assetId, env.getId());
+				PushedAsset asset;
+				try {
+					asset = APILocator.getPushedAssetsAPI().getLastPushForAsset(assetId, env.getId());
+				} catch (DotDataException e1) {
+					// Asset does not exist in db or cache, return true;
+					return true;
+				}
 
-				modified = (asset==null || (assetModDate!=null && asset.getPushDate().before(assetModDate)));
+				boolean modified = (asset==null || (assetModDate!=null && asset.getPushDate().before(assetModDate)));
+
+				push = push || modified;
 				
 				try {
 				    if(!modified && assetType.equals("content")) {
@@ -110,7 +118,7 @@ public class DependencySet extends HashSet<String> {
 				        for(Language lang : APILocator.getLanguageAPI().getLanguages()) {
                             ContentletVersionInfo info=APILocator.getVersionableAPI().getContentletVersionInfo(assetId, lang.getId());
                             if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                                modified = modified || (null == info.getVersionTs()) || assetModDate.before(info.getVersionTs()); 
+                                modified = modified || (null == info.getVersionTs()) || asset.getPushDate().before(info.getVersionTs());
                             }
 				        }
 				    }
@@ -118,7 +126,7 @@ public class DependencySet extends HashSet<String> {
 				        // check for versionInfo TS
                         VersionInfo info=APILocator.getVersionableAPI().getVersionInfo(assetId);
                         if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                            modified = assetModDate.before(info.getVersionTs()); 
+                            modified = asset.getPushDate().before(info.getVersionTs());
                         }
 				    }
 				} catch (Exception e) {
@@ -128,27 +136,15 @@ public class DependencySet extends HashSet<String> {
 				
 				if(modified) {
 					try {
-						//We need to check if the assetID is already in the bundle.
-						//1.Get all the pushed assests records with same Asset ID.
-						List<PushedAsset> pushedAssests = APILocator.getPushedAssetsAPI().getPushedAssets(assetId);
-						boolean isAlreadyInPushedBunble = false;
-						
-						//Check through the records to see if match env and bundle ID.
-						for(PushedAsset pushedAsset : pushedAssests){
-							if(pushedAsset.getBundleId().equals(bundleId)
-									&& pushedAsset.getEnvironmentId().equals(env.getId())){
-								isAlreadyInPushedBunble = true;
-							}
-						}
-						
-						//If it is not already in the bundle, we can push the record.
-						if(!isAlreadyInPushedBunble){
+						//We need to check if there is already at least one record with bundleId,assetId,environmentId.
+						List<PushedAsset> pushedAssests = APILocator.getPushedAssetsAPI().getPushedAssets(bundleId, assetId, env.getId());
+
+						//If it is not already in the bundle, we can save the record.
+						if(pushedAssests.isEmpty()){
 							asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
 							APILocator.getPushedAssetsAPI().savePushedAsset(asset);
 						}
-						
-						cache.add(asset);
-						
+
 					} catch (DotDataException e) {
 						Logger.error(getClass(), "Could not save PushedAsset. "
 								+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
@@ -157,7 +153,7 @@ public class DependencySet extends HashSet<String> {
 			}
 		}
 
-        if ( isForcePush || isDownload || !isPublish || modified ) {
+        if ( isForcePush || isDownload || !isPublish || push ) {
             super.add( assetId );
             return true;
         }

@@ -1,11 +1,12 @@
 package com.dotcms.publisher.assets.business;
 
-import java.util.List;
-
 import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.UtilMethods;
+
+import java.util.List;
 
 public class PushedAssetsAPIImpl implements PushedAssetsAPI {
 
@@ -77,13 +78,31 @@ public class PushedAssetsAPIImpl implements PushedAssetsAPI {
 	public void deleteAllPushedAssets() throws DotDataException {
 		pushedAssetsFactory.deleteAllPushedAssets();
 		CacheLocator.getPushedAssetsCache().clearCache();
-
 	}
 
 	@Override
 	public List<PushedAsset> getPushedAssets(String assetId)
 			throws DotDataException {
 		return pushedAssetsFactory.getPushedAssets(assetId);
+	}
+
+	@Override
+	public List<PushedAsset> getPushedAssets(String bundleId, String assetId, String environmentId) throws DotDataException {
+		return pushedAssetsFactory.getPushedAssets(bundleId, assetId, environmentId);
+	}
+
+	@Override
+	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException{
+		if(!UtilMethods.isSet(environmentId) ||!UtilMethods.isSet(assetId)) {
+			return null;
+		}
+
+		return pushedAssetsFactory.getLastPushForAsset(assetId,environmentId);
+	}
+
+	@Override
+	public void deletePushedAssetsByAssetEnv(String assetId, String environmentId) throws DotDataException {
+		pushedAssetsFactory.deletePushedAssetsByAssetEnv(assetId, environmentId);
 	}
 
 }

@@ -1,17 +1,19 @@
 package com.dotcms.publisher.assets.business;
 
+import com.dotcms.publisher.assets.bean.PushedAsset;
+import com.dotcms.publisher.util.PublisherUtil;
+import com.dotmarketing.business.CacheLocator;
+import com.dotmarketing.common.db.DotConnect;
+import com.dotmarketing.db.DbConnectionFactory;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.UtilMethods;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.dotcms.publisher.assets.bean.PushedAsset;
-import com.dotcms.publisher.util.PublisherUtil;
-import com.dotmarketing.common.db.DotConnect;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.util.UtilMethods;
-
 public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
-
+	private PushedAssetsCache cache=CacheLocator.getPushedAssetsCache();
 	public void savePushedAsset(PushedAsset asset) throws DotDataException {
 		final DotConnect db = new DotConnect();
 		db.setSQL(INSERT_ASSETS);
@@ -21,6 +23,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		db.addParam(asset.getPushDate());
 		db.addParam(asset.getEnvironmentId());
 		db.loadResult();
+		cache.removePushedAssetById(asset.getAssetId(), asset.getEnvironmentId());
 	}
 
 	@Override
@@ -31,7 +34,47 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		db.addParam(bundleId);
 		db.addParam(environmentId);
 		db.loadResult();
+		cache.clearCache();
 
+	}
+
+	@Override
+	public void deletePushedAssetsByAssetEnv(String assetId, String environmentId)
+			throws DotDataException {
+		final DotConnect db = new DotConnect();
+		db.setSQL(DELETE_ASSETS_BY_ASSET_ENV);
+		db.addParam(assetId);
+		db.addParam(environmentId);
+		db.loadResult();
+		cache.clearCache();
+
+	}
+
+	@Override
+	public List<PushedAsset> getPushedAssets(String bundleId, String assetId, String environmentId) throws DotDataException {
+		List<PushedAsset> assets = new ArrayList<PushedAsset>();
+
+		if(!UtilMethods.isSet(assetId)) {
+			return assets;
+		}
+
+		DotConnect dc = new DotConnect();
+		if(DbConnectionFactory.isMySql()) {
+			dc.setSQL("SELECT * FROM publishing_pushed_assets USE INDEX (idx_pushed_assets_5) WHERE bundle_id = ? AND asset_id = ? AND environment_id = ?");
+		} else {
+			dc.setSQL("SELECT * FROM publishing_pushed_assets WHERE bundle_id = ? AND asset_id = ? AND environment_id = ?");
+		}
+		dc.addParam(bundleId);
+		dc.addParam(assetId);
+		dc.addParam(environmentId);
+
+		List<Map<String, Object>> res = dc.loadObjectResults();
+
+		for(Map<String, Object> row : res){
+			assets.add(PublisherUtil.getPushedAssetByMap(row));
+		}
+
+		return assets;
 	}
 
 	@Override
@@ -41,7 +84,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		db.setSQL(DELETE_ASSETS_BY_ASSET_ID);
 		db.addParam(assetId);
 		db.loadResult();
-
+		cache.clearCache();
 	}
 
 	@Override
@@ -51,7 +94,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		db.setSQL(DELETE_ASSETS_BY_ENVIRONMENT_ID);
 		db.addParam(environmentId);
 		db.loadResult();
-
+		cache.clearCache();
 	}
 
 	@Override
@@ -86,6 +129,7 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		final DotConnect db = new DotConnect();
 		db.setSQL(DELETE_ALL_ASSETS);
 		db.loadResult();
+		cache.clearCache();
 	}
 
 	@Override
@@ -132,6 +176,34 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		}
 
 		return assets;
+	}
+	
+	
+	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException{
+		PushedAsset asset = cache.getPushedAsset(assetId, environmentId);
+
+		if(asset==null){
+			DotConnect dc = new DotConnect();
+
+			if(DbConnectionFactory.isMySql()) {
+				dc.setSQL("SELECT * FROM publishing_pushed_assets USE INDEX (idx_pushed_assets_4) " +
+						"WHERE asset_id = ? AND environment_id = ? ORDER BY push_date DESC LIMIT 1");
+			} else{
+				dc.setSQL(SELECT_ASSET_LAST_PUSHED);
+			}
+
+			dc.addParam(assetId);
+			dc.addParam(environmentId);
+			dc.setMaxRows(1);
+			List<Map<String, Object>> res = dc.loadObjectResults();
+	
+			for(Map<String, Object> row : res){
+				asset = PublisherUtil.getPushedAssetByMap(row);
+				cache.add(asset);
+			}
+		}
+		
+		return asset;
 	}
 
 }

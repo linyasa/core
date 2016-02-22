@@ -1,12 +1,13 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.portlets.languagesmanager.model.LanguageKey;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface LanguageAPI {
 
@@ -26,11 +27,11 @@ public interface LanguageAPI {
 
 	public List<Language> getLanguages();
 	
-    public boolean hasLanguage (String id);
+    public boolean hasLanguage(String id);
     
-    public boolean hasLanguage (long id);
+    public boolean hasLanguage(long id);
     
-    public boolean hasLanguage (String languageCode, String countryCode);
+    public boolean hasLanguage(String languageCode, String countryCode);
 
 	public String getLanguageCodeAndCountry(long id, String langId);
 
@@ -74,5 +75,14 @@ public interface LanguageAPI {
      *
      */
     public void clearCache();
+
+    /**
+     * Checks if the parameter is an asset type language 
+     * @param id
+     * @return true if its a language type, otherwise returns false
+     */
+    public boolean isAssetTypeLanguage(String id);
+
+	Date getLastModDate(long langId);
     
 }
