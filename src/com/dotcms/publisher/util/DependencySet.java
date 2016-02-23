@@ -89,6 +89,9 @@ public class DependencySet extends HashSet<String> {
 			}
 		}
 
+		// check if it was already added
+		if(super.contains(assetId)) return false;
+
 		boolean push = false;
 
 		// we need to check if all environments have the last version of the asset in
