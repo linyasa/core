@@ -230,4 +230,8 @@ public class LanguageAPIImpl implements LanguageAPI {
 	public void clearCache(){
 		CacheLocator.getLanguageCache().clearCache();
 	}
+
+	public Date getLastModDate(long langId) {
+		return factory.getLastModDate(langId);
+	}
 }

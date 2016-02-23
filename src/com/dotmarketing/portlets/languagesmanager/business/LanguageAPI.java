@@ -1,5 +1,6 @@
 package com.dotmarketing.portlets.languagesmanager.business;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,5 +75,7 @@ public interface LanguageAPI {
      *
      */
     public void clearCache();
+
+	Date getLastModDate(long langId);
     
 }

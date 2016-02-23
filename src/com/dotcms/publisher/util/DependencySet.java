@@ -90,6 +90,9 @@ public class DependencySet extends HashSet<String> {
 			}
 		}
 
+		// check if it was already added
+		if(super.contains(assetId)) return false;
+
 		boolean push = false;
 
 		// we need to check if all environments have the last version of the asset in
@@ -125,7 +128,7 @@ public class DependencySet extends HashSet<String> {
 						for(Language lang : APILocator.getLanguageAPI().getLanguages()) {
 							ContentletVersionInfo info=APILocator.getVersionableAPI().getContentletVersionInfo(assetId, lang.getId());
 							if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-								modified = modified || (null == info.getVersionTs()) || assetModDate.before(info.getVersionTs());
+								modified = modified || (null == info.getVersionTs()) || lastPush.get().getPushDate().before(info.getVersionTs());
 							}
 						}
 					}
@@ -133,7 +136,7 @@ public class DependencySet extends HashSet<String> {
 						// check for versionInfo TS
 						VersionInfo info=APILocator.getVersionableAPI().getVersionInfo(assetId);
 						if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-							modified = assetModDate.before(info.getVersionTs());
+							modified = lastPush.get().getPushDate().before(info.getVersionTs());
 						}
 					}
 				} catch (Exception e) {
