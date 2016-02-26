@@ -25,6 +25,7 @@ import com.dotcms.repackage.com.sun.jersey.api.client.WebResource;
 import com.dotcms.repackage.com.sun.jersey.api.client.config.ClientConfig;
 import com.dotcms.repackage.com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.dotcms.repackage.com.sun.jersey.client.urlconnection.HTTPSProperties;
+import com.dotcms.repackage.org.apache.log4j.MDC;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
@@ -32,6 +33,15 @@ import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotHibernateException;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.PushPublishLogger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.StatefulJob;
 
 /**
  * This class read the publishing_queue table and send bundles to some environments
@@ -40,6 +50,7 @@ import com.dotmarketing.util.Logger;
  */
 public class PublisherQueueJob implements StatefulJob {
 
+	private static final String BUNDLE_ID = "BundleId";
 	private PublishAuditAPI pubAuditAPI = PublishAuditAPI.getInstance();
 	private PublishingEndPointAPI endpointAPI = APILocator.getPublisherEndPointAPI();
 	private PublisherAPI pubAPI = PublisherAPI.getInstance();
@@ -89,58 +100,68 @@ public class PublisherQueueJob implements StatefulJob {
 
 					if(publishDate.before(new Date())) {
 						tempBundleId = (String)bundle.get("bundle_id");
-						tempBundleContents = pubAPI.getQueueElementsByBundleId(tempBundleId);
+						MDC.put(BUNDLE_ID, BUNDLE_ID + "=" + tempBundleId);
 
-						//Setting Audit objects
-						//History
-						historyPojo = new PublishAuditHistory();
-						//Retriving assets
-						Map<String, String> assets = new HashMap<String, String>();
-						List<PublishQueueElement> assetsToPublish = new ArrayList<PublishQueueElement>();
+						try {
+							PushPublishLogger.log(this.getClass(), "Pre-publish work started.");
+							tempBundleContents = pubAPI.getQueueElementsByBundleId(tempBundleId);
 
-						for(PublishQueueElement c : tempBundleContents) {
-							assets.put( c.getAsset(), c.getType());
-							assetsToPublish.add(c);
-						}
-						historyPojo.setAssets(assets);
+							//Setting Audit objects
+							//History
+							historyPojo = new PublishAuditHistory();
+							//Retriving assets
+							Map<String, String> assets = new HashMap<String, String>();
+							List<PublishQueueElement> assetsToPublish = new ArrayList<PublishQueueElement>();
 
-						PushPublisherConfig pconf = new PushPublisherConfig();
-						pconf.setAssets(assetsToPublish);
+							for(PublishQueueElement c : tempBundleContents) {
+								assets.put( c.getAsset(), c.getType());
+								assetsToPublish.add(c);
+							}
+							historyPojo.setAssets(assets);
 
-						//Status
-						status =  new PublishAuditStatus(tempBundleId);
-						status.setStatusPojo(historyPojo);
+							PushPublisherConfig pconf = new PushPublisherConfig();
+							pconf.setAssets(assetsToPublish);
 
-						//Insert in Audit table
-						pubAuditAPI.insertPublishAuditStatus(status);
+							//Status
+							status =  new PublishAuditStatus(tempBundleId);
+							status.setStatusPojo(historyPojo);
 
-						//Queries creation
-						pconf.setLuceneQueries(PublisherUtil.prepareQueries(tempBundleContents));
-						pconf.setId(tempBundleId);
-						pconf.setUser(APILocator.getUserAPI().getSystemUser());
-						pconf.setStartDate(new Date());
-						pconf.runNow();
+							//Insert in Audit table
+							pubAuditAPI.insertPublishAuditStatus(status);
 
-						pconf.setPublishers(clazz);
+							//Queries creation
+							pconf.setLuceneQueries(PublisherUtil.prepareQueries(tempBundleContents));
+							pconf.setId(tempBundleId);
+							pconf.setUser(APILocator.getUserAPI().getSystemUser());
+							pconf.setStartDate(new Date());
+							pconf.runNow();
+
+							pconf.setPublishers(clazz);
 //						pconf.setEndpoints(endpoints);
 
-                        if ( Integer.parseInt( bundle.get( "operation" ).toString() ) == PublisherAPI.ADD_OR_UPDATE_ELEMENT ) {
-                            pconf.setOperation( PushPublisherConfig.Operation.PUBLISH );
-                        } else {
-                            pconf.setOperation( PushPublisherConfig.Operation.UNPUBLISH );
-                        }
+							if ( Integer.parseInt( bundle.get( "operation" ).toString() ) == PublisherAPI.ADD_OR_UPDATE_ELEMENT ) {
+								pconf.setOperation( PushPublisherConfig.Operation.PUBLISH );
+							} else {
+								pconf.setOperation( PushPublisherConfig.Operation.UNPUBLISH );
+							}
 
-                        try {
-                            APILocator.getPublisherAPI().publish( pconf );
-                        } catch ( DotPublishingException e ) {
-                            /*
-                            If we are getting errors creating the bundle we should stop trying to publish it, this is not just a connection error,
-                            there is something wrong with a bundler or creating the bundle.
-                             */
-                            Logger.error( PublisherQueueJob.class, "Unable to publish Bundle: " + e.getMessage(), e );
-                            pubAuditAPI.updatePublishAuditStatus( pconf.getId(), PublishAuditStatus.Status.FAILED_TO_BUNDLE, historyPojo );
-                            pubAPI.deleteElementsFromPublishQueueTable( pconf.getId() );
-                        }
+							PushPublishLogger.log(this.getClass(), "Pre-publish work complete.");
+
+							try {
+								APILocator.getPublisherAPI().publish( pconf );
+							} catch ( DotPublishingException e ) {
+								/*
+								If we are getting errors creating the bundle we should stop trying to publish it, this is not just a connection error,
+								there is something wrong with a bundler or creating the bundle.
+								 */
+								Logger.error( PublisherQueueJob.class, "Unable to publish Bundle: " + e.getMessage(), e );
+								PushPublishLogger.log(this.getClass(), "Status Update: Failed to bundle");
+								pubAuditAPI.updatePublishAuditStatus( pconf.getId(), Status.FAILED_TO_BUNDLE, historyPojo );
+								pubAPI.deleteElementsFromPublishQueueTable( pconf.getId() );
+							}
+						} finally {
+							MDC.remove(BUNDLE_ID);
+						}
                     }
 
 				}
@@ -183,6 +204,8 @@ public class PublisherQueueJob implements StatefulJob {
         List<PublishAuditStatus> pendingBundleAudits = pubAuditAPI.getPendingPublishAuditStatus();
         // For each bundle
         for (PublishAuditStatus bundleAudit : pendingBundleAudits) {
+			MDC.put(BUNDLE_ID, BUNDLE_ID + "=" + bundleAudit.getBundleId());
+			try {
         	PublishAuditHistory localHistory = bundleAudit.getStatusPojo();
         	Map<String, Map<String, EndpointDetail>> endpointsMap = localHistory.getEndpointsMap();
         	Map<String, Map<String, EndpointDetail>> endpointTrackingMap = new HashMap<String, Map<String, EndpointDetail>>();
@@ -264,6 +287,7 @@ public class PublisherQueueJob implements StatefulJob {
 				for(Environment environment : environments){
 					APILocator.getPushedAssetsAPI().deletePushedAssets(bundleAudit.getBundleId(), environment.getId());
 				}
+				PushPublishLogger.log(this.getClass(), "Status Update: Failed to publish");
 	    		pubAuditAPI.updatePublishAuditStatus(bundleAudit.getBundleId(),
 	        			PublishAuditStatus.Status.FAILED_TO_PUBLISH,
 	        			localHistory);
@@ -280,6 +304,7 @@ public class PublisherQueueJob implements StatefulJob {
 	        			localHistory);
         	} else if (countGroupOk == endpointTrackingMap.size()) {
         		// If bundle was installed in all groups
+				PushPublishLogger.log(this.getClass(), "Status Update: Success");
 	        	pubAuditAPI.updatePublishAuditStatus(bundleAudit.getBundleId(),
 	        			PublishAuditStatus.Status.SUCCESS,
 	        			localHistory);
@@ -295,6 +320,9 @@ public class PublisherQueueJob implements StatefulJob {
         				PublishAuditStatus.Status.WAITING_FOR_PUBLISHING,
 	        			localHistory);
         	}
+			} finally {
+				MDC.remove(BUNDLE_ID);
+			}
         }
 	}
     

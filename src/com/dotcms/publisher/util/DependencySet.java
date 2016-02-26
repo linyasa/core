@@ -100,7 +100,13 @@ public class DependencySet extends HashSet<String> {
 
         if ( !isForcePush && !isDownload && isPublish ) {
             for (Environment env : envs) {
-				PushedAsset asset = cache.getPushedAsset(assetId, env.getId());
+				PushedAsset asset;
+                try {
+                    asset = APILocator.getPushedAssetsAPI().getLastPushForAsset(assetId, env.getId());
+                } catch (DotDataException e1) {
+                    // Asset does not exist in db or cache, return true;
+                    return true;
+                }
 
 				modified = (asset==null || (assetModDate!=null && asset.getPushDate().before(assetModDate)));
 				
@@ -110,7 +116,7 @@ public class DependencySet extends HashSet<String> {
 				        for(Language lang : APILocator.getLanguageAPI().getLanguages()) {
                             ContentletVersionInfo info=APILocator.getVersionableAPI().getContentletVersionInfo(assetId, lang.getId());
                             if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                                modified = modified || (null == info.getVersionTs()) || assetModDate.before(info.getVersionTs()); 
+                                modified = modified || (null == info.getVersionTs()) || asset.getPushDate().before(info.getVersionTs());
                             }
 				        }
 				    }
@@ -118,7 +124,7 @@ public class DependencySet extends HashSet<String> {
 				        // check for versionInfo TS
                         VersionInfo info=APILocator.getVersionableAPI().getVersionInfo(assetId);
                         if(info!=null && InodeUtils.isSet(info.getIdentifier())) {
-                            modified = assetModDate.before(info.getVersionTs()); 
+                            modified = asset.getPushDate().before(info.getVersionTs());
                         }
 				    }
 				} catch (Exception e) {
@@ -146,8 +152,6 @@ public class DependencySet extends HashSet<String> {
 							asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
 							APILocator.getPushedAssetsAPI().savePushedAsset(asset);
 						}
-						
-						cache.add(asset);
 						
 					} catch (DotDataException e) {
 						Logger.error(getClass(), "Could not save PushedAsset. "

@@ -6,6 +6,7 @@ import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.UtilMethods;
 
 public class PushedAssetsAPIImpl implements PushedAssetsAPI {
 
@@ -85,5 +86,18 @@ public class PushedAssetsAPIImpl implements PushedAssetsAPI {
 			throws DotDataException {
 		return pushedAssetsFactory.getPushedAssets(assetId);
 	}
+
+ 	
+ 	
+ 	
+	@Override
+ 	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException{
+ 		if(!UtilMethods.isSet(environmentId) ||!UtilMethods.isSet(assetId)) {
+ 			return null;
+ 		}
+ 		
+ 		return pushedAssetsFactory.getLastPushForAsset(assetId,environmentId);
+ 		
+ 	}
 
 }
