@@ -149,7 +149,7 @@
         <param name="MaxBackupIndex" value="10"/>
         <layout class="com.dotcms.repackage.org.apache.log4j.PatternLayout">
             <param name="ConversionPattern"
-                   value="[%d{dd/MM/yy HH:mm:ss:SSS z}] %5p %c{2}: %m%n" />
+                   value="[%d{dd/MM/yy HH:mm:ss:SSS z}] %5p %c{2}: %X{BundleId} %m%n" />
         </layout>
     </appender>
 
