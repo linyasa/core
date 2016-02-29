@@ -31,8 +31,9 @@ public class DependencySet extends HashSet<String> {
 	private Bundle bundle;
 	private boolean isDownload;
 	private boolean isPublish;
+	private DependencyManager dependencyManager;
 
-	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish) {
+	public DependencySet(String bundleId, String assetType, boolean isDownload, boolean isPublish, DependencyManager dependencyManager) {
 		super();
 		cache = CacheLocator.getPushedAssetsCache();
 		this.assetType = assetType;
@@ -51,6 +52,8 @@ public class DependencySet extends HashSet<String> {
 		} catch (DotDataException e) {
 			Logger.error(getClass(), "Can't get bundle. Bundle Id: " + bundleId , e);
 		}
+
+		this.dependencyManager = dependencyManager;
 	}
 
 	public boolean add(String assetId, Date assetModDate) {
@@ -84,6 +87,11 @@ public class DependencySet extends HashSet<String> {
                 return true;
             }
         }
+
+		// check if it was already added to the set
+		if(contains(assetId)) {
+			return true;
+		}
 
 		boolean modified = false;
 
@@ -133,30 +141,7 @@ public class DependencySet extends HashSet<String> {
                 }
 				
 				if(modified) {
-					try {
-						//We need to check if the assetID is already in the bundle.
-						//1.Get all the pushed assests records with same Asset ID.
-						List<PushedAsset> pushedAssests = APILocator.getPushedAssetsAPI().getPushedAssets(assetId);
-						boolean isAlreadyInPushedBunble = false;
-						
-						//Check through the records to see if match env and bundle ID.
-						for(PushedAsset pushedAsset : pushedAssests){
-							if(pushedAsset.getBundleId().equals(bundleId)
-									&& pushedAsset.getEnvironmentId().equals(env.getId())){
-								isAlreadyInPushedBunble = true;
-							}
-						}
-						
-						//If it is not already in the bundle, we can push the record.
-						if(!isAlreadyInPushedBunble){
-							asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
-							APILocator.getPushedAssetsAPI().savePushedAsset(asset);
-						}
-						
-					} catch (DotDataException e) {
-						Logger.error(getClass(), "Could not save PushedAsset. "
-								+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
-					}
+					dependencyManager.addPushedAsset(new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId()));
 				}
 			}
 		}

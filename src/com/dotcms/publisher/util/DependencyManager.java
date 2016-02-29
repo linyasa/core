@@ -1,12 +1,8 @@
 package com.dotcms.publisher.util;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotcms.publisher.business.PublishQueueElement;
 import com.dotcms.publisher.pusher.PushPublisherConfig;
 import com.dotcms.publisher.pusher.PushPublisherConfig.Operation;
@@ -74,6 +70,8 @@ public class DependencyManager {
 
 	private PushPublisherConfig config;
 
+	private Collection<PushedAsset> pushedAssets;
+
 	/**
 	 * Initializes for a given {@link PushPublisherConfig Config} the list of dependencies this manager<br/>
 	 * needs to satisfy
@@ -85,17 +83,17 @@ public class DependencyManager {
 		this.config = config;
 		// these ones store the assets that will be sent in the bundle
 		boolean isPublish=config.getOperation().equals(Operation.PUBLISH);
-		hosts = new DependencySet(config.getId(), "host", config.isDownloading(), isPublish);
-		folders = new DependencySet(config.getId(), "folder", config.isDownloading(), isPublish);
-		htmlPages = new DependencySet(config.getId(), "htmlpage", config.isDownloading(), isPublish);
-		templates = new DependencySet(config.getId(), "template", config.isDownloading(), isPublish);
-		structures = new DependencySet(config.getId(), "structure", config.isDownloading(), isPublish);
-		containers = new DependencySet(config.getId(), "container", config.isDownloading(), isPublish);
-		contents = new DependencySet(config.getId(), "content", config.isDownloading(), isPublish);
-		relationships = new DependencySet(config.getId(), "relationship", config.isDownloading(), isPublish);
-		links = new DependencySet(config.getId(),"links",config.isDownloading(), isPublish);
-		workflows = new DependencySet(config.getId(),"workflows",config.isDownloading(), isPublish);
-		languages = new DependencySet(config.getId(),"languages",config.isDownloading(), isPublish);
+		hosts = new DependencySet(config.getId(), "host", config.isDownloading(), isPublish, this);
+		folders = new DependencySet(config.getId(), "folder", config.isDownloading(), isPublish, this);
+		htmlPages = new DependencySet(config.getId(), "htmlpage", config.isDownloading(), isPublish, this);
+		templates = new DependencySet(config.getId(), "template", config.isDownloading(), isPublish, this);
+		structures = new DependencySet(config.getId(), "structure", config.isDownloading(), isPublish, this);
+		containers = new DependencySet(config.getId(), "container", config.isDownloading(), isPublish, this);
+		contents = new DependencySet(config.getId(), "content", config.isDownloading(), isPublish, this);
+		relationships = new DependencySet(config.getId(), "relationship", config.isDownloading(), isPublish, this);
+		links = new DependencySet(config.getId(),"links",config.isDownloading(), isPublish, this);
+		workflows = new DependencySet(config.getId(),"workflows",config.isDownloading(), isPublish, this);
+		languages = new DependencySet(config.getId(),"languages",config.isDownloading(), isPublish, this);
 
 		// these ones are for being iterated over to solve the asset's dependencies
 		hostsSet = new HashSet<String>();
@@ -109,6 +107,12 @@ public class DependencyManager {
 		solvedStructures = new HashSet<String>();
 
 		this.user = user;
+
+		pushedAssets = new HashSet<>();
+	}
+
+	public void addPushedAsset(PushedAsset asset) {
+		this.pushedAssets.add(asset);
 	}
 
 	/**
@@ -266,9 +270,9 @@ public class DependencyManager {
         setContainerDependencies();
         setStructureDependencies();
         setLinkDependencies();
-
-        
         setContentDependencies();
+
+		APILocator.getPushedAssetsAPI().savePushedAssets(pushedAssets);
 
 		config.setHostSet(hosts);
 		config.setFolders(folders);
@@ -959,7 +963,6 @@ public class DependencyManager {
 	 * <li>Relationships</li>
 	 * </ul>
 	 *
-	 * @param luceneQueries Queries to get the dependency Contentlets from
 	 * @throws DotBundleException If fails executing the Lucene queries
 	 */
 	private void setContentDependencies() throws DotBundleException {

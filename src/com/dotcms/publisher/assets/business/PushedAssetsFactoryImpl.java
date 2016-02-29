@@ -1,14 +1,22 @@
 package com.dotcms.publisher.assets.business;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import com.dotcms.publisher.assets.bean.PushedAsset;
 import com.dotcms.publisher.util.PublisherUtil;
+import com.dotcms.repackage.com.google.common.base.Preconditions;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.common.db.DotConnect;
+import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
@@ -162,6 +170,54 @@ public class PushedAssetsFactoryImpl extends PushedAssetsFactory {
 		return asset;
 		
 		
+	}
+
+	@Override
+	public void savePushedAsset(Collection<PushedAsset> pushedAssets) throws DotDataException {
+		Preconditions.checkNotNull(pushedAssets, "Null pushedAssets collection was passed");
+		Preconditions.checkArgument(!pushedAssets.isEmpty(), "Emtpy pushedAssets collection was passed");
+
+
+		PreparedStatement statement = null;
+		Connection conn = DbConnectionFactory.getConnection();
+		String bundleId = "";
+		String environmentId = "";
+
+		try {
+
+			statement = conn.prepareCall(INSERT_ASSETS);
+			int i = 0;
+
+			for (PushedAsset asset : pushedAssets) {
+
+				if(i==0) {
+					bundleId = asset.getBundleId();
+					environmentId = asset.getEnvironmentId();
+				}
+
+				statement.setObject(1, asset.getBundleId());
+				statement.setObject(2, asset.getAssetId());
+				statement.setObject(3, asset.getAssetType());
+				statement.setObject(4, asset.getPushDate());
+				statement.setObject(5, asset.getEnvironmentId());
+				statement.addBatch();
+				i++;
+
+			}
+
+			statement.executeBatch();
+//
+//			// it all good let's remove the entries from cache
+//			for (PushedAsset asset : pushedAssets) {
+//				cache.removePushedAssetById(asset.getAssetId(), asset.getEnvironmentId());
+//			}
+
+		} catch(SQLException e) {
+			throw new DotDataException(String.format("Error saving pushed assets for BundleId: %s and EnvironmentId: &s", bundleId, environmentId), e);
+		} finally {
+			try { if (conn != null) conn.close(); } catch (Exception e) { Logger.error(this, "Error closing connection", e); }
+			try { if (statement != null) statement.close(); } catch (Exception e) { Logger.error(this, "Error closing statement", e);  }
+		}
 	}
 
 }

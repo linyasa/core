@@ -1,5 +1,6 @@
 package com.dotcms.publisher.assets.business;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.dotcms.publisher.assets.bean.PushedAsset;
@@ -64,6 +65,8 @@ public interface PushedAssetsAPI {
 	public List<PushedAsset> getPushedAssets(String assetId)  throws DotDataException;
 
 	public PushedAsset getLastPushForAsset(String assetId, String environmentId)  throws DotDataException;
+
+	void savePushedAssets(Collection<PushedAsset> pushedAssets) throws DotDataException;
 
 
 
