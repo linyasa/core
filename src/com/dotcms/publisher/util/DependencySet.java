@@ -85,6 +85,11 @@ public class DependencySet extends HashSet<String> {
             }
         }
 
+		// check if it was already added to the set
+		if(super.contains(assetId)) {
+			return true;
+		}
+
 		boolean modified = false;
 
 		// we need to check if all environments have the last version of the asset in
@@ -131,28 +136,11 @@ public class DependencySet extends HashSet<String> {
                     Logger.warn(getClass(), "Error checking versionInfo for assetType:"+assetType+" assetId:"+assetId+
                             " process continues without checking versionInfo.ts",e);
                 }
-				
+
 				if(modified) {
 					try {
-						//We need to check if the assetID is already in the bundle.
-						//1.Get all the pushed assests records with same Asset ID.
-						List<PushedAsset> pushedAssests = APILocator.getPushedAssetsAPI().getPushedAssets(assetId);
-						boolean isAlreadyInPushedBunble = false;
-						
-						//Check through the records to see if match env and bundle ID.
-						for(PushedAsset pushedAsset : pushedAssests){
-							if(pushedAsset.getBundleId().equals(bundleId)
-									&& pushedAsset.getEnvironmentId().equals(env.getId())){
-								isAlreadyInPushedBunble = true;
-							}
-						}
-						
-						//If it is not already in the bundle, we can push the record.
-						if(!isAlreadyInPushedBunble){
-							asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
-							APILocator.getPushedAssetsAPI().savePushedAsset(asset);
-						}
-						
+						asset = new PushedAsset(bundleId, assetId, assetType, new Date(), env.getId());
+						APILocator.getPushedAssetsAPI().savePushedAsset(asset);
 					} catch (DotDataException e) {
 						Logger.error(getClass(), "Could not save PushedAsset. "
 								+ "AssetId: " + assetId + ". AssetType: " + assetType + ". Env Id: " + env.getId(), e);
