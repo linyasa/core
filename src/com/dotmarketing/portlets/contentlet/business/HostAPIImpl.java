@@ -392,7 +392,16 @@ public class HostAPIImpl implements HostAPI {
 		}
 		Host savedHost =  new Host(c);
 
-		if(host.isDefault()) {  // If host is marked as default make sure that no other host is already set to be the default
+		updateDefaultHost(host, user, respectFrontendRoles);
+		hostCache.clearAliasCache();
+		return savedHost;
+
+	}
+
+	public void updateDefaultHost(Host host, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException{
+		// If host is marked as default make sure that no other host is already set to be the default
+		if(host.isDefault()) {
+			ContentletAPI conAPI = APILocator.getContentletAPI();
 			List<Host> hosts= findAllFromDB(user, respectFrontendRoles);
 			Host otherHost;
 			Contentlet otherHostContentlet;
@@ -416,14 +425,9 @@ public class HostAPIImpl implements HostAPI {
 						otherHost = new Host(cont);
 						publish(otherHost, user, respectFrontendRoles);
 					}
-					
 				}
 			}
 		}
-
-		hostCache.clearAliasCache();
-		return savedHost;
-
 	}
 
 	public List<Host> getHostsWithPermission(int permissionType, boolean includeArchived, User user, boolean respectFrontendRoles) throws DotDataException, DotSecurityException {

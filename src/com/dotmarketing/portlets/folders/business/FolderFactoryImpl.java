@@ -107,6 +107,8 @@ public class FolderFactoryImpl extends FolderFactory {
 				fc.addFolder(folder, id);
 			}
 			catch(Exception e){
+				Logger.warn(this, "folderInode: " + folderInode);
+				Logger.warn(this, "folder.getIdentifier(): " + folder.getIdentifier());
 				throw new DotDataException(e.getMessage());
 			}
 

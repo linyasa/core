@@ -17,7 +17,7 @@ import com.dotcms.repackage.javax.ws.rs.core.Response;
 
 import com.dotcms.repackage.org.apache.commons.httpclient.HttpStatus;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
-
+import com.dotcms.repackage.org.apache.log4j.MDC;
 import com.dotcms.publisher.bundle.bean.Bundle;
 import com.dotcms.publisher.business.PublishAuditAPI;
 import com.dotcms.publisher.business.PublishAuditStatus;
@@ -38,6 +38,8 @@ import com.dotcms.repackage.com.sun.jersey.multipart.FormDataParam;
 
 @Path("/bundlePublisher")
 public class BundlePublisherResource extends WebResource {
+
+	private static final String BUNDLE_ID = "BundleId";
 
 	public static String MY_TEMP = "";
 	private PublishingEndPointAPI endpointAPI = APILocator.getPublisherEndPointAPI();
@@ -71,83 +73,88 @@ public class BundlePublisherResource extends WebResource {
 			@FormDataParam("BUNDLE_NAME") String bundleName,
 			@Context HttpServletRequest req) {
 
-        //Creating an utility response object
-        Map<String, String> paramsMap = new HashMap<String, String>();
-        paramsMap.put( "type", type );
-        paramsMap.put( "callback", callback );
-        ResourceResponse responseResource = new ResourceResponse( paramsMap );
+        MDC.put(BUNDLE_ID, BUNDLE_ID + "=" + bundleName);
+        try {
+            //Creating an utility response object
+            Map<String, String> paramsMap = new HashMap<String, String>();
+            paramsMap.put( "type", type );
+            paramsMap.put( "callback", callback );
+            ResourceResponse responseResource = new ResourceResponse( paramsMap );
 
-		String remoteIP = "";
-		try {
-			String auth_token = PublicEncryptionFactory.decryptString(auth_token_enc);
-			remoteIP = req.getRemoteHost();
-			if(!UtilMethods.isSet(remoteIP))
-				remoteIP = req.getRemoteAddr();
+            String remoteIP = "";
+            try {
+                String auth_token = PublicEncryptionFactory.decryptString(auth_token_enc);
+                remoteIP = req.getRemoteHost();
+                if(!UtilMethods.isSet(remoteIP))
+                    remoteIP = req.getRemoteAddr();
 
-			HibernateUtil.startTransaction();
+                HibernateUtil.startTransaction();
 
-			PublishingEndPoint mySelf = endpointAPI.findEnabledSendingEndPointByAddress(remoteIP);
+                PublishingEndPoint mySelf = endpointAPI.findEnabledSendingEndPointByAddress(remoteIP);
 
-			if(!isValidToken(auth_token, remoteIP, mySelf)) {
-				bundle.close();
-                return responseResource.responseError( HttpStatus.SC_UNAUTHORIZED );
+                if(!isValidToken(auth_token, remoteIP, mySelf)) {
+                    bundle.close();
+                    return responseResource.responseError( HttpStatus.SC_UNAUTHORIZED );
+                }
+
+                String bundlePath = ConfigUtils.getBundlePath()+File.separator+MY_TEMP;
+                String fileName=fileDetail.getFileName();
+                String bundleFolder = fileName.substring(0, fileName.indexOf(".tar.gz"));
+
+                PublishAuditStatus status = PublishAuditAPI.getInstance().updateAuditTable( mySelf.getId(), mySelf.getId(), bundleFolder, true );
+
+                if(bundleName.trim().length()>0) {
+                    // save bundle if it doesn't exists
+                    Bundle foundBundle = APILocator.getBundleAPI().getBundleById( bundleFolder );
+                    if ( foundBundle == null || foundBundle.getId() == null ) {
+                        Bundle b = new Bundle();
+                        b.setId(bundleFolder);
+                        b.setName(bundleName);
+                        b.setPublishDate(Calendar.getInstance().getTime());
+                        b.setOwner(APILocator.getUserAPI().getSystemUser().getUserId());
+                        APILocator.getBundleAPI().saveBundle(b);
+                    }
+                }
+
+                //Write file on FS
+                FileUtil.writeToFile(bundle, bundlePath+fileName);
+
+                //Start thread
+                if(!status.getStatus().equals(Status.PUBLISHING_BUNDLE)) {
+                    new Thread(new PublishThread(fileName, groupId, endpointId, status)).start();
+                }
+
+                HibernateUtil.commitTransaction();
+
+                return Response.status(HttpStatus.SC_OK).build();
+            } catch (NumberFormatException e) {
+                try {
+                    HibernateUtil.rollbackTransaction();
+                } catch (DotHibernateException e1) {
+                    Logger.error(this, "error rollback",e1);
+                }
+                Logger.error(PublisherQueueJob.class,e.getMessage(),e);
+            } catch (Exception e) {
+                try {
+                    HibernateUtil.rollbackTransaction();
+                } catch (DotHibernateException e1) {
+                    Logger.error(this, "error rollback",e1);
+                }
+                Logger.error(PublisherQueueJob.class, "Error caused by remote call of: "+remoteIP);
+                Logger.error(PublisherQueueJob.class,e.getMessage(),e);
+            }
+            finally {
+                try {
+                    HibernateUtil.closeSession();
+                } catch (DotHibernateException e) {
+                    Logger.error(this, "error close session",e);
+                }
             }
 
-			String bundlePath = ConfigUtils.getBundlePath()+File.separator+MY_TEMP;
-			String fileName=fileDetail.getFileName();
-			String bundleFolder = fileName.substring(0, fileName.indexOf(".tar.gz"));
-
-            PublishAuditStatus status = PublishAuditAPI.getInstance().updateAuditTable( mySelf.getId(), mySelf.getId(), bundleFolder, true );
-
-            if(bundleName.trim().length()>0) {
-			    // save bundle if it doesn't exists
-                Bundle foundBundle = APILocator.getBundleAPI().getBundleById( bundleFolder );
-                if ( foundBundle == null || foundBundle.getId() == null ) {
-                    Bundle b = new Bundle();
-                    b.setId(bundleFolder);
-                    b.setName(bundleName);
-                    b.setPublishDate(Calendar.getInstance().getTime());
-                    b.setOwner(APILocator.getUserAPI().getSystemUser().getUserId());
-                    APILocator.getBundleAPI().saveBundle(b);
-			    }
-			}
-
-			//Write file on FS
-			FileUtil.writeToFile(bundle, bundlePath+fileName);
-
-			//Start thread
-			if(!status.getStatus().equals(Status.PUBLISHING_BUNDLE)) {
-				new Thread(new PublishThread(fileName, groupId, endpointId, status)).start();
-			}
-
-			HibernateUtil.commitTransaction();
-
-			return Response.status(HttpStatus.SC_OK).build();
-		} catch (NumberFormatException e) {
-		    try {
-                HibernateUtil.rollbackTransaction();
-            } catch (DotHibernateException e1) {
-                Logger.error(this, "error rollback",e1);
-            }
-			Logger.error(PublisherQueueJob.class,e.getMessage(),e);
-		} catch (Exception e) {
-		    try {
-                HibernateUtil.rollbackTransaction();
-            } catch (DotHibernateException e1) {
-                Logger.error(this, "error rollback",e1);
-            }
-			Logger.error(PublisherQueueJob.class, "Error caused by remote call of: "+remoteIP);
-			Logger.error(PublisherQueueJob.class,e.getMessage(),e);
-		}
-		finally {
-		    try {
-                HibernateUtil.closeSession();
-            } catch (DotHibernateException e) {
-                Logger.error(this, "error close session",e);
-            }
-		}
-
-		return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+            return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).build();
+        } finally {
+            MDC.remove(BUNDLE_ID);
+        }
 	}
 
     /**

@@ -2410,7 +2410,15 @@ public class PermissionBitFactoryImpl extends PermissionFactory {
                     Permission pToDel = findPermissionByInodeAndRole(p.getInode(), p.getRoleId(), p.getType());
 					if( pToDel != null && InodeUtils.isSet( pToDel.getInode() ) )
 					{
-						HibernateUtil.delete(pToDel);
+						try {
+							HibernateUtil.delete(pToDel);
+						} catch (Exception e) {
+							Logger.warn(this.getClass(), "pToDel: " + pToDel);
+							Logger.warn(this.getClass(), "p: " + p);
+							Permission permFromDb = getPermission(Long.toString(p.getId()));
+							Logger.warn(this.getClass(), "permFromDb: " + permFromDb);
+							throw e;
+						}
 						Logger.debug(this.getClass(), String.format("deletePermission: %s deleted successful!", p.toString()));
 						permissionCache.remove(pToDel.getInode());
 					}
