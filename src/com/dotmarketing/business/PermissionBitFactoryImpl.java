@@ -13,7 +13,9 @@ import java.util.Set;
 import com.dotcms.content.elasticsearch.business.ContentletIndexAPI;
 import com.dotcms.content.elasticsearch.business.ESContentletIndexAPI;
 import com.dotcms.content.elasticsearch.util.ESClient;
+
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.beans.Inode;
@@ -2677,9 +2679,15 @@ public class PermissionBitFactoryImpl extends PermissionFactory {
 	@SuppressWarnings("unchecked")
 	private List<Permission> loadPermissions(Permissionable permissionable) throws DotDataException {
 
+
+		
+		
 		if(permissionable == null || ! UtilMethods.isSet(permissionable.getPermissionId())){
 			throw new DotDataException("Invalid Permissionable passed in. permissionable:" + permissionable.getPermissionId());
 		}
+		final String threadName = Thread.currentThread().getName();
+
+		Thread.currentThread().setName(threadName + " loadPermission:" + permissionable.getPermissionId());
 
 		HibernateUtil persistenceService = new HibernateUtil(Permission.class);
 		persistenceService.setSQLQuery(loadPermissionSQL);
@@ -2813,6 +2821,7 @@ public class PermissionBitFactoryImpl extends PermissionFactory {
 				bitPermissionsList = inheritedPermissions;
 			}
 		}
+		Thread.currentThread().setName(threadName);
 
 		return bitPermissionsList;
 
