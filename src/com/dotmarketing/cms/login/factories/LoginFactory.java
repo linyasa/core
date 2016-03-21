@@ -64,8 +64,8 @@ public class LoginFactory {
                 if (comp.getAuthType().equals(Company.AUTH_TYPE_ID)) {
                 	userName = user.getUserId();
                 }
-
-                return doLogin(userName, user.getPassword(), true, request, response);
+                // skip password check
+                return doLogin(userName, null, true, request, response, true);
             } catch (Exception e) { // $codepro.audit.disable logExceptions
         		SecurityLogger.logInfo(LoginFactory.class,"An invalid attempt to login (No user found) from IP: " + request.getRemoteAddr() + " :  " + e );
 
@@ -176,10 +176,10 @@ public class LoginFactory {
      * @param response
      * @return
      */
-    private static boolean doLogin(String userName, String password, boolean rememberMe, HttpServletRequest request, HttpServletResponse response, boolean skipInternalPasswordCheck) throws NoSuchUserException {
+    private static boolean doLogin(String userName, String password, boolean rememberMe, HttpServletRequest request, HttpServletResponse response, boolean skipPasswordCheck) throws NoSuchUserException {
         try {
         	User user = null;
-        	boolean match = skipInternalPasswordCheck;
+        	boolean match = false;
         	Company comp = com.dotmarketing.cms.factories.PublicCompanyFactory.getDefaultCompany();
 
         	if (comp.getAuthType().equals(Company.AUTH_TYPE_EA)) {
@@ -253,11 +253,15 @@ public class LoginFactory {
 	            	return false;
 	            }
 
+	            if(skipPasswordCheck){
+	            	match = true;
+	            }
+	            else{
+		            // Validate password and rehash when is needed
+		            match = passwordMatch(password, user);
+	            }
 	            
 	            
-	            // Validate password and rehash when is needed
-	            match = passwordMatch(password, user);
-
 	            if (match) {
 	            	if(useSalesForceLoginFilter){/*Custom Code */
 	            		user = SalesForceUtils.migrateUserFromSalesforce(userName, request,  response, false);
@@ -322,8 +326,8 @@ public class LoginFactory {
             	HttpSession ses = request.getSession();
             	ses.removeAttribute(com.dotmarketing.util.WebKeys.VISITOR);
                 // session stuff
-                ses.setAttribute(WebKeys.CMS_USER, user);
-
+                ses.setAttribute(WebKeys.CMS_USER, user.getUserId());
+                ses.setAttribute(com.liferay.portal.util.WebKeys.USER_ID, user);
                 //set personalization stuff on session
 
                 // set id cookie
