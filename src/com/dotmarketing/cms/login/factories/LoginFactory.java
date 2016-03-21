@@ -148,6 +148,25 @@ public class LoginFactory {
         }
     }
 
+    
+    
+    /**
+    *
+    * @param userName
+    * @param password
+    * @param rememberMe
+    * @param request
+    * @param response
+    * @return
+    */
+   public static boolean doLogin(String userName, String password, boolean rememberMe, HttpServletRequest request, HttpServletResponse response) throws NoSuchUserException {
+
+	    return doLogin( userName,  password,  rememberMe,  request,  response, false) ;
+	     
+   }
+    
+    
+    
     /**
      *
      * @param userName
@@ -157,10 +176,10 @@ public class LoginFactory {
      * @param response
      * @return
      */
-    public static boolean doLogin(String userName, String password, boolean rememberMe, HttpServletRequest request, HttpServletResponse response) throws NoSuchUserException {
+    private static boolean doLogin(String userName, String password, boolean rememberMe, HttpServletRequest request, HttpServletResponse response, boolean skipInternalPasswordCheck) throws NoSuchUserException {
         try {
         	User user = null;
-        	boolean match = false;
+        	boolean match = skipInternalPasswordCheck;
         	Company comp = com.dotmarketing.cms.factories.PublicCompanyFactory.getDefaultCompany();
 
         	if (comp.getAuthType().equals(Company.AUTH_TYPE_EA)) {
@@ -234,6 +253,8 @@ public class LoginFactory {
 	            	return false;
 	            }
 
+	            
+	            
 	            // Validate password and rehash when is needed
 	            match = passwordMatch(password, user);
 
