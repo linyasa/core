@@ -20,43 +20,57 @@ import com.dotcms.publisher.business.PublishQueueElement;
 import com.dotcms.publisher.business.PublisherQueueJob;
 import com.dotcms.publisher.endpoint.bean.PublishingEndPoint;
 import com.dotcms.publisher.environment.bean.Environment;
-import com.dotcms.publisher.util.TrustFactory;
+import com.dotcms.publisher.util.PusheableAsset;
 import com.dotcms.publishing.BundlerUtil;
 import com.dotcms.publishing.DotPublishingException;
+import com.dotcms.publishing.IBundler;
 import com.dotcms.publishing.PublishStatus;
 import com.dotcms.publishing.Publisher;
 import com.dotcms.publishing.PublisherConfig;
-import com.dotcms.repackage.com.sun.jersey.api.client.Client;
-import com.dotcms.repackage.com.sun.jersey.api.client.ClientResponse;
-import com.dotcms.repackage.com.sun.jersey.api.client.WebResource;
-import com.dotcms.repackage.com.sun.jersey.api.client.config.ClientConfig;
-import com.dotcms.repackage.com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.dotcms.repackage.com.sun.jersey.client.urlconnection.HTTPSProperties;
-import com.dotcms.repackage.com.sun.jersey.multipart.FormDataMultiPart;
-import com.dotcms.repackage.com.sun.jersey.multipart.file.FileDataBodyPart;
+import com.dotcms.repackage.javax.ws.rs.client.Client;
+import com.dotcms.repackage.javax.ws.rs.client.Entity;
+import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
+import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.repackage.org.apache.commons.httpclient.HttpStatus;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
+import com.dotcms.repackage.org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import com.dotcms.repackage.org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
+import com.dotcms.rest.RestClientBuilder;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.PushPublishLogger;
 import com.dotmarketing.util.UtilMethods;
 
+/**
+ * This is the main content publishing class in the Push Publishing process.
+ * This class defines the list of bundlers that will take the pusheable objects
+ * selected by the user, and sends the zipped bundle to the destination server.
+ * The purpose of the bundlers ({@link IBundler} objects) is to provide a way to
+ * say how to write out the different parts and objects of the bundle.
+ * <p>
+ * This publisher is also aware of the publishing status of the bundle in the
+ * destination server(s). This means that it updates the local status of the
+ * bundle so users will know if the bundle was successfully deployed or if
+ * something failed during the process.
+ * 
+ * @author Alberto
+ * @version 1.0
+ * @since Oct 12, 2012
+ *
+ */
 public class PushPublisher extends Publisher {
 
     private PublishAuditAPI pubAuditAPI = PublishAuditAPI.getInstance();
-	private TrustFactory tFactory;
 
     @Override
     public PublisherConfig init ( PublisherConfig config ) throws DotPublishingException {
         if ( LicenseUtil.getLevel() < 300 ) {
             throw new RuntimeException( "need an enterprise pro license to run this bundler" );
         }
-
         this.config = super.init( config );
-        tFactory = new TrustFactory();
-
         return this.config;
     }
 
@@ -87,13 +101,7 @@ public class PushPublisher extends Publisher {
 			PushUtils.compressFiles(list, bundle, bundleRoot.getAbsolutePath());
 
 			List<Environment> environments = APILocator.getEnvironmentAPI().findEnvironmentsByBundleId(config.getId());
-
-			ClientConfig cc = new DefaultClientConfig();
-
-			if(Config.getStringProperty("TRUSTSTORE_PATH") != null && !Config.getStringProperty("TRUSTSTORE_PATH").trim().equals("")) {
-				cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(tFactory.getHostnameVerifier(), tFactory.getSSLContext()));
-            }
-			Client client = Client.create(cc);
+			Client client = RestClientBuilder.newClient();
 
 			//Updating audit table
 			currentStatusHistory = pubAuditAPI.getPublishAuditStatus(config.getId()).getStatusPojo();
@@ -101,12 +109,10 @@ public class PushPublisher extends Publisher {
 			// If not empty, don't overwrite publish history already set via the PublisherQueueJob
 			boolean isHistoryEmpty = endpointsMap.size() == 0;
 			currentStatusHistory.setPublishStart(new Date());
+			PushPublishLogger.log(this.getClass(), "Status Update: Sending to all environments");
 			pubAuditAPI.updatePublishAuditStatus(config.getId(), PublishAuditStatus.Status.SENDING_TO_ENDPOINTS, currentStatusHistory);
 			//Increment numTries
 			currentStatusHistory.addNumTries();
-
-
-//	        boolean hasError = false;
 	        int errorCounter = 0;
 
 			for (Environment environment : environments) {
@@ -142,16 +148,13 @@ public class PushPublisher extends Publisher {
 	        			form.field("ENDPOINT_ID", endpoint.getId());
 	        			form.bodyPart(new FileDataBodyPart("bundle", bundle, MediaType.MULTIPART_FORM_DATA_TYPE));
 
+                        WebTarget webTarget = client.target(endpoint.toURL()+"/api/bundlePublisher/publish");
 
-	        			//Sending bundle to endpoint
-	        			WebResource resource = client.resource(endpoint.toURL()+"/api/bundlePublisher/publish");
+                        Response response = webTarget.request(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(form, form.getMediaType()));
 
-	        			ClientResponse response =
-	        					resource.type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, form);
-
-
-	        			if(response.getClientResponseStatus().getStatusCode() == HttpStatus.SC_OK)
+	        			if(response.getStatus() == HttpStatus.SC_OK)
 	        			{
+							PushPublishLogger.log(this.getClass(), "Status Update: Bundle sent");
 	        				detail.setStatus(PublishAuditStatus.Status.BUNDLE_SENT_SUCCESSFULLY.getCode());
 	        				detail.setInfo("Everything ok");
 	        			} else {
@@ -161,23 +164,17 @@ public class PushPublisher extends Publisher {
 		        			}
 	        				detail.setStatus(PublishAuditStatus.Status.FAILED_TO_SENT.getCode());
 	        				detail.setInfo(
-	        						"Returned "+response.getClientResponseStatus().getStatusCode()+ " status code " +
+	        						"Returned "+response.getStatus()+ " status code " +
 	        								"for the endpoint "+endpoint.getId()+ "with address "+endpoint.getAddress());
 	        				failedEnvironment |= true;
-
 	        			}
 	        		} catch(Exception e) {
-
 	        			// if the bundle can't be sent after the total num of tries, delete the pushed assets for this bundle
 	        			if(currentStatusHistory.getNumTries()==PublisherQueueJob.MAX_NUM_TRIES) {
 	        				APILocator.getPushedAssetsAPI().deletePushedAssets(config.getId(), environment.getId());
 	        			}
-//	        			hasError = true;
 	        			detail.setStatus(PublishAuditStatus.Status.FAILED_TO_SENT.getCode());
-
 	        			String error = 	"An error occured for the endpoint "+ endpoint.getId() + " with address "+ endpoint.getAddress() + ".  Error: " + e.getMessage();
-
-
 	        			detail.setInfo(error);
 	        			failedEnvironment |= true;
 
@@ -189,21 +186,15 @@ public class PushPublisher extends Publisher {
 				}
 
 				if(failedEnvironment) {
-//					hasError = true;
 					errorCounter++;
 				}
-
-
 			}
 
 			if(errorCounter==0) {
 				//Updating audit table
-		        currentStatusHistory.setPublishEnd(new Date());
+				PushPublishLogger.log(this.getClass(), "Status Update: Bundle sent");
 				pubAuditAPI.updatePublishAuditStatus(config.getId(),
 						PublishAuditStatus.Status.BUNDLE_SENT_SUCCESSFULLY, currentStatusHistory);
-
-				//Deleting queue records
-				//pubAPI.deleteElementsFromPublishQueueTable(config.getId());
 			} else {
 				if(errorCounter == environments.size()) {
 					pubAuditAPI.updatePublishAuditStatus(config.getId(),
@@ -219,6 +210,7 @@ public class PushPublisher extends Publisher {
 		} catch (Exception e) {
 			//Updating audit table
 			try {
+				PushPublishLogger.log(this.getClass(), "Status Update: Failed to publish");
 				pubAuditAPI.updatePublishAuditStatus(config.getId(), PublishAuditStatus.Status.FAILED_TO_PUBLISH, currentStatusHistory);
 			} catch (DotPublisherException e1) {
 				throw new DotPublishingException(e.getMessage());
@@ -230,6 +222,12 @@ public class PushPublisher extends Publisher {
 		}
 	}
 
+    /**
+     * 
+     * @param token
+     * @return
+     * @throws IOException
+     */
 	public static String retriveKeyString(String token) throws IOException {
 		String key = null;
 		if(token.contains(File.separator)) {
@@ -243,27 +241,27 @@ public class PushPublisher extends Publisher {
 		return PublicEncryptionFactory.encryptString(key);
 	}
 
-    /**
-     * Returns the proper bundlers for each of the elements on the Publishing queue
-     *
-     * @return
-     */
     @SuppressWarnings ("rawtypes")
     @Override
     public List<Class> getBundlers () {
-
         boolean buildUsers = false;
         boolean buildCategories = false;
         boolean buildOSGIBundle = false;
+        boolean buildLanguages = false;
+        boolean buildRules = false;
         boolean buildAsset = false;
         List<Class> list = new ArrayList<Class>();
         for ( PublishQueueElement element : config.getAssets() ) {
-            if ( element.getType().equals( "category" ) ) {
+            if ( element.getType().equals(PusheableAsset.CATEGORY.getType()) ) {
                 buildCategories = true;
-            } else if ( element.getType().equals( "osgi" ) ) {
+            } else if ( element.getType().equals(PusheableAsset.OSGI.getType()) ) {
                 buildOSGIBundle = true;
-            } else if ( element.getType().equals( "user" ) ) {
+            } else if ( element.getType().equals(PusheableAsset.USER.getType()) ) {
                 buildUsers = true;
+            } else if (element.getType().equals(PusheableAsset.LANGUAGE.getType())) {
+            	buildLanguages = true;
+            } else if (element.getType().equals(PusheableAsset.RULE.getType())) {
+            	buildRules = true;
             } else {
                 buildAsset = true;
             }
@@ -271,19 +269,15 @@ public class PushPublisher extends Publisher {
         if(config.getLuceneQueries().size() > 0){
         	buildAsset = true;
         }
-
         if ( buildUsers ) {
             list.add( UserBundler.class );
         }
-
         if ( buildCategories ) {
             list.add( CategoryBundler.class );
         }
-
         if ( buildOSGIBundle ) {
             list.add( OSGIBundler.class );
         }
-
         if ( buildAsset ) {
             list.add( DependencyBundler.class );
             list.add( HostBundler.class );
@@ -292,23 +286,28 @@ public class PushPublisher extends Publisher {
             list.add( TemplateBundler.class );
             list.add( ContainerBundler.class );
             list.add( HTMLPageBundler.class );
+            list.add(RuleBundler.class);
             list.add( LinkBundler.class );
-
-            if ( Config.getBooleanProperty( "PUSH_PUBLISHING_PUSH_STRUCTURES" ) ) {
+            if ( Config.getBooleanProperty("PUSH_PUBLISHING_PUSH_STRUCTURES", false) ) {
                 list.add( StructureBundler.class );
-                /**
-                 * ISSUE #2222: https://github.com/dotCMS/dotCMS/issues/2222
-                 *
-                 */
                 list.add( RelationshipBundler.class );
             }
             list.add( LanguageVariablesBundler.class );
             list.add( WorkflowBundler.class );
             list.add( LanguageBundler.class );
+        } else {
+			list.add(DependencyBundler.class);
+			if (buildLanguages) {
+				list.add(LanguageVariablesBundler.class);
+				list.add(LanguageBundler.class);
+			} else if (buildRules) {
+				list.add(HostBundler.class);
+				list.add(HTMLPageBundler.class);
+				list.add(RuleBundler.class);
+			}
         }
         list.add( BundleXMLAsc.class );
         return list;
-
     }
 
 }

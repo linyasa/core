@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.repackage.org.apache.commons.beanutils.BeanUtils;
 import com.dotcms.repackage.org.apache.struts.action.ActionErrors;
 import com.dotcms.repackage.org.apache.struts.action.ActionForm;
@@ -25,7 +26,6 @@ import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.factories.InodeFactory;
 import com.dotmarketing.portlets.categories.business.CategoryAPI;
 import com.dotmarketing.portlets.categories.model.Category;
-import com.dotmarketing.tag.factories.TagFactory;
 import com.dotmarketing.tag.model.Tag;
 import com.dotmarketing.tag.model.TagInode;
 import com.dotmarketing.util.Config;
@@ -99,17 +99,33 @@ public class MyAccountAction extends DispatchAction {
 		boolean reauthenticate = false;
 		if (!form.getNewPassword().equals("")
 				|| !user.getEmailAddress().equals(form.getEmailAddress())) {
-			if (!user.getPassword().equals(
-					PublicEncryptionFactory.digestString(form.getPassword()))) {
+
+            boolean passwordMatch = false;
+
+            if (PasswordFactoryProxy.isUnsecurePasswordHash(user.getPassword())) {
+                passwordMatch = user.getPassword().equals(form.getPassword())
+                        || user.getPassword().equals(PublicEncryptionFactory.digestString(form.getPassword()));
+            } else {
+                // Has new hash algorithm
+                if (PasswordFactoryProxy.authPassword(form.getPassword(), user.getPassword()).equals(
+                        PasswordFactoryProxy.AuthenticationStatus.NOT_AUTHENTICATED)) {
+                    passwordMatch = false;
+                } else {
+                    passwordMatch = true;
+                }
+            }
+
+			if (passwordMatch == false) {
 				ActionErrors errors = new ActionErrors();
 				errors.add("password", new ActionMessage(
 						"current.usermanager.password.incorrect"));
 				saveMessages(request, errors);
 				return mapping.findForward("myAccountPage");
 			}
-			user.setPassword(PublicEncryptionFactory.digestString(form
-					.getNewPassword()));
-			user.setPasswordEncrypted(true);
+
+            // Use new password hash method
+            user.setPassword(PasswordFactoryProxy.generateHash(form.getNewPassword()));
+
 			user.setEmailAddress(form.getEmailAddress().trim().toLowerCase());
 			reauthenticate = true;
 		}
@@ -117,13 +133,13 @@ public class MyAccountAction extends DispatchAction {
 		APILocator.getUserAPI().save(user,APILocator.getUserAPI().getSystemUser(),false);
 		HibernateUtil.saveOrUpdate(userProxy);
 
-		List<TagInode> tags = TagFactory.getTagInodeByInode(userProxy.getInode());
+		List<TagInode> tags = APILocator.getTagAPI().getTagInodesByInode(userProxy.getInode());
 		for (TagInode tag: tags) {
-			Tag tempTag = TagFactory.getTagByTagId(tag.getTagId());
-			TagFactory.deleteTagInode(tempTag.getTagName(), userProxy.getInode());
+			Tag tempTag = APILocator.getTagAPI().getTagByTagId(tag.getTagId());
+			APILocator.getTagAPI().deleteTagInode(tempTag, userProxy.getInode(), null);
 		}
 		if(tags.size() > 0){
-			TagFactory.addTag(form.getTags(), userProxy.getUserId(), userProxy.getInode());
+			APILocator.getTagAPI().addUserTag(form.getTags(), userProxy.getUserId(), userProxy.getInode());
 		}
 		
 		CategoryAPI categoryAPI = APILocator.getCategoryAPI();
@@ -205,11 +221,11 @@ public class MyAccountAction extends DispatchAction {
 		// Extra user info
 		form.setEmailAddress(user.getEmailAddress());
 
-		List<TagInode> tags = TagFactory.getTagInodeByInode(userProxy.getInode());
+		List<TagInode> tags = APILocator.getTagAPI().getTagInodesByInode(userProxy.getInode());
 		StringBuilder tagsString = new StringBuilder(128);
 		tagsString.ensureCapacity(32);
 		for (TagInode tag: tags) {
-			Tag retrievedTag = TagFactory.getTagByTagId(tag.getTagId());
+			Tag retrievedTag = APILocator.getTagAPI().getTagByTagId(tag.getTagId());
 			if (0 < tagsString.length())
 				tagsString.append(", " + retrievedTag.getTagName());
 			else

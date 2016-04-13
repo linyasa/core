@@ -40,12 +40,13 @@
                 }
             },
             {
-                "ipaddress": {
-                    "match": "*ipaddress",
-                    "mapping": {
-                        "type": "ip"
-                    }
-                }
+            	"tags" : {
+		            "match": "tags",
+		            "mapping": {
+		                "type": "string",
+		                "analyzer": "dot_comma_analyzer"	
+					}
+	            }
             }
         ]
     }

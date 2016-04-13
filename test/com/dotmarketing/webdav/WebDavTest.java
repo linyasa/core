@@ -1,7 +1,7 @@
 package com.dotmarketing.webdav;
 
 
-import static com.dotcms.repackage.org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,11 +12,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.dotcms.TestBase;
+import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.repackage.com.ibm.icu.util.Calendar;
-import com.dotcms.repackage.junit.framework.Assert;
+import junit.framework.Assert;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import com.dotcms.repackage.org.junit.Test;
+import org.junit.Test;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -34,7 +35,6 @@ import com.ettrema.httpclient.Host;
 import com.ettrema.httpclient.InternalServerError;
 import com.ettrema.httpclient.Resource;
 import com.liferay.portal.model.User;
-import com.liferay.util.Encryptor;
 
 public class WebDavTest extends TestBase {
 	@Test
@@ -237,8 +237,7 @@ public class WebDavTest extends TestBase {
 	            APILocator.getFolderAPI().createFolders("/wt/"+System.currentTimeMillis(), demo, user, false);
 	    
 	    User limited=APILocator.getUserAPI().createUser(System.currentTimeMillis()+"", System.currentTimeMillis()+"@dotcms.com");
-	    limited.setPasswordEncrypted(true);
-	    limited.setPassword(Encryptor.digest("123"));
+	    limited.setPassword(PasswordFactoryProxy.generateHash("123"));
 	    APILocator.getUserAPI().save(limited, user, false);
 	    Role role=APILocator.getRoleAPI().getUserRole(limited);
 	    

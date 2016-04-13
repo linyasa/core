@@ -1,3 +1,4 @@
+<%@page import="com.liferay.util.Xss"%>
 <%@page import="java.util.List"%>
 <%@page import="com.dotmarketing.business.APILocator"%>
 <%@page import="com.dotmarketing.common.model.ContentletSearch"%>
@@ -110,7 +111,7 @@ Layout layout = (Layout) request.getAttribute(WebKeys.LAYOUT);
 
 String referer = new URLEncoder().encode("/c/portal/layout?p_l_id=" + layout.getId() + "&p_p_id=EXT_LUCENE_TOOL&");
 
-
+query = Xss.strip(query);
 %>
 <script>
 	dojo.require("dijit.form.NumberTextBox");
@@ -161,7 +162,7 @@ String referer = new URLEncoder().encode("/c/portal/layout?p_l_id=" + layout.get
 	<div>
 		<div><strong><%= LanguageUtil.get(pageContext, "Query-took") %> : </strong><%= afterAPISearchPull-startAPISearchPull %> ms <em><%= LanguageUtil.get(pageContext, "This-includes-permissions-but-returns-only-the-index-objects") %></em></div>
 		<div><strong><%= LanguageUtil.get(pageContext, "Content-Population-took") %> : </strong><%= afterAPIPull-startAPIPull %> ms <em><%= LanguageUtil.get(pageContext, "This-includes-permissions-and-returns-full-content-objects") %></em></div>
-		<div><strong><%= LanguageUtil.get(pageContext, "Query-is") %> : </strong><%=query%></div>
+		<div><strong><%= LanguageUtil.get(pageContext, "Query-is") %> : </strong><%=UtilMethods.htmlifyString(query)%></div>
 		<div><strong><%= LanguageUtil.get(pageContext, "Translated-query-is") %> : </strong><%=translatedQuery%></div>
 		<div><strong><%= LanguageUtil.get(pageContext, "The-offset-is") %> : </strong><%=offset%></div>
 		<div><strong><%= LanguageUtil.get(pageContext, "The-limit-is") %> : </strong><%=limit%></div> 
@@ -176,7 +177,11 @@ String referer = new URLEncoder().encode("/c/portal/layout?p_l_id=" + layout.get
 			<div><strong><%= LanguageUtil.get(pageContext, "The-total-results-are") %> : </strong><%=iresults == null ? "0" : iresults.size()%></div> 
 	
 			<% for (ContentletSearch r : iresults){%>
-				<div id="result" style="padding-left:10px;"><strong><%= LanguageUtil.get(pageContext, "INODE") %> : </strong><%= r.getInode() %> <strong><%= LanguageUtil.get(pageContext, "IDENTIFIER") %> : </strong><%= r.getIdentifier() %></div>
+				<div id="result" style="padding-left:10px;"><strong><%= LanguageUtil.get(pageContext, "INODE") %> : </strong><%= r.getInode() %> <strong><%= LanguageUtil.get(pageContext, "IDENTIFIER") %> : </strong><%= r.getIdentifier() %>
+				
+				<strong><%= LanguageUtil.get(pageContext, "score") %> : </strong><%= r.getScore() %>
+				
+				</div>
 			<% } %>
 			<%if(iresults.size() >0){ %>
 				<div>&nbsp</div>

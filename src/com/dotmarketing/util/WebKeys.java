@@ -20,6 +20,8 @@ public final class WebKeys {
 	public static final String IMAGE_TOOL_CLIPBOARD = "_imageToolClipboard";
 	public static final String IMAGE_TOOL_SAVE_FILES = "_imageToolSaveFile";
 	public static final String LONG_LIVED_DOTCMS_ID_COOKIE = "dmid";
+	public static final String ONCE_PER_VISIT_COOKIE = "opvc";
+	public static final String SITE_VISITS_COOKIE = "sitevisitscookie";
 
 	public static final String DIRECTOR_URL = "com.dotmarketing.preview.DirectorURL";
 	public static final String VIEW_FOLDERS_URL = "com.dotmarketing.preview.ViewFolderURL";
@@ -352,8 +354,12 @@ public final class WebKeys {
     public static final String WORKFLOW_SEARCHER = "com.dotmarketing.workflowtasks.WORKFLOW_SEARCHER";
     public static enum WorkflowStatuses { OPEN, RESOLVED, CANCELLED };
 
-
-
+    // RULES ENGIGE
+    public static final String RULES_CONDITIONLET_CLASSES = "RULES_CONDITIONLET_CLASSES";
+    public static final String RULES_ACTIONLET_CLASSES = "RULES_ACTIONLET_CLASSES";
+    public static final String RULES_CONDITIONLET_VISITEDURLS = "RULES_CONDITIONLET_VISITEDURLS";
+    public static final String RULES_ENGINE_PARAM = "dotRules";
+    public static final String RULES_ENGINE_FIRE_LIST = "dotRulesFired";
 
 	//ADMIN CONTROL
     public static final String ADMIN_CONTROL_TOP = "com.dotmarketing.admin.control.top";
@@ -571,6 +577,9 @@ public final class WebKeys {
     public static final String WIKI_IN_WIKI = "com.dotmarketing.wiki.in.wiki";
     public static final String WIKI_CONTENTLET_URL = "com.dotmarketing.wiki.contentlet.url";
 
+    //VISITOR
+    public static final String VISITOR = "com.dotcms.visitor";
+
     public static class Cache
     {
         public static final String CACHE_BANNER_CACHE = "com.dotmarketing.cache.BannerCache";
@@ -677,4 +686,15 @@ public final class WebKeys {
 	
 	public static final String TEXT_EDITOR = "textEditor";
 	public static final String VELOCITY = "velocity";
+	
+	
+	
+	// Personas
+    public static final String CMS_PERSONA_PARAMETER= "com.dotmarketing.persona.id";
+	
+	public static final String OSGI_ENABLED="felix.osgi.enabled";
+	
+	
+	public static final String DOTCMS_STARTED_UP="dotcms.started.up";
+	
 }

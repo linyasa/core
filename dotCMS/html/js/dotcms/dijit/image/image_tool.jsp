@@ -13,9 +13,9 @@
 	String id = request.getParameter("identifier");
 	String inode = request.getParameter("inode");
 	
-	String fieldName = (UtilMethods.isSet(request.getParameter("fieldName"))) ? request.getParameter("fieldName") :"image" ;
-	
-	String baseImage =  (id != null) ? "/contentAsset/image/" + id + "/image/" :  "/contentAsset/image/" + inode + "/" + fieldName +"/?byInode=true";
+	String fieldName = (UtilMethods.isSet(request.getParameter("fieldName"))) ? request.getParameter("fieldName") : "fileAsset";
+
+	String baseImage =  (id != null) ? "/contentAsset/image/" + id + "/" + fieldName :  "/contentAsset/image/" + inode + "/" + fieldName +"/?byInode=true";
 
 
 
@@ -112,12 +112,12 @@
 	</script>
 	
 </head>
-<body class="dmundra"  >
+<body class="dmundra" style="background-color:#eeeeee" >
 	
 
 
 <!--  top button bar -->
-<div class="imageToolButtonBar dijitLayoutContainer">
+<div class="imageToolButtonBar">
 	<table style="width:100%;">
 		<tr>
 			<td width="100%;" style="white-space: nowrap;">
@@ -141,7 +141,7 @@
 					<%= LanguageUtil.get(pageContext, "download") %>
 				</button>
 				&nbsp; &nbsp;
-				<button dojoType="dijit.form.Button" id="clipBoard" iconClass="clipIcon" onclick="imageEditor.addToClipboard()">
+				<button dojoType="dijit.form.Button" id="clipBoard" iconClass="clipIcon" <% if(id == null) { %>disabled<% } %> onclick="imageEditor.addToClipboard()">
 					<%= LanguageUtil.get(pageContext, "Clip") %>
 				</button>
 				
@@ -172,6 +172,17 @@
 				</button>
 			</td>
 		</tr>
+		<% if(id == null) { %>
+		<tr>
+		  <td colspan="2" style="color: red;">
+		  <hr/>
+		      <%= LanguageUtil.get(pageContext, "image-editor-messages-title") %>
+		      <ul>
+		          <li><%= LanguageUtil.get(pageContext, "image-editor-warning-message-clip") %></li>
+		      </ul>
+		  </td>
+		</tr>
+		<% } %>
 	</table>
 		
 </div>

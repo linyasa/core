@@ -14,6 +14,11 @@ tomcat/work
 tomcat/logs
 tomcat/temp
 
+#Temporary Build Migration Ignores
+dotCMS/html/js/_rulesengine
+
+
+
 # Instance Files     #
 ######################
 dotCMS/dotSecure
@@ -41,7 +46,9 @@ Thumbs.db
 # Build #
 ######################
 dotCMS/WEB-INF/classes/
+libs/test
 build/
+out/
 dotCMS/WEB-INF/generated_web.xml
 dotCMS/WEB-INF/lib/*.jar
 dotCMS/WEB-INF/felix/bundle/dot.*.jar
@@ -49,3 +56,4 @@ dotCMS/WEB-INF/lib/plugin-*.jar
 starter.zip
 .ant-targets-build.xml
 .gradle/
+/*.local.*

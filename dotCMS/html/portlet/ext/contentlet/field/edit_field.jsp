@@ -163,8 +163,8 @@
         	<%if(toggleOn){ %>
         	aceText('<%=field.getVelocityVarName()%>','<%=keyValue%>','<%=isWidget%>');
         	<%} %>
-        });	
-</script>	
+        });
+</script>
 	<div id="aceTextArea_<%=field.getVelocityVarName()%>" class="classAce"></div>
     <textarea <%= isReadOnly?"readonly=\"readonly\" style=\"background-color:#eeeeee;\"":"" %> dojoType="dijit.form.SimpleTextarea"  <%=isWidget?"style=\"overflow:auto;width:682px;min-height:362px;max-height: 400px\"":"style=\"overflow:auto;width:450px;min-height:100px;max-height: 600px\""%>
         name="<%=field.getFieldContentlet()%>"
@@ -388,7 +388,7 @@
                         	document.forms["fm"].elements["fieldNeverExpire"].value ="false";
                         }
                       	dijit.byId(velocityVarName+"Date").disabled = never;
-                      	dijit.byId(velocityVarName+"Time").disabled = never;  
+                      	dijit.byId(velocityVarName+"Time").disabled = never;
                     }
 
                         dojo.addOnLoad(function() {
@@ -455,7 +455,7 @@
                 <%if(LicenseUtil.getLevel() < 199){ %>
                 <div id="thumbnailParent<%=field.getVelocityVarName()%>">
                     <div style="position:relative;width:<%=showDim+40 %>px;">
-                        <img src="/contentAsset/image/<%=binInode %>/<%=field.getVelocityVarName() %>/?byInode=1&filter=Thumbnail&thumbnail_w=<%=showDim %>&thumbnail_h=<%=showDim %>"
+                        <img src="/contentAsset/image/<%=contentlet.getIdentifier()%>/<%=field.getVelocityVarName() %>?filter=Thumbnail&thumbnail_w=<%=showDim %>&thumbnail_h=<%=showDim %>"
                                 class="thumbnailDiv thumbnailDiv<%=field.getVelocityVarName()%>"
                                 onmouseover="dojo.attr(this, 'className', 'thumbnailDivHover');"
                                 onmouseout="dojo.attr(this, 'className', 'thumbnailDiv');"
@@ -465,7 +465,7 @@
 
                     <div dojoType="dijit.Dialog" id="fileDia<%=field.getVelocityVarName()%>" title="<%=LanguageUtil.get(pageContext,"Image") %>"  style="width:760px;height:500px;display:none;"">
                         <div style="text-align:center;margin:auto;overflow:auto;width:700px;height:400px;">
-                            <img src="/contentAsset/image/<%=binInode %>/<%=field.getVelocityVarName() %>/?byInode=1" />
+                            <img src="/contentAsset/image/<%=contentlet.getIdentifier()%>/<%=field.getVelocityVarName() %>" />
                         </div>
                         <div class="callOutBox">
                             <%=LanguageUtil.get(pageContext,"dotCMS-Enterprise-comes-with-an-advanced-Image-Editor-tool") %>
@@ -480,6 +480,7 @@
 	                        <div dojoType="dotcms.dijit.image.ImageEditor"
 	                            editImageText="<%= LanguageUtil.get(pageContext, "Edit-Image") %>"
 	                            inode="<%= binInode%>"
+	                            identifier="<%=contentlet.getIdentifier()%>"
 	                            fieldName="<%=field.getVelocityVarName()%>"
 	                            binaryFieldId="<%=field.getFieldContentlet()%>"
 	                            fieldContentletId="<%=field.getFieldContentlet()%>"
@@ -506,7 +507,7 @@
             <div id="<%=field.getVelocityVarName()%>" name="<%=field.getFieldContentlet()%>" <%= UtilMethods.isSet(fileName)?"fileName=\"" + fileName.replaceAll("\"", "\\\"") +"\"":"" %>
                fieldName="<%=field.getVelocityVarName()%>"
                inode="<%= binInode%>"
-               identifier="<%=field.getIdentifier()%>" onRemove="removeThumbnail('<%=field.getVelocityVarName()%>', '<%= binInode %>')"
+               identifier="<%=contentlet.getIdentifier()%>" onRemove="removeThumbnail('<%=field.getVelocityVarName()%>', '<%= binInode %>')"
                dojoType="dotcms.dijit.form.FileAjaxUploader" onUploadFinish="saveBinaryFileOnContent<%=field.getVelocityVarName()%>">
             </div>
             <script type="text/javascript">
@@ -545,10 +546,12 @@
 
 						  com.dotmarketing.portlets.fileassets.business.FileAsset fa = APILocator.getFileAssetAPI().fromContentlet(contentlet);
 						  String mimeType = fa.getMimeType();
+						  String fileAssetName = fa.getFileName();
 						 %>
 
 							<a href="<%=resourceLink %>" target="_new"><%=identifier.getParentPath()+contentlet.getStringProperty(FileAssetAPI.FILE_NAME_FIELD)%></a>
-								<% if (mimeType.indexOf("officedocument")==-1 && (mimeType.indexOf("text")!=-1 || mimeType.indexOf("javascript")!=-1 || mimeType.indexOf("xml")!=-1 || mimeType.indexOf("php")!=-1)) { %>
+								<% if (mimeType.indexOf("officedocument")==-1 && (mimeType.indexOf("text")!=-1 || mimeType.indexOf("javascript")!=-1
+                                        || mimeType.indexOf("xml")!=-1 || mimeType.indexOf("php")!=-1) || fileAssetName.endsWith(".vm")) { %>
 									<% if (InodeUtils.isSet(binInode) && canUserWriteToContentlet) { %>
 											<button iconClass="editIcon" dojoType="dijit.form.Button" onClick="editText($('contentletInode').value)" type="button">
 												<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "edit-text")) %>
@@ -592,21 +595,27 @@
     //TAG kind of field rendering
 
     } else if (field.getFieldType().equals(Field.FieldType.TAG.toString())) {
-        String tagJSFunction = "suggestTagsForSearch(this, '"
-                + field.getVelocityVarName() + "suggestedTagsDiv');";
         String textValue = UtilMethods.isSet(value) ? (String) value : (UtilMethods.isSet(defaultValue) ? defaultValue : "");
+        String hiddenTextValue = textValue.replaceAll(":persona","");
  %>
  <!-- display -->
-    <div id="<%=field.getVelocityVarName()%>Wrapper">
-        <div style="float:left;">
-            <textarea dojoType="dijit.form.Textarea" name="<%=field.getFieldContentlet()%>" id="<%=field.getVelocityVarName()%>" onkeyup="<%= tagJSFunction %>" <%=field.isReadOnly()?"readonly=\"readonly\"":"" %>  style="width:300px;min-height:100px;"><%=textValue%></textarea>
-        </div>
-        <div class="suggestedTagsWrapper" id="<%=field.getVelocityVarName()%>suggestedTagsWrapper" style="display:none;">
-            <div class="suggestHeading"><%= LanguageUtil.get(pageContext, "Suggested-Tags") %></div>
-            <div id="<%=field.getVelocityVarName()%>suggestedTagsDiv" class="suggestedTags"></div>
-        </div>
-        <div class="clear"></div>
+    <div class="tagsWrapper" id="<%=field.getVelocityVarName()%>Wrapper">
+      <input type="hidden" name="<%=field.getFieldContentlet()%>" id="<%=field.getVelocityVarName()%>Content" value="<%=hiddenTextValue%>" />
+      <input type="text" name="name" value="" dojoType="dijit.form.TextBox" id="<%=field.getVelocityVarName()%>" />
+      <div class="tagsOptions" id="<%=field.getVelocityVarName()%>SuggestedTagsDiv" style="display:none;"></div>
     </div>
+
+    <script>
+      dojo.addOnLoad(function() {
+        var tagField = dojo.byId("<%=field.getVelocityVarName()%>");
+        dojo.connect(tagField, "onkeyup", suggestTagsForSearch);
+        dojo.connect(tagField, "onblur", closeSuggetionBox);
+        var textValue = "<%=textValue%>";
+        if (textValue != "") {
+          fillExistingTags("<%=field.getVelocityVarName()%>", textValue);
+        }
+      })
+    </script>
 <!-- end display -->
 <%
     //RADIO kind of field rendering
@@ -769,12 +778,10 @@
     <script type="text/javascript">
         function update<%=field.getVelocityVarName()%>Checkbox() {
             var valuesList = [];
-            
             var checkedInputs = dojo.query("input:checkbox[name^='<%=fieldName%>Checkbox']:checked");
             checkedInputs.forEach(function(checkedInput) {
                 valuesList.push(checkedInput.value);
             });
-            
             $("<%=field.getVelocityVarName()%>").value = valuesList.join(",");
         }
 

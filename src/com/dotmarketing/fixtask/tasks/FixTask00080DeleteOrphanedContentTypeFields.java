@@ -79,7 +79,7 @@ public class FixTask00080DeleteOrphanedContentTypeFields implements FixTask {
 						MaintenanceUtil.deleteOrphanContentTypeFields();
 						HibernateUtil.commitTransaction();
 						// Set the number of records that were fixed
-						FixAssetsProcessStatus.setError(modifiedData.size());
+						FixAssetsProcessStatus.setErrorsFixed(modifiedData.size());
 					} catch (Exception e) {
 						Logger.error(
 								this,
@@ -126,7 +126,7 @@ public class FixTask00080DeleteOrphanedContentTypeFields implements FixTask {
 			if (!new File(ConfigUtils.getBackupPath() + File.separator
 					+ "fixes").exists()) {
 				new File(ConfigUtils.getBackupPath() + File.separator + "fixes")
-						.mkdir();
+						.mkdirs();
 			}
 			_writing = new File(ConfigUtils.getBackupPath() + File.separator
 					+ "fixes" + java.io.File.separator + lastmoddate + "_"

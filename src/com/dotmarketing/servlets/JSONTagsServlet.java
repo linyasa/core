@@ -14,8 +14,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.dotcms.repackage.org.codehaus.jackson.map.DeserializationConfig.Feature;
-import com.dotcms.repackage.org.codehaus.jackson.map.ObjectMapper;
+import com.dotcms.repackage.com.fasterxml.jackson.databind.DeserializationFeature;
+import com.dotcms.repackage.com.fasterxml.jackson.databind.ObjectMapper;
 import com.dotcms.repackage.org.apache.commons.lang.StringEscapeUtils;
 
 import com.dotmarketing.beans.Host;
@@ -50,7 +50,7 @@ public class JSONTagsServlet extends HttpServlet implements Servlet {
 			user = uWebAPI.getLoggedInUser(request);
 
 			ObjectMapper mapper = new ObjectMapper();
-			mapper.configure(Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 			TagAPI tagAPI = APILocator.getTagAPI();
 
 			String termFilter = "";
@@ -72,7 +72,7 @@ public class JSONTagsServlet extends HttpServlet implements Servlet {
 			String action = request.getParameter("action");
 
 			if(UtilMethods.isSet(action) && action.equals("export")) {
-				List<Tag> tagsList = tagAPI.getFilteredTags(termFilter, hostFilter, globalTagsFilter, sort, 0, 0);
+				List<Tag> tagsList = tagAPI.getFilteredTags(termFilter, hostFilter, globalTagsFilter, sort, 0, -1);
 				exportTags(request,  response,  tagsList);
 				return;
 			}
@@ -131,7 +131,7 @@ public class JSONTagsServlet extends HttpServlet implements Servlet {
 
 			Map<String,Object> m = new HashMap<String, Object>();
 			m.put("items", items);
-			m.put("numRows", tagAPI.getFilteredTags(termFilter, hostFilter, globalTagsFilter, sort, 0, 0).size());
+			m.put("numRows", tagAPI.getFilteredTags(termFilter, hostFilter, globalTagsFilter, sort, 0, -1).size());
 			String s = mapper.writeValueAsString(m);
 			response.setContentType("text/plain");
 			response.getWriter().write(s);

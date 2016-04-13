@@ -836,7 +836,7 @@ create table User_ (
 	userId varchar(100) not null primary key,
 	companyId varchar(100) not null,
 	createDate datetime null,
-	password_ varchar(100) null,
+	password_ text null,
 	passwordEncrypted bit,
 	passwordExpirationDate datetime null,
 	passwordReset bit,
@@ -1512,9 +1512,11 @@ create table analytic_summary_pages (
 );
 create table tag (
    tag_id varchar(100) not null,
-   tagname nvarchar(255) null,
+   tagname nvarchar(255) not null,
    host_id varchar(255) null,
    user_id varchar(255) null,
+   persona tinyint default 0,
+   mod_date datetime null,
    primary key (tag_id)
 );
 create table user_comments (
@@ -2092,6 +2094,8 @@ create table workflow_task (
 create table tag_inode (
    tag_id varchar(100) not null,
    inode varchar(100) not null,
+	 field_var_name varchar(255),
+   mod_date datetime null,
    primary key (tag_id, inode)
 );
 create table click (
@@ -2677,6 +2681,7 @@ insert into User_ (userId, companyId, createDate, password_, passwordEncrypted, 
 
 create index addres_userid_index on address(userid);
 create index tag_user_id_index on tag(user_id);
+create index tag_is_persona_index on tag(persona);
 create index tag_inode_tagid on tag_inode(tag_id);
 create index tag_inode_inode on tag_inode(inode);
 CREATE TABLE dist_journal
@@ -2851,13 +2856,14 @@ BEGIN
 fetch next from cur_Inserted into @newFolder,@newHost
 END;
 
-CREATE PROCEDURE load_records_to_index(@server_id VARCHAR(100), @records_to_fetch INT)
+CREATE PROCEDURE load_records_to_index(@server_id VARCHAR(100), @records_to_fetch INT, @priority_level INT)
 AS
 BEGIN
 WITH cte AS (
   SELECT TOP(@records_to_fetch) *
   FROM dist_reindex_journal WITH (ROWLOCK, READPAST, UPDLOCK)
   WHERE serverid IS NULL
+  AND priority <= @priority_level
   ORDER BY priority ASC)
 UPDATE cte
   SET serverid=@server_id
@@ -3476,3 +3482,12 @@ create table cluster_server_action(
 	time_out_seconds bigint not null,
 	PRIMARY KEY (server_action_id)
 );
+
+-- Rules Engine
+create table dot_rule(id varchar(36) primary key,name varchar(255) not null,fire_on varchar(20),short_circuit tinyint default 0,parent_id varchar(36) not null,folder varchar(36) not null,priority int default 0,enabled tinyint default 0,mod_date datetime);
+create table rule_condition_group(id varchar(36) primary key,rule_id varchar(36) references dot_rule(id),operator varchar(10) not null,priority int default 0,mod_date datetime);
+create table rule_condition(id varchar(36) primary key,conditionlet text not null,condition_group varchar(36) references rule_condition_group(id),comparison varchar(36) not null,operator varchar(10) not null,priority int default 0,mod_date datetime);
+create table rule_condition_value (id varchar(36) primary key,condition_id varchar(36) references rule_condition(id), paramkey varchar(255) not null, value text,priority int default 0);
+create table rule_action (id varchar(36) primary key,rule_id varchar(36) references dot_rule(id),priority int default 0,actionlet text not null,mod_date datetime);
+create table rule_action_pars(id varchar(36) primary key,rule_action_id varchar(36) references rule_action(id), paramkey varchar(255) not null,value text);
+create index idx_rules_fire_on on dot_rule (fire_on);

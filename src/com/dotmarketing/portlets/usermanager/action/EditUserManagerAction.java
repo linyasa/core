@@ -8,13 +8,14 @@ import java.net.URLDecoder;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.repackage.javax.portlet.ActionRequest;
 import com.dotcms.repackage.javax.portlet.ActionResponse;
 import com.dotcms.repackage.javax.portlet.PortletConfig;
 import com.dotcms.repackage.javax.portlet.WindowState;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import com.dotcms.repackage.org.apache.commons.beanutils.BeanUtils;
 import com.dotcms.repackage.org.apache.struts.Globals;
 import com.dotcms.repackage.org.apache.struts.action.ActionErrors;
@@ -22,7 +23,6 @@ import com.dotcms.repackage.org.apache.struts.action.ActionForm;
 import com.dotcms.repackage.org.apache.struts.action.ActionMapping;
 import com.dotcms.repackage.org.apache.struts.action.ActionMessage;
 import com.dotcms.repackage.org.apache.struts.action.ActionMessages;
-
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.beans.UserProxy;
@@ -40,7 +40,6 @@ import com.dotmarketing.portlets.categories.business.CategoryAPI;
 import com.dotmarketing.portlets.categories.model.Category;
 import com.dotmarketing.portlets.usermanager.struts.UserManagerForm;
 import com.dotmarketing.portlets.usermanager.struts.UserManagerListSearchForm;
-import com.dotmarketing.tag.factories.TagFactory;
 import com.dotmarketing.tag.model.Tag;
 import com.dotmarketing.tag.model.TagInode;
 import com.dotmarketing.util.InodeUtils;
@@ -353,11 +352,11 @@ public class EditUserManagerAction extends DotPortletAction{
 		UserProxy userProxy = com.dotmarketing.business.APILocator.getUserProxyAPI().getUserProxy(user,APILocator.getUserAPI().getSystemUser(), false);
 
 		//delete user tags
-		List<TagInode> userTagsList = TagFactory.getTagInodeByInode(String.valueOf(userProxy.getInode()));
+		List<TagInode> userTagsList = APILocator.getTagAPI().getTagInodesByInode(String.valueOf(userProxy.getInode()));
 		for(TagInode tag : userTagsList){
-		    Tag retrievedTag = TagFactory.getTagByTagId(tag.getTagId());
-			TagFactory.deleteTagInode(tag);
-			TagFactory.deleteTag(retrievedTag.getTagId());
+		    Tag retrievedTag = APILocator.getTagAPI().getTagByTagId(tag.getTagId());
+			APILocator.getTagAPI().deleteTagInode(tag);
+			APILocator.getTagAPI().deleteTag(retrievedTag.getTagId());
 		}
 		
 		//deletes user proxy
@@ -432,13 +431,11 @@ public class EditUserManagerAction extends DotPortletAction{
 			user.setEmailAddress(userForm.getEmailAddress().trim().toLowerCase());
 
 		if ((userForm.getNewPassword() != null) && (!userForm.getNewPassword().equals(""))) {
-			user.setPassword(PublicEncryptionFactory.digestString(userForm.getNewPassword()));
-			user.setPasswordEncrypted(true);
+			user.setPassword(PasswordFactoryProxy.generateHash(userForm.getNewPassword()));
 		}
 
 		if (user.isNew() || userForm.getPassChanged().equals("true")) {
-			user.setPassword(PublicEncryptionFactory.digestString(userForm.getPassword()));
-			user.setPasswordEncrypted(true);
+			user.setPassword(PasswordFactoryProxy.generateHash(userForm.getNewPassword()));
 		}
 
 		APILocator.getUserAPI().save(user,APILocator.getUserAPI().getSystemUser(),false);
@@ -583,7 +580,10 @@ public class EditUserManagerAction extends DotPortletAction{
 			return;
 		}
 		String pass = PublicEncryptionFactory.getRandomPassword();
-		user.setPassword(PublicEncryptionFactory.digestString(pass));
+
+        // Use new password hash method
+        user.setPassword(PasswordFactoryProxy.generateHash(pass));
+
 		APILocator.getUserAPI().save(user,APILocator.getUserAPI().getSystemUser(),false);
 		Host host = WebAPILocator.getHostWebAPI().getCurrentHost(request);
 		EmailFactory.sendForgotPassword(user, pass, host.getIdentifier());

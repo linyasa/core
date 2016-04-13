@@ -80,7 +80,7 @@ public class FixTask00021CheckOrphanedAssets implements FixTask {
 						   String identifier = asset.get("id");
 						   if(APILocator.getIdentifierAPI().isIdentifier(identifier)){
 							   deleteOrphanedAsset(asset.get("asset_type"),asset.get("id"),dc);							  
-							   FixAssetsProcessStatus.addAError();
+							   FixAssetsProcessStatus.addAErrorFixed();
 							   CacheLocator.getFileCache().clearCache();
 							   CacheLocator.getHTMLPageCache().clearCache();
 							   CacheLocator.getIdentifierCache().clearCache();
@@ -157,7 +157,7 @@ public class FixTask00021CheckOrphanedAssets implements FixTask {
 			File _writing = null;
 
 			if (!new File(ConfigUtils.getBackupPath()+File.separator+"fixes").exists()) {
-				new File(ConfigUtils.getBackupPath()+File.separator+"fixes").mkdir();
+				new File(ConfigUtils.getBackupPath()+File.separator+"fixes").mkdirs();
 			}
 			_writing = new File(ConfigUtils.getBackupPath()+File.separator+"fixes" + java.io.File.separator  + lastmoddate + "_"
 					+ "FixTask00021CheckOrphanedAssets" + ".xml");

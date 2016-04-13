@@ -20,15 +20,13 @@ import com.dotcms.content.business.ContentMappingAPI;
 import com.dotcms.content.business.DotMappingException;
 import com.dotcms.content.elasticsearch.util.ESClient;
 import com.dotcms.enterprise.LicenseUtil;
+import com.dotcms.repackage.com.fasterxml.jackson.databind.ObjectMapper;
 import com.dotcms.repackage.org.apache.commons.collections.CollectionUtils;
 import com.dotcms.repackage.org.apache.commons.lang.time.FastDateFormat;
-import com.dotcms.repackage.org.codehaus.jackson.JsonGenerationException;
-import com.dotcms.repackage.org.codehaus.jackson.map.JsonMappingException;
-import com.dotcms.repackage.org.codehaus.jackson.map.ObjectMapper;
-import com.dotcms.repackage.org.elasticsearch.ElasticsearchException;
-import com.dotcms.repackage.org.elasticsearch.action.ListenableActionFuture;
-import com.dotcms.repackage.org.elasticsearch.action.admin.cluster.state.ClusterStateRequest;
-import com.dotcms.repackage.org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateRequest;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.APILocator;
@@ -130,15 +128,17 @@ public class ESMappingAPIImpl implements ContentMappingAPI {
         .get(index).mapping(type).source().string();
 
     }
+    
+    public  String getSettings(String index, String type) throws ElasticsearchException, IOException{
+
+    	return new ESClient().getClient().admin().cluster().state(new ClusterStateRequest())
+    	        .actionGet().getState().metaData().indices()
+    	        
+    	        .get(index).settings().getAsMap().toString();
+
+    }
 
 
-
-	private Map<String, Object> getFieldJson(Field f) throws DotMappingException {
-		Map<String, Object> fieldProps = getDefaultFieldMap();
-		fieldProps.put("type", getElasticType(f));
-		return fieldProps;
-
-	}
 
 	private Map<String, Object> getDefaultFieldMap() {
 
@@ -149,69 +149,7 @@ public class ESMappingAPIImpl implements ContentMappingAPI {
 
 	}
 
-	private Map<String, Object> getDefaultContentletFields() {
-		Map<String, Object> m = new HashMap<String, Object>();
-		Map<String, Object> fields = new HashMap<String, Object>();
-		// required fields
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("identifier", m);
 
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("inode", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("modUser", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "date");
-		fields.put("modDate", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("host", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("stInode", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("folder", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "integer");
-		fields.put("languageId", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "string");
-		fields.put("owner", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "date");
-		fields.put("lastReview", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "date");
-		fields.put("nextReview", m);
-
-		m = getDefaultFieldMap();
-		m.put("type", "title");
-		fields.put("title", m);
-
-		m = getDefaultFieldMap();
-        m.put("type", "date");
-        fields.put("pubdate", m);
-
-        m = getDefaultFieldMap();
-        m.put("type", "date");
-        fields.put("expdate", m);
-
-		return fields;
-
-	}
 
 	private String getElasticType(Field f) throws DotMappingException {
 		if (f.getFieldType().equals(Field.FieldType.TAG.toString())) {
@@ -353,6 +291,7 @@ public class ESMappingAPIImpl implements ContentMappingAPI {
 			//The url is now stored under the identifier for html pages, so we need to index that also.
 			if(con.getStructure().getStructureType() == Structure.STRUCTURE_TYPE_HTMLPAGE){
 				mlowered.put(con.getStructure().getVelocityVarName().toLowerCase() + ".url", ident.getAssetName());
+				mlowered.put(con.getStructure().getVelocityVarName().toLowerCase() + ".url_dotraw", ident.getAssetName());
 			}
 
             return mlowered;
@@ -571,10 +510,38 @@ public class ESMappingAPIImpl implements ContentMappingAPI {
                 			        m.put(st.getVelocityVarName() + "." + f.getVelocityVarName() + "." + key, (String)keyValueMap.get(key));
                 	}
                 } else if(f.getFieldType().equals(Field.FieldType.TAG.toString())) {
-                    StringBuilder tagg=new StringBuilder();
-                    for(Tag t : APILocator.getTagAPI().getTagsByInode(con.getInode()))
-                        tagg.append(t.getTagName()).append(' ');
-                    m.put(st.getVelocityVarName() + "." + f.getVelocityVarName(), tagg.toString());
+
+                    StringBuilder personaTags = new StringBuilder();
+                    StringBuilder tagg = new StringBuilder();
+                    List<Tag> tagList = APILocator.getTagAPI().getTagsByInode(con.getInode());
+                    if(tagList ==null || tagList.size()==0) continue;
+                    
+                    final String tagDelimit = Config.getStringProperty("ES_TAG_DELIMITER_PATTERN", ",,");
+                    
+                    
+                    for ( Tag t : tagList ) {
+                    	if(t.getTagName() ==null) continue;
+                    	String myTag = t.getTagName().trim();
+                        tagg.append(myTag).append(tagDelimit);
+                        if ( t.isPersona() ) {
+                            personaTags.append(myTag).append(' ');
+                        }
+                    }
+                    if(tagg.length() >tagDelimit.length()){
+                    	String taggStr = tagg.substring(0, tagg.length()-tagDelimit.length());
+                        m.put(st.getVelocityVarName() + "." + f.getVelocityVarName(), taggStr.replaceAll(",,", " "));
+                        m.put("tags", taggStr);
+                    }
+
+
+                    if ( Structure.STRUCTURE_TYPE_PERSONA != con.getStructure().getStructureType() ) {
+                        if ( personaTags.length() > tagDelimit.length() ) {
+                        	String personaStr = personaTags.substring(0, personaTags.length()-tagDelimit.length());
+                            m.put(st.getVelocityVarName() + ".personas", personaStr);
+                            m.put("personas", personaStr);
+                        }
+                    }
+
                 } else {
                     if (f.getFieldContentlet().startsWith("bool")) {
                         m.put(st.getVelocityVarName() + "." + f.getVelocityVarName(), valueObj.toString());
@@ -591,7 +558,7 @@ public class ESMappingAPIImpl implements ContentMappingAPI {
             }
         }
 	}
-	public String toJsonString(Map<String, Object> map) throws JsonGenerationException, JsonMappingException, IOException{
+	public String toJsonString(Map<String, Object> map) throws IOException{
 		return mapper.writeValueAsString(map);
 	}
 	public List<String> dependenciesLeftToReindex(Contentlet con) throws DotStateException, DotDataException, DotSecurityException {

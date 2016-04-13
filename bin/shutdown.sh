@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -----------------------------------------------------------------------------
-# Start Script for the dotCMS Server
+# Shutdown Script for the dotCMS Server
 # -----------------------------------------------------------------------------
 
 # Better OS/400 detection: see Bugzilla 31132
@@ -91,10 +91,6 @@ fi
 MEMSET=`echo $JAVA_OPTS | grep '\-Xmx'`
 if [ -z "$MEMSET" ]; then
     export JAVA_OPTS="$JAVA_OPTS -Xmx1G"
-fi
-MEMSET=`echo $JAVA_OPTS | grep '\-XX:PermSize'`
-if [ -z "$MEMSET" ]; then
-    export JAVA_OPTS="$JAVA_OPTS -XX:PermSize=196m"
 fi
 
 echo "Using DOTCMS_HOME = $DOTCMS_HOME"

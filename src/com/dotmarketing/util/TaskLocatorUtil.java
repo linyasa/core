@@ -3,23 +3,7 @@ package com.dotmarketing.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dotmarketing.fixtask.tasks.FixTask00001CheckAssetsMissingIdentifiers;
-import com.dotmarketing.fixtask.tasks.FixTask00003CheckContainersInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00004CheckFileAssetsInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00005CheckHTMLPagesInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00006CheckLinksInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00007CheckTemplatesInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00008CheckTreeInconsistencies;
-import com.dotmarketing.fixtask.tasks.FixTask00009CheckContentletsInexistentInodes;
-import com.dotmarketing.fixtask.tasks.FixTask00011RenameHostInFieldVariableName;
-import com.dotmarketing.fixtask.tasks.FixTask00012UpdateAssetsHosts;
-import com.dotmarketing.fixtask.tasks.FixTask00020DeleteOrphanedIdentifiers;
-import com.dotmarketing.fixtask.tasks.FixTask00030DeleteOrphanedAssets;
-import com.dotmarketing.fixtask.tasks.FixTask00040CheckFileAssetsMimeType;
-import com.dotmarketing.fixtask.tasks.FixTask00050FixInodesWithoutContentlets;
-import com.dotmarketing.fixtask.tasks.FixTask00060FixAssetType;
-import com.dotmarketing.fixtask.tasks.FixTask00070FixVersionInfo;
-import com.dotmarketing.fixtask.tasks.FixTask00080DeleteOrphanedContentTypeFields;
+import com.dotmarketing.fixtask.tasks.*;
 import com.dotmarketing.startup.runalways.Task00001LoadSchema;
 import com.dotmarketing.startup.runalways.Task00009ClusterInitialize;
 import com.dotmarketing.startup.runalways.Task00010CheckAnonymousUser;
@@ -28,6 +12,7 @@ import com.dotmarketing.startup.runalways.Task00004LoadStarter;
 import com.dotmarketing.startup.runalways.Task00005LoadFixassets;
 import com.dotmarketing.startup.runalways.Task00006CreateSystemLayout;
 import com.dotmarketing.startup.runalways.Task00007RemoveSitesearchQuartzJob;
+
 import com.dotmarketing.startup.runonce.*;
 
 
@@ -52,6 +37,7 @@ public class TaskLocatorUtil {
 		ret.add(FixTask00060FixAssetType.class);
 		ret.add(FixTask00070FixVersionInfo.class);
 		ret.add(FixTask00080DeleteOrphanedContentTypeFields.class);
+		ret.add(FixTask00090RecreateMissingFoldersInParentPath.class);
 		return ret;
 	}
 
@@ -136,7 +122,16 @@ public class TaskLocatorUtil {
 		ret.add(Task03140AddFileAssetsIntegrityResultTable.class);
 		ret.add(Task03150LoweCaseURLOnVirtualLinksTable.class);
 		ret.add(Task03160PublishingPushedAssetsTable.class);
-
+		ret.add(Task03165ModifyLoadRecordsToIndex.class);
+		ret.add(Task03500RulesEngineDataModel.class);
+		ret.add(Task03505PublishingQueueAuditTable.class);
+		ret.add(Task03510CreateDefaultPersona.class);
+		ret.add(Task03515AlterPasswordColumnFromUserTable.class);
+		ret.add(Task03520AlterTagsForPersonas.class);
+		ret.add(Task03525LowerTagsTagname.class);
+		ret.add(Task03530AlterTagInode.class);
+		ret.add(Task03535RemoveTagsWithoutATagname.class);
+		ret.add(Task03540UpdateTagInodesReferences.class);
         return ret;
     }
 

@@ -21,6 +21,7 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
+import com.dotmarketing.portlets.rules.util.RulesImportExportUtil;
 import org.quartz.JobExecutionContext;
 
 import com.dotcms.content.elasticsearch.business.ContentletIndexAPI;
@@ -123,6 +124,26 @@ public class CMSMaintenanceAjax {
     	ReindexThread.getInstance().stopFullReindexation();
         return ESReindexationProcessStatus.getProcessIndexationMap();
     }
+
+	/**
+	 * Stops the re-indexation process and switches over to the new index data.
+	 * This is useful when there only a few contents that could not be
+	 * re-indexed and can be either fixed or deleted in the future.
+	 * 
+	 * @return A {@link Map} containing status information after switching to
+	 *         the new index.
+	 * @throws SQLException
+	 *             An error occurred when interacting with the database.
+	 * @throws DotDataException
+	 *             The process to switch to the new failed.
+	 * @throws InterruptedException
+	 *             The established pauses to switch to the new index failed.
+	 */
+	public Map stopReindexationAndSwitchover() throws DotDataException, SQLException, InterruptedException {
+		validateUser();
+		ReindexThread.getInstance().stopFullReindexationAndSwitchover();
+		return ESReindexationProcessStatus.getProcessIndexationMap();
+	}
 
     public String cleanReindexStructure(String inode) throws DotDataException {
     	validateUser();
@@ -744,6 +765,10 @@ public class CMSMaintenanceAjax {
 				//backup workflow
 				File file = new File(backupTempFilePath + "/WorkflowSchemeImportExportObject.json");
 				WorkflowImportExportUtil.getInstance().exportWorkflows(file);
+
+				//Backup Rules.
+				file = new File(backupTempFilePath + "/RuleImportExportObject.json");
+				RulesImportExportUtil.getInstance().export(file);
 
 			} catch (HibernateException e) {
 				Logger.error(this,e.getMessage(),e);

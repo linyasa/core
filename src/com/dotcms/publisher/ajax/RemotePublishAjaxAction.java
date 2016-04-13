@@ -13,7 +13,6 @@ import com.dotcms.publisher.util.PublisherUtil;
 import com.dotcms.publishing.*;
 import com.dotcms.rest.PublishThread;
 import com.dotmarketing.beans.Identifier;
-import com.dotmarketing.beans.Inode;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.DotStateException;
 import com.dotmarketing.business.PermissionAPI;
@@ -26,6 +25,7 @@ import com.dotmarketing.portlets.workflows.model.WorkflowActionFailureException;
 import com.dotmarketing.servlets.ajax.AjaxAction;
 import com.dotmarketing.util.*;
 import com.dotmarketing.util.json.JSONArray;
+import com.dotmarketing.util.json.JSONException;
 import com.dotmarketing.util.json.JSONObject;
 import com.liferay.portal.language.LanguageException;
 import com.liferay.portal.language.LanguageUtil;
@@ -49,6 +49,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * This class handles the different action mechanisms related to the handling of 
+ * bundles during the Push Publishing process. You can perform several actions 
+ * on a bundle:
+ * <ul>
+ * 	<li>Generate a bundle by selecting a content for Push Publish.</li>
+ * 	<li>Adding a content to a specific bundle.</li>
+ * 	<li>Download or upload a given bundle.</li>
+ * 	<li>Re-try a bundle that failed previously.</li>
+ * </ul>
+ * 
+ * @author Daniel Silva
+ * @version 1.0
+ * @since Dec 17, 2012
+ *
+ */
 public class RemotePublishAjaxAction extends AjaxAction {
 
 	public static final String DIALOG_ACTION_EXPIRE="expire";
@@ -82,8 +98,6 @@ public class RemotePublishAjaxAction extends AjaxAction {
 							: map.get("passwd") !=null
 								? map.get("passwd")
 									: null;
-
-
 
 				LoginFactory.doLogin(userName, password, false, request, response);
 				user = (User) request.getSession().getAttribute(WebKeys.CMS_USER);
@@ -131,7 +145,7 @@ public class RemotePublishAjaxAction extends AjaxAction {
 
 	}
 
-    /**
+	/**
      * Send to the publisher queue a list of assets for a given Operation (Publish/Unpublish) and {@link Environment Environment}
      *
      * @param request  HttpRequest
@@ -144,7 +158,7 @@ public class RemotePublishAjaxAction extends AjaxAction {
 
         try {
 
-            PublisherAPI publisherAPI = PublisherAPI.getInstance();
+        	PublisherAPI publisherAPI = PublisherAPI.getInstance();
 
             //Read the form values
             String _assetId = request.getParameter( "assetIdentifier" );
@@ -770,10 +784,25 @@ public class RemotePublishAjaxAction extends AjaxAction {
                 //And send it back to the user
                 response.getWriter().println( jsonResponse.toString() );
             }
-        } catch ( Exception e ) {
-            Logger.error( RemotePublishAjaxAction.class, e.getMessage(), e );
-            response.sendError( HttpStatus.SC_INTERNAL_SERVER_ERROR, "Error Adding content to Bundle: " + e.getMessage() );
+        } catch(DotPublisherException e){
+            JSONObject jsonResponse = new JSONObject();
+
+            try {
+                jsonResponse.put( "errors", e.getMessage() );
+            } catch (JSONException e1) {
+                sendGeneralError(response, e);
+            }
+
+            //And send it back to the user
+            response.getWriter().println( jsonResponse.toString() );
+        }catch ( Exception e ) {
+            sendGeneralError(response, e);
         }
+    }
+
+    private static void sendGeneralError( HttpServletResponse response, Throwable e) throws IOException {
+        Logger.error( RemotePublishAjaxAction.class, e.getMessage(), e );
+        response.sendError( HttpStatus.SC_INTERNAL_SERVER_ERROR, "Error Adding content to Bundle: " + e.getMessage() );
     }
 
     /**
@@ -856,9 +885,28 @@ public class RemotePublishAjaxAction extends AjaxAction {
         }
     }
 
-    /**
-     * Returns the list of ids the user is trying to remote publish.
-     */
+	/**
+	 * Takes the list of IDs that the user wants to push to the destination
+	 * environment, and tries to determine their type of asset: Language, User,
+	 * OSGi, folder, etc. This allows the process to verify that the selected
+	 * assets are actually pusheable content and the user has permission to push
+	 * them.
+	 * 
+	 * @param assetIds
+	 *            - The list of IDs selected by the user.
+	 * @param bundleId
+	 *            - The ID of the bundle that will contain the selected assets.
+	 * @param _contentFilterDate
+	 *            - A filtering date (required only when pushing a user).
+	 * @param dateFormat
+	 *            - The date format (required only when pushing a user).
+	 * @return The list of valid pusheable assets.
+	 * @throws ParseException
+	 *             An error occurred when parsing the date format.
+	 * @throws DotDataException
+	 *             An error occurred when retrieving informaiton from the
+	 *             database.
+	 */
     private List<String> getIdsToPush ( List<String> assetIds, String bundleId, String _contentFilterDate, SimpleDateFormat dateFormat )
             throws ParseException, DotDataException {
 
@@ -907,11 +955,17 @@ public class RemotePublishAjaxAction extends AjaxAction {
                         String assetType = APILocator.getIdentifierAPI().getAssetTypeFromDB(_assetId);
 
                         //If we don't find the Type in table identifier we try to hit table inode.
-                        if(assetType == null){
+                        if(assetType == null) {
                             assetType = InodeUtils.getAssetTypeFromDB(_assetId);
                         }
 
-                        if(assetType != null && assetType.equals(Identifier.ASSET_TYPE_FOLDER)){
+                        // If we don't find the Type in Inode table, we try to 
+                        // determine the type in a different way
+						if (assetType == null
+								&& (APILocator.getLanguageAPI().isAssetTypeLanguage(_assetId) || APILocator.getRulesAPI()
+										.getRuleById(_assetId, getUser(), false) != null)) {
+							ids.add(_assetId);
+						} else if(assetType != null && assetType.equals(Identifier.ASSET_TYPE_FOLDER)){
                             Folder folder = null;
 
                             try {
@@ -927,7 +981,6 @@ public class RemotePublishAjaxAction extends AjaxAction {
                                     ids.add(_assetId);
                                 }
                             }
-
                         } else { // if the asset is not a folder and has identifier, put it, if not, put the inode
                             Identifier iden = APILocator.getIdentifierAPI().findFromInode( _assetId );
                             if ( !ids.contains( iden.getId() ) ) {//Multiples languages have the same identifier
@@ -936,15 +989,18 @@ public class RemotePublishAjaxAction extends AjaxAction {
                             	}
                             }
                         }
-
                     } catch ( DotStateException e ) {
+                        Logger.warn(RemotePublishAjaxAction.class, "Unable to find asset id = [" + _assetId + "]");
+
                     	if(!UtilMethods.isSet(bundleId) || !isAssetInBundle(_assetId, bundleId)){
                     		ids.add( _assetId );
                     	}
-                    }
+                    } catch (DotSecurityException e1) {
+						Logger.error(RemotePublishAjaxAction.class, "User " + getUser().getUserId()
+								+ " does not have permission to access asset ID " + _assetId);
+					}
                 }
             }
-
         }
 
         return ids;

@@ -42,6 +42,7 @@ import com.dotmarketing.business.web.WebAPILocator;
 import com.dotmarketing.cache.LiveCache;
 import com.dotmarketing.cache.WorkingCache;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
+import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotHibernateException;
 import com.dotmarketing.exception.DotRuntimeException;
@@ -191,6 +192,25 @@ public class BinaryExporterServlet extends HttpServlet {
         }
 
         boolean isTempBinaryImage = tempBinaryImageInodes.contains(assetInode);
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+		ServletOutputStream out = null;
+		FileChannel from = null;
+		WritableByteChannel to = null;
+		RandomAccessFile input = null;
+		FileInputStream is = null;
+
+        
+        
+        
 		try {
 			User user = userWebAPI.getLoggedInUser(req);
 			boolean respectFrontendRoles = !userWebAPI.isLoggedToBackend(req);
@@ -305,7 +325,7 @@ public class BinaryExporterServlet extends HttpServlet {
                 // If the user is NOT logged in the backend then we cannot show content that is NOT live.
                 // Temporal files should be allowed any time
                 if(!isTempBinaryImage && !WebAPILocator.getUserWebAPI().isLoggedToBackend(req)) {
-                    if (!content.isLive() && respectFrontendRoles) {
+                    if (!APILocator.getVersionableAPI().hasLiveVersion(content) && respectFrontendRoles) {
                         Logger.debug(this, "Content " + fieldVarName + " is not publish, with inode: "
                                 + content.getInode());
                         resp.sendError(404);
@@ -432,7 +452,7 @@ public class BinaryExporterServlet extends HttpServlet {
 				mimeType = "application/octet-stream";
 			}
 			resp.setContentType(mimeType);
-			resp.setHeader("Content-Disposition", "inline; filename=" + downloadName);
+			resp.setHeader("Content-Disposition", "inline; filename=\"" + UtilMethods.encodeURL(downloadName) + "\"" );
 
 			if (req.getParameter("dotcms_force_download") != null || req.getParameter("force_download") != null) {
 
@@ -442,7 +462,7 @@ public class BinaryExporterServlet extends HttpServlet {
 				if(!x.equals(y)){
 					downloadName = downloadName.replaceAll("\\." + x, "\\." + y);
 				}
-				resp.setHeader("Content-Disposition", "attachment; filename=" + downloadName);
+				resp.setHeader("Content-Disposition", "attachment; filename=\"" + UtilMethods.encodeURL(downloadName) + "\"");
 				resp.setHeader("Content-Type", "application/force-download");
 			} else {
 
@@ -520,10 +540,7 @@ public class BinaryExporterServlet extends HttpServlet {
 
 			String rangeHeader = req.getHeader("range");
 			if(UtilMethods.isSet(rangeHeader)){
-				ServletOutputStream out = null;
-				FileChannel from = null;
-				WritableByteChannel to = null;
-				RandomAccessFile input = null;
+
 				try {
 					out = resp.getOutputStream();
 					from = new FileInputStream(data.getDataFile()).getChannel();
@@ -602,25 +619,17 @@ public class BinaryExporterServlet extends HttpServlet {
 					Logger.warn(this, e + " Error for = " + req.getRequestURI() + (req.getQueryString() != null?"?"+req.getQueryString():"") );
 					Logger.debug(this, "Error serving asset = " + req.getRequestURI() + (req.getQueryString() != null?"?"+req.getQueryString():""), e);
 
-				} finally {
-					if(to != null)
-						to.close();
-					if(from != null)
-						from.close();
-					if(out != null)
-						out.close();
-					if(input !=null)
-						input.close();
-				}
+				} 
 			}else{
-				FileInputStream is = new FileInputStream(data.getDataFile());
+				is = new FileInputStream(data.getDataFile());
 	            int count = 0;
 	            byte[] buffer = new byte[4096];
-	            OutputStream servletOutput = resp.getOutputStream();
+	            out = resp.getOutputStream();
+	            
 	            while((count = is.read(buffer)) > 0) {
-	            	servletOutput.write(buffer, 0, count);
+	            	out.write(buffer, 0, count);
 	            }
-	            servletOutput.close();
+	            
 			}
             
 		} catch (DotContentletStateException e) {
@@ -657,7 +666,61 @@ public class BinaryExporterServlet extends HttpServlet {
 			Logger.debug(BinaryExporterServlet.class, e.getMessage(),e);
 			Logger.error(BinaryExporterServlet.class, e.getMessage());
 			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+		}catch (Exception e) {
+			Logger.debug(BinaryExporterServlet.class, e.getMessage(),e);
+			Logger.error(BinaryExporterServlet.class, e.getMessage());
+			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
+		// close our resources no matter what
+		finally{
+			if(from!=null){
+				try{
+					from.close();
+				}
+				catch(Exception e){
+					Logger.debug(BinaryExporterServlet.class, e.getMessage());
+				}
+			}
+
+			if(to!=null){
+				try{
+					to.close();
+				}
+				catch(Exception e){
+					Logger.debug(BinaryExporterServlet.class, e.getMessage());
+				}
+			}
+			
+			if(input!=null){
+				try{
+					input.close();
+				}
+				catch(Exception e){
+					Logger.debug(BinaryExporterServlet.class, e.getMessage());
+				}
+			}
+			
+			if(is!=null){
+				try{
+					is.close();
+				}
+				catch(Exception e){
+					Logger.debug(BinaryExporterServlet.class, e.getMessage());
+				}
+			}
+			
+			if(out!=null){
+				try{
+					out.close();
+				}
+				catch(Exception e){
+					Logger.debug(BinaryExporterServlet.class, e.getMessage());
+				}
+			}
+			
+			
+		}
+		
 	}
 
 	@SuppressWarnings("unchecked")

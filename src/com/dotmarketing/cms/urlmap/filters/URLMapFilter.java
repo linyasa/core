@@ -49,12 +49,8 @@ import com.dotmarketing.portlets.structure.factories.StructureFactory;
 import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.SimpleStructureURLMap;
 import com.dotmarketing.portlets.structure.model.Structure;
-import com.dotmarketing.util.Config;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.RegEX;
-import com.dotmarketing.util.RegExMatch;
-import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.util.WebKeys;
+import com.dotmarketing.tag.model.Tag;
+import com.dotmarketing.util.*;
 import com.liferay.portal.model.User;
 
 /**
@@ -68,7 +64,7 @@ import com.liferay.portal.model.User;
  */
 public class URLMapFilter implements Filter {
 
-	private List<PatternCache> patternsCache = new ArrayList<PatternCache>();
+	private List<PatternCache> patternsCache = new ArrayList<>();
 	private ContentletAPI conAPI;
 	private UserWebAPI wuserAPI;
 	private HostWebAPI whostAPI;
@@ -130,13 +126,13 @@ public class URLMapFilter implements Filter {
 		long languageId = WebAPILocator.getLanguageWebAPI().getLanguage(request).getId();
 		
 		String mastRegEx = null;
-		StringBuilder query = null;
+		StringBuilder query;
 		try {
 			mastRegEx = CacheLocator.getContentTypeCache().getURLMasterPattern();
 		} catch (DotCacheException e2) {
 			Logger.error(URLMapFilter.class, e2.getMessage(), e2);
 		}
-		if (mastRegEx == null) {
+		if (mastRegEx == null || patternsCache.isEmpty()) {
 			synchronized (ContentTypeCacheImpl.MASTER_STRUCTURE) {
 				try {
 					mastRegEx = buildCacheObjects();
@@ -261,7 +257,18 @@ public class URLMapFilter implements Filter {
 								request.setAttribute("URL_ARG" + i, x[i]);
 							}
 						}
-						
+
+						//Check if we want to accrue the tags of URL maps
+						if ( Config.getBooleanProperty("ACCRUE_TAGS_IN_URLMAPS", true) ) {
+
+							//Search for the tags asocciated to this contentlet inode
+							List<Tag> contentletFoundTags = APILocator.getTagAPI().getTagsByInode(c.getInode());
+							if ( contentletFoundTags != null ) {
+								//Accrue the found tags
+								TagUtil.accrueTags(request, contentletFoundTags);
+							}
+						}
+
 						break;
 					} catch (DotDataException e) {
 						Logger.warn(this, "DotDataException", e);

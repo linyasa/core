@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.dotcms.repackage.com.fasterxml.jackson.annotation.JsonIgnore;
 import com.dotcms.repackage.org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.dotcms.sync.Exportable;
@@ -35,7 +36,8 @@ public class Structure extends Inode implements Permissionable, Exportable, Impo
 	public static final int STRUCTURE_TYPE_FORM 		= 3;
 	public static final int STRUCTURE_TYPE_FILEASSET 	= 4;
 	public static final int STRUCTURE_TYPE_HTMLPAGE     = 5;
-
+	public static final int STRUCTURE_TYPE_PERSONA		= 6; 
+			
 	private static final long serialVersionUID = 1L;
 	private String name;
 	private String description;
@@ -54,6 +56,7 @@ public class Structure extends Inode implements Permissionable, Exportable, Impo
 	private String expireDateVar;
 	private Date modDate;
 
+	@JsonIgnore
 	public List<Exportable> getDependencies() {
 		// TODO Auto-generated method stub
 		List<Exportable> ret =new ArrayList<Exportable>();
@@ -228,6 +231,9 @@ public class Structure extends Inode implements Permissionable, Exportable, Impo
 	public boolean isHTMLPageAsset() {
 	    return structureType==STRUCTURE_TYPE_HTMLPAGE;
 	}
+	public boolean isPersona(){
+		return structureType==STRUCTURE_TYPE_PERSONA;
+	}
 	public boolean isSystem() {
 		return system;
 	}
@@ -268,6 +274,7 @@ public class Structure extends Inode implements Permissionable, Exportable, Impo
 		return accepted;
 	}
 
+	@JsonIgnore
 	public Permissionable getParentPermissionable() throws DotDataException {
 		try {
 

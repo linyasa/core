@@ -1,3 +1,4 @@
+<%@page import="com.dotmarketing.business.LayoutAPI"%>
 <%@page import="com.dotmarketing.beans.Identifier"%>
 <%@page import="com.dotmarketing.util.PortletURLUtil"%>
 <%@page import="com.dotmarketing.portlets.contentlet.business.DotContentletStateException"%>
@@ -159,7 +160,10 @@
 	}
 
 	boolean canEditAsset = conPerAPI.doesUserHavePermission(contentlet, PermissionAPI.PERMISSION_EDIT_PERMISSIONS, user);
-
+	final LayoutAPI layoutAPI = APILocator.getLayoutAPI();
+    boolean canSeeRules = layoutAPI.doesUserHaveAccessToPortlet("RULES_ENGINE_PORTLET", user) 
+            && conPerAPI.doesUserHavePermission(contentlet, PermissionAPI.PERMISSION_USE, user) 
+               && conPerAPI.doesUserHavePermissions(contentlet.getParentPermissionable(), "RULES: " + PermissionAPI.PERMISSION_USE, user);
 	boolean contentEditable = (UtilMethods.isSet(contentlet.getInode())?(Boolean)request.getAttribute(com.dotmarketing.util.WebKeys.CONTENT_EDITABLE):false);
 	Integer catCounter = 0;
 
@@ -430,6 +434,20 @@ var editButtonRow="editContentletButtonRow";
 			<jsp:include page="/html/portlet/ext/contentlet/edit_contentlet_relationships.jsp" />
 		</div>
 	<%}%>
+	
+	
+	<!-- -Rules -->
+	<% if (canSeeRules) { %>
+	   	<%if(InodeUtils.isSet(contentlet.getInode()) && contentlet.getStructure()!=null ){ %>
+	   		<%if(contentlet.isHost() || contentlet.getStructure().isHTMLPageAsset()){ %>
+				<div id="rulez" dojoType="dijit.layout.ContentPane" title="<%= LanguageUtil.get(pageContext, "Rules") %>" onShow="refreshRulesCp()">
+					<div id="contentletRulezDiv" style="height:100%;">
+					</div>
+				</div>
+			<%} %>
+		<%} %>
+	<% } %>
+
 
 	<!-- Permissions -->
 	<%if(!permissionsTabFieldExists && canEditAsset){%>
@@ -471,6 +489,12 @@ var editButtonRow="editContentletButtonRow";
 				<jsp:include page="/html/portlet/ext/contentlet/edit_contentlet_references.jsp" />
 			</div>
 		<%}%>
+		
+
+		
+		
+		
+		
 	<%}%>
 	</div>
 

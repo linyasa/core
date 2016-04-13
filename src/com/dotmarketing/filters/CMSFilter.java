@@ -3,6 +3,7 @@ package com.dotmarketing.filters;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URLDecoder;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -13,9 +14,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import com.dotcms.visitor.business.VisitorAPI;
+import com.dotcms.visitor.domain.Visitor;
+import com.dotmarketing.util.*;
 import org.apache.commons.logging.LogFactory;
-
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.business.APILocator;
@@ -25,10 +29,8 @@ import com.dotmarketing.cache.VirtualLinksCache;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.util.Config;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.util.WebKeys;
+import com.dotmarketing.portlets.rules.business.RulesEngine;
+import com.dotmarketing.portlets.rules.model.Rule;
 import com.liferay.util.Xss;
 
 public class CMSFilter implements Filter {
@@ -56,6 +58,8 @@ public class CMSFilter implements Filter {
 	public static final String CMS_FILTER_IDENTITY = "CMS_FILTER_IDENTITY";
 	public static final String CMS_FILTER_URI_OVERRIDE = "CMS_FILTER_URLMAP_OVERRIDE";
 
+	private static VisitorAPI visitorAPI = APILocator.getVisitorAPI();
+
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
 
 		HttpServletRequest request = (HttpServletRequest) req;
@@ -69,7 +73,8 @@ public class CMSFilter implements Filter {
 			response.sendRedirect(xssRedirect);
 			return;
 		}
-		
+
+
 		
 		IAm iAm = IAm.NOTHING_IN_THE_CMS;
 		
@@ -115,7 +120,7 @@ public class CMSFilter implements Filter {
 		} else if (urlUtil.isFolder(uri, host)) {
 			iAm = IAm.FOLDER;
 		}
-		
+
 		String rewrite = null;
 		String queryString = request.getQueryString();
 		// if a vanity URL
@@ -175,20 +180,31 @@ public class CMSFilter implements Filter {
 			}
 		}
 
+		if(iAm == IAm.PAGE){
+			countPageVisit(request);
+			countSiteVisit(request, response);
+		}
+
 		// if we are not rewriting anything, use the uri
 		rewrite = (rewrite == null) ? uri : rewrite;
+
 
 		if (iAm == IAm.FILE) {
 			Identifier ident = null;
 			try {
 				ident = APILocator.getIdentifierAPI().find(host, rewrite);
 				request.setAttribute(CMS_FILTER_IDENTITY, ident);
+				RulesEngine.fireRules(request, response, Rule.FireOn.EVERY_REQUEST);
+				if(response.isCommitted()) {
+                /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+					return;
+				}
 				request.getRequestDispatcher("/dotAsset/").forward(request, response);
 			} catch (DotDataException e) {
 				Logger.error(CMSFilter.class, e.getMessage(), e);
 				throw new IOException(e.getMessage());
 			}
-			return;
+            return;
 		}
 
 		if (iAm == IAm.PAGE) {
@@ -206,8 +222,22 @@ public class CMSFilter implements Filter {
 				forward.append(queryString);
 			}
 
+			// fire every_request rules
+            RulesEngine.fireRules(request, response, Rule.FireOn.EVERY_REQUEST);
+            if(response.isCommitted()){
+                /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+                return;
+            }
 			request.getRequestDispatcher(forward.toString()).forward(request, response);
 			return;
+		}
+
+		if(rewrite.startsWith("/contentAsset/")){
+	        RulesEngine.fireRules(request, response, Rule.FireOn.EVERY_REQUEST);
+	        if(response.isCommitted()){
+	            /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+	            return;
+	        }
 		}
 
 		// otherwise, pass
@@ -215,12 +245,43 @@ public class CMSFilter implements Filter {
 
 	}
 
-	
-	
-	
+	private void countSiteVisit(HttpServletRequest request,  HttpServletResponse response) {
+
+		HttpSession session = request.getSession(false);
+		boolean PAGE_MODE = true;
+
+		if(session != null){
+			PAGE_MODE = PageRequestModeUtil.isPageMode(session);
+		}
+
+		if (PAGE_MODE) {
+			NumberOfTimeVisitedCounter.maybeCount(request, response);
+
+		}
+	}
+
+	private void countPageVisit(HttpServletRequest request) {
+
+		HttpSession session = request.getSession(false);
+		boolean PAGE_MODE = true;
+
+		if(session != null){
+			PAGE_MODE = PageRequestModeUtil.isPageMode(session);
+		}
+
+		if (PAGE_MODE) {
+			Optional<Visitor> visitor = visitorAPI.getVisitor(request);
+
+			if (visitor.isPresent()) {
+				visitor.get().addPagesViewed(request.getRequestURI());
+			}
+
+		}
+	}
+
+
 	public void init(FilterConfig config) throws ServletException {
 		this.ASSET_PATH = APILocator.getFileAPI().getRelativeAssetsRootPath();
-
 	}
 	@Deprecated
 	private static Set<String> excludeList = null;

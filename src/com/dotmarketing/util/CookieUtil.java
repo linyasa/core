@@ -18,4 +18,23 @@ public class CookieUtil {
 
 	}
 
+    public static Cookie createOncePerVisitCookie() {
+        // set id cookie
+        Cookie idCookie = new Cookie(
+                com.dotmarketing.util.WebKeys.ONCE_PER_VISIT_COOKIE,
+                UUIDGenerator.generateUuid());
+        idCookie.setPath("/");
+        idCookie.setMaxAge(-1);
+
+        return idCookie;
+
+    }
+    
+    public static Cookie createSiteVisitsCookie(){
+    	Cookie idCookie = new Cookie(com.dotmarketing.util.WebKeys.SITE_VISITS_COOKIE, "1");
+    	idCookie.setPath("/");
+    	idCookie.setMaxAge(60 * 60 * 24 * 356 * 5);
+    	return idCookie;
+    }
+
 }

@@ -1,7 +1,7 @@
 package com.dotmarketing.business;
 
-import static com.dotcms.repackage.org.junit.Assert.assertFalse;
-import static com.dotcms.repackage.org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -10,11 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.dotcms.DwrAuthenticationUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
-import com.dotcms.repackage.org.junit.AfterClass;
-import com.dotcms.repackage.org.junit.BeforeClass;
-import com.dotcms.repackage.org.junit.Test;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.ajax.RoleAjax;
@@ -55,6 +56,7 @@ public class PermissionAPITest extends TestBase {
     private static Host host;
     private static User sysuser;
     private static Template tt;
+    private static DwrAuthenticationUtil dwrAuthentication = null;
 
     @BeforeClass
     public static void createTestHost() throws Exception {
@@ -78,7 +80,11 @@ public class PermissionAPITest extends TestBase {
         tt.setTitle("testtemplate");
         tt.setBody("<html><head></head><body>en empty template just for test</body></html>");
         APILocator.getTemplateAPI().saveTemplate(tt, host, sysuser, false);
-
+        // User authentication through DWR is required for RoleAjax class
+		Map<String, Object> sessionAttrs = new HashMap<String, Object>();
+		sessionAttrs.put("USER_ID", "dotcms.org.1");
+		dwrAuthentication = new DwrAuthenticationUtil();
+		dwrAuthentication.setupWebContext(null, sessionAttrs);
     }
 
     @AfterClass
@@ -88,11 +94,12 @@ public class PermissionAPITest extends TestBase {
             APILocator.getHostAPI().archive(host, sysuser, false);
             APILocator.getHostAPI().delete(host, sysuser, false);
         	HibernateUtil.commitTransaction();
+        	dwrAuthentication.shutdownWebContext();
         }catch(Exception e){
         	HibernateUtil.rollbackTransaction();
         	Logger.error(PermissionAPITest.class, e.getMessage());
         }
-
+        
     }
 
     @Test
@@ -594,7 +601,7 @@ public class PermissionAPITest extends TestBase {
         }
     }
 
-    /**
+	/**
      * https://github.com/dotCMS/dotCMS/issues/847
      * @throws DotDataException
      * @throws DotSecurityException

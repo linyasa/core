@@ -47,6 +47,10 @@ import com.dotmarketing.portlets.languagesmanager.business.LanguageCache;
 import com.dotmarketing.portlets.languagesmanager.business.LanguageCacheImpl;
 import com.dotmarketing.portlets.links.business.MenuLinkCache;
 import com.dotmarketing.portlets.links.business.MenuLinkCacheImpl;
+import com.dotmarketing.portlets.rules.business.RulesCache;
+import com.dotmarketing.portlets.rules.business.RulesCacheImpl;
+import com.dotmarketing.portlets.rules.business.SiteVisitCache;
+import com.dotmarketing.portlets.rules.business.SiteVisitCacheImpl;
 import com.dotmarketing.portlets.structure.factories.RelationshipCache;
 import com.dotmarketing.portlets.structure.factories.RelationshipCacheImpl;
 import com.dotmarketing.portlets.templates.business.TemplateCache;
@@ -55,6 +59,10 @@ import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkCache;
 import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkCacheImpl;
 import com.dotmarketing.portlets.workflows.business.WorkflowCache;
 import com.dotmarketing.portlets.workflows.business.WorkflowCacheImpl;
+import com.dotmarketing.tag.business.TagCache;
+import com.dotmarketing.tag.business.TagCacheImpl;
+import com.dotmarketing.tag.business.TagInodeCache;
+import com.dotmarketing.tag.business.TagInodeCacheImpl;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.velocity.DotResourceCache;
@@ -79,7 +87,6 @@ public class CacheLocator extends Locator<CacheIndex>{
         public CommitListenerCacheWrapper(DotCacheAdministrator dotcache) { this.dotcache=dotcache; }
 
 		public void initProviders () {dotcache.initProviders();}
-		public Set<String> getKeys(String group) { return dotcache.getKeys(group); }
 		public Set<String> getGroups () {return dotcache.getGroups();}
 		public void flushAll() { dotcache.flushAll(); }
         public void flushGroup(String group) { dotcache.flushGroup(group); }
@@ -123,7 +130,7 @@ public class CacheLocator extends Locator<CacheIndex>{
 		if(instance != null)
 			return;
 
-		String clazz = Config.getStringProperty("cache.locator.class", DotGuavaCacheAdministratorImpl.class.getCanonicalName());
+		String clazz = Config.getStringProperty("cache.locator.class", ChainableCacheAdministratorImpl.class.getCanonicalName());
 		Logger.info(CacheLocator.class, "loading cache administrator: "+clazz);
 		try{
 			adminCache = new CommitListenerCacheWrapper((DotCacheAdministrator) Class.forName(clazz).newInstance());
@@ -158,6 +165,14 @@ public class CacheLocator extends Locator<CacheIndex>{
 
 	public static CategoryCache getCategoryCache() {
 		return (CategoryCache)getInstance(CacheIndex.Category);
+	}
+
+	public static TagCache getTagCache() {
+		return (TagCache)getInstance(CacheIndex.Tag);
+	}
+
+	public static TagInodeCache getTagInodeCache() {
+		return (TagInodeCache)getInstance(CacheIndex.TagInode);
 	}
 
 	public static ContentletCache getContentletCache() {
@@ -272,10 +287,16 @@ public class CacheLocator extends Locator<CacheIndex>{
 		return (NewNotificationCache)getInstance(CacheIndex.NewNotification);
 	}
 
+	public static RulesCache getRulesCache() {
+		return (RulesCache) getInstance(CacheIndex.RulesCache);
+	}
+	
+	public static SiteVisitCache getSiteVisitCache() {
+		return (SiteVisitCache) getInstance(CacheIndex.SiteVisitCache);
+	}
     public static ContentTypeCache getContentTypeCache() {
         return (ContentTypeCache) getInstance(CacheIndex.ContentTypeCache);
     }
-
 
 	/**
 	 * The legacy cache administrator will invalidate cache entries within a cluster
@@ -332,6 +353,8 @@ enum CacheIndex
 	CMSRole("CMS Role"),
 	Role("Role"),
 	Category("Category"),
+	Tag("Tag"),
+	TagInode("TagInode"),
 	Contentlet("Contentlet"),
 	Chain("Chain"),
 	LogMapper("LogMapper"),
@@ -361,13 +384,17 @@ enum CacheIndex
 	PublishingEndPoint("PublishingEndPoint Cache"),
 	PushedAssets("PushedAssets Cache"),
 	CSSCache("Processed CSS Cache"),
-	NewNotification("NewNotification Cache"), 
+	RulesCache("Rules Cache"),
+	SiteVisitCache("Rules Engine - Site Visits"),
+	NewNotification("NewNotification Cache"),
 	ContentTypeCache("Content Type Cache");
 
 	Cachable create() {
 		switch(this) {
 		case Permission: return new PermissionCacheImpl();
       	case Category: return new CategoryCacheImpl();
+      	case Tag: return new TagCacheImpl();
+      	case TagInode: return new TagInodeCacheImpl();
       	case Role: return new RoleCacheImpl();
       	case Contentlet: return new ContentletCacheImpl();
       	case Velocity : return new DotResourceCache();
@@ -400,6 +427,8 @@ enum CacheIndex
       	case PushedAssets: return new PushedAssetsCacheImpl();
       	case CSSCache: return new CSSCacheImpl();
       	case NewNotification: return new NewNotificationCacheImpl();
+      	case RulesCache : return new RulesCacheImpl();
+      	case SiteVisitCache : return new SiteVisitCacheImpl();
       	case ContentTypeCache: return new ContentTypeCacheImpl();
 		}
 		throw new AssertionError("Unknown Cache index: " + this);

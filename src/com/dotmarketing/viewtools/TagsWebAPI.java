@@ -1,22 +1,22 @@
 package com.dotmarketing.viewtools;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.dotcms.visitor.domain.Visitor;
+import com.dotmarketing.beans.UserProxy;
+import com.dotmarketing.business.APILocator;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.Logger;
+import com.dotmarketing.util.TagUtil;
+import com.dotmarketing.util.UtilMethods;
+import com.dotmarketing.util.WebKeys;
+import com.liferay.portal.model.User;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
 
-import com.dotmarketing.beans.UserProxy;
-import com.dotmarketing.business.APILocator;
-import com.dotmarketing.tag.factories.TagFactory;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.util.WebKeys;
-import com.liferay.portal.model.User;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TagsWebAPI implements ViewTool {
 	private HttpServletRequest request;
@@ -28,7 +28,7 @@ public class TagsWebAPI implements ViewTool {
 		ctx = context.getVelocityContext();
 	}
 	
-	public List getTagsByUser(User user) {
+	public List getTagsByUser(User user) throws DotDataException {
 		List tagsUser = (List) request.getSession().getAttribute(WebKeys.LOGGED_IN_USER_TAGS);
 		if (!UtilMethods.isSet(tagsUser) || tagsUser.size() == 0) {
 			UserProxy up;
@@ -38,7 +38,7 @@ public class TagsWebAPI implements ViewTool {
 				Logger.error(this, e.getMessage(), e);
 				return new ArrayList();
 			}	
-			tagsUser = TagFactory.getTagInodeByInode(String.valueOf(up.getInode()));
+			tagsUser = APILocator.getTagAPI().getTagInodesByInode(String.valueOf(up.getInode()));
 			request.getSession().setAttribute(WebKeys.LOGGED_IN_USER_TAGS, tagsUser);
 		}
 		return tagsUser;
@@ -48,4 +48,15 @@ public class TagsWebAPI implements ViewTool {
 		HttpSession session = request.getSession();
 		return (List) session.getAttribute(com.dotmarketing.util.WebKeys.NON_LOGGED_IN_USER_TAGS);
 	}
+
+	/**
+	 * Method that accrues a given String of tag names with a CSV format to the current {@link Visitor}
+	 *
+	 * @param tags String of tag names with a CSV format to accrue
+	 */
+	public void accrueTags(String tags) {
+		//Accrue the given tags
+		TagUtil.accrueTags(request, tags);
+	}
+
 }

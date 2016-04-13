@@ -21,20 +21,17 @@ var tinyMCEProps = {
     		plugins: [
         		"advlist anchor autolink lists link image charmap print preview hr anchor pagebreak",
         		"searchreplace wordcount visualblocks visualchars code fullscreen",
-        		"insertdatetime media nonbreaking save table contextmenu directionality",
-        		"emoticons template paste textcolor spellchecker colorpicker textpattern validation dotimageclipboard compat3x"
+        		"emoticons template paste textcolor colorpicker textpattern validation dotimageclipboard compat3x"
     		],
 
-    		toolbar1: "styleselect | bold italic underline strikethrough |  alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image dotimageclipboard  | link unlink  | spellchecker <%= LicenseUtil.getLevel()>=200 ? ",validation":"" %>",
-    		spellchecker_language : "en_US",
-    		spellchecker_languages : "English=en_US,Español=es_ES",
-    		spellchecker_rpc_url : "/servlets/jmyspell-spellchecker",
+    		toolbar1: "styleselect | bold italic underline strikethrough |  alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | image dotimageclipboard  | link unlink  | <%= LicenseUtil.getLevel()>=200 ? ",validation":"" %>",
+
     		paste_auto_cleanup_on_paste : true,
 
             paste_strip_class_attributes : "all",
             convert_urls : true,
             cleanup : true,
-            
+            browser_spellcheck:true,
             urlconverter_callback : cmsURLConverter,
             verify_css_classes : false,
             <%

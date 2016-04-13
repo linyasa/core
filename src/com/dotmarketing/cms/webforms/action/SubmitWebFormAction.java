@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.repackage.nl.captcha.Captcha;
-
 import com.dotcms.repackage.org.apache.struts.Globals;
 import com.dotcms.repackage.org.apache.struts.action.ActionErrors;
 import com.dotcms.repackage.org.apache.struts.action.ActionForm;
@@ -21,7 +21,6 @@ import com.dotcms.repackage.org.apache.struts.action.ActionForward;
 import com.dotcms.repackage.org.apache.struts.action.ActionMapping;
 import com.dotcms.repackage.org.apache.struts.action.ActionMessage;
 import com.dotcms.repackage.org.apache.struts.actions.DispatchAction;
-
 import com.dotcms.util.SecurityUtils;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.UserProxy;
@@ -110,6 +109,7 @@ public final class SubmitWebFormAction extends DispatchAction {
 				if(!UtilMethods.isSet(invalidCaptchaURL)) {
 					invalidCaptchaURL = errorURL;
 				}
+				invalidCaptchaURL = invalidCaptchaURL.replaceAll("\\s", " ");
 				ActionForward af = new ActionForward();
 					af.setRedirect(true);
 					if (UtilMethods.isSet(queryString)) {
@@ -307,14 +307,16 @@ public final class SubmitWebFormAction extends DispatchAction {
 			user.setLastName(form.getLastName() == null ? "" : form.getLastName());
 			user.setNickName("");
 			user.setCompanyId(company.getCompanyId());
-			user.setPasswordEncrypted(true);
 			user.setGreeting("Welcome, " + user.getFullName() + "!");
 
 			// Set defaults values
 			if (user.isNew()) {
 				//if it's a new user we set random password
 				String pass = PublicEncryptionFactory.getRandomPassword();
-				user.setPassword(PublicEncryptionFactory.digestString(pass));
+
+                // Use new password hash method
+                user.setPassword(PasswordFactoryProxy.generateHash(pass));
+
 				user.setLanguageId(defaultUser.getLanguageId());
 				user.setTimeZoneId(defaultUser.getTimeZoneId());
 				user.setSkinId(defaultUser.getSkinId());

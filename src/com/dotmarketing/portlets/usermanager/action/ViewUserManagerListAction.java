@@ -15,22 +15,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import com.dotcms.repackage.javax.portlet.ActionRequest;
-import com.dotcms.repackage.javax.portlet.ActionResponse;
-import com.dotcms.repackage.javax.portlet.PortletConfig;
-import com.dotcms.repackage.javax.portlet.RenderRequest;
-import com.dotcms.repackage.javax.portlet.RenderResponse;
-import com.dotcms.repackage.javax.portlet.WindowState;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.PageContext;
 
+import com.dotcms.enterprise.PasswordFactoryProxy;
+import com.dotcms.repackage.javax.portlet.ActionRequest;
+import com.dotcms.repackage.javax.portlet.ActionResponse;
+import com.dotcms.repackage.javax.portlet.PortletConfig;
+import com.dotcms.repackage.javax.portlet.RenderRequest;
+import com.dotcms.repackage.javax.portlet.RenderResponse;
+import com.dotcms.repackage.javax.portlet.WindowState;
 import com.dotcms.repackage.org.apache.struts.action.ActionForm;
 import com.dotcms.repackage.org.apache.struts.action.ActionForward;
 import com.dotcms.repackage.org.apache.struts.action.ActionMapping;
-
+import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.beans.UserProxy;
 import com.dotmarketing.business.APILocator;
@@ -51,7 +52,6 @@ import com.dotmarketing.portlets.mailinglists.model.MailingList;
 import com.dotmarketing.portlets.usermanager.factories.UserManagerListBuilderFactory;
 import com.dotmarketing.portlets.usermanager.factories.UserManagerPropertiesFactory;
 import com.dotmarketing.portlets.usermanager.struts.UserManagerListSearchForm;
-import com.dotmarketing.tag.factories.TagFactory;
 import com.dotmarketing.tag.model.Tag;
 import com.dotmarketing.tag.model.TagInode;
 import com.dotmarketing.util.Config;
@@ -593,11 +593,11 @@ public class ViewUserManagerListAction extends DotPortletAction {
         UserProxy userProxy = com.dotmarketing.business.APILocator.getUserProxyAPI().getUserProxy(user,APILocator.getUserAPI().getSystemUser(), false);
 
         //delete user tags
-        List<TagInode> userTagsList = TagFactory.getTagInodeByInode(String.valueOf(userProxy.getInode()));
+        List<TagInode> userTagsList = APILocator.getTagAPI().getTagInodesByInode(String.valueOf(userProxy.getInode()));
         for (TagInode tag : userTagsList) {
-        	Tag retrievedTag = TagFactory.getTagByTagId(tag.getTagId());
-            TagFactory.deleteTagInode(tag);
-            TagFactory.deleteTag(retrievedTag.getTagId());
+            Tag retrievedTag = APILocator.getTagAPI().getTagByTagId(tag.getTagId());
+            APILocator.getTagAPI().deleteTagInode(tag);
+            APILocator.getTagAPI().deleteTag(retrievedTag.getTagId());
         }
 
         if(InodeUtils.isSet(userProxy.getInode())) {
@@ -842,7 +842,10 @@ public class ViewUserManagerListAction extends DotPortletAction {
             if (tagNameToken.hasMoreTokens()) {
                 for (; tagNameToken.hasMoreTokens();) {
                     String tagTokenized = tagNameToken.nextToken().trim();
-                    TagFactory.getTag(tagTokenized, userLoader.getUserId());
+                    List<Tag> foundTags = APILocator.getTagAPI().getTagsByName(tagTokenized);
+                    if ( foundTags == null || foundTags.isEmpty() ) {
+                        APILocator.getTagAPI().saveTag(tagTokenized, userLoader.getUserId(), Host.SYSTEM_HOST);
+                    }
                 }
             }
         }
@@ -1062,8 +1065,9 @@ public class ViewUserManagerListAction extends DotPortletAction {
                                 } else {
                                     user.setActive(true);
                                 }
-                                user.setPassword(PublicEncryptionFactory.digestString(password));
-                                user.setPasswordEncrypted(true);
+
+                                // Use new password hash method
+                                user.setPassword(PasswordFactoryProxy.generateHash(password));
 
                                 APILocator.getUserAPI().save(user, APILocator.getUserAPI().getSystemUser(), false);
 
@@ -1135,7 +1139,8 @@ public class ViewUserManagerListAction extends DotPortletAction {
                                     if (tagNameToken.hasMoreTokens()) {
                                         for (; tagNameToken.hasMoreTokens();) {
                                             String tagTokenized = tagNameToken.nextToken().trim();
-                                            TagFactory.addTag(tagTokenized, user.getUserId(),"");
+                                            String inode = com.dotmarketing.business.APILocator.getUserProxyAPI().getUserProxy(user.getUserId(), APILocator.getUserAPI().getSystemUser(), false).getInode();
+                                            APILocator.getTagAPI().addUserTag(tagTokenized, user.getUserId(), inode);
                                         }
                                     }
                                 }
@@ -1173,8 +1178,8 @@ public class ViewUserManagerListAction extends DotPortletAction {
                                         userDuplicated.setBirthday(birthday);
 
                                     if (UtilMethods.isSet(password)) {
-                                        userDuplicated.setPassword(PublicEncryptionFactory.digestString(password));
-                                        userDuplicated.setPasswordEncrypted(true);
+                                        // Use new password hash method
+                                        userDuplicated.setPassword(PasswordFactoryProxy.generateHash(password));
                                     }
 
                                     APILocator.getUserAPI().save(userDuplicated,APILocator.getUserAPI().getSystemUser(),false);
@@ -1297,7 +1302,7 @@ public class ViewUserManagerListAction extends DotPortletAction {
                                         UserProxy userProxy = com.dotmarketing.business.APILocator.getUserProxyAPI().getUserProxy(userDuplicated,APILocator.getUserAPI().getSystemUser(), false);
                                         for (; tagNameToken.hasMoreTokens();) {
                                             String tagTokenized = tagNameToken.nextToken().trim();
-                                            TagFactory.addTagInode(tagTokenized, String.valueOf(userProxy.getUserId()), "");
+                                            APILocator.getTagAPI().addUserTagInode(tagTokenized, String.valueOf(userProxy.getUserId()), "");
                                         }
                                     }
                                 }
@@ -1571,11 +1576,11 @@ public class ViewUserManagerListAction extends DotPortletAction {
 
                 //delete user tags
                 String userId = user.getUserId();
-                List<TagInode> userTagsList = TagFactory.getTagInodeByInode(String.valueOf(userProxy.getInode()));
+                List<TagInode> userTagsList = APILocator.getTagAPI().getTagInodesByInode(String.valueOf(userProxy.getInode()));
                 for (TagInode tag : userTagsList) {
-                	Tag retrievedTag = TagFactory.getTagByTagId(tag.getTagId());
-                    TagFactory.deleteTagInode(tag);
-                    TagFactory.deleteTag(retrievedTag.getTagId());
+                    Tag retrievedTag = APILocator.getTagAPI().getTagByTagId(tag.getTagId());
+                    APILocator.getTagAPI().deleteTagInode(tag);
+                    APILocator.getTagAPI().deleteTag(retrievedTag.getTagId());
                 }
                 // deletes user proxy
                 InodeFactory.deleteInode(userProxy);

@@ -1,10 +1,10 @@
 package com.dotmarketing.portlets.contentlet.business;
 
-import static com.dotcms.repackage.org.junit.Assert.assertEquals;
-import static com.dotcms.repackage.org.junit.Assert.assertFalse;
-import static com.dotcms.repackage.org.junit.Assert.assertNotNull;
-import static com.dotcms.repackage.org.junit.Assert.assertNotSame;
-import static com.dotcms.repackage.org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -27,8 +27,8 @@ import com.dotcms.content.business.DotMappingException;
 import com.dotcms.content.elasticsearch.business.ESMappingAPIImpl;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.lang.time.FastDateFormat;
-import com.dotcms.repackage.org.junit.Ignore;
-import com.dotcms.repackage.org.junit.Test;
+import org.junit.Ignore;
+import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.beans.MultiTree;
@@ -791,9 +791,11 @@ public class ContentletAPITest extends ContentletBaseTest {
         //Getting a known structure
         Structure structure = structures.iterator().next();
 
+        Long identifier = uniqueIdentifier.get(structure.getName());
+
         //Getting a know field for this structure
         //TODO: The definition of the method getFieldByName receive a parameter named "String:structureType", some examples I saw send the Inode, but actually what it needs is the structure name....
-        Field foundWysiwygField = FieldFactory.getFieldByName( structure.getName(), "JUnit Test Wysiwyg" );
+        Field foundWysiwygField = FieldFactory.getFieldByName( structure.getName(), "JUnit Test Wysiwyg-" + identifier );
 
         //Search the contentlets for this structure
         List<Contentlet> contentletList = contentletAPI.findByStructure( structure, user, false, 0, 0 );
@@ -1349,6 +1351,8 @@ public class ContentletAPITest extends ContentletBaseTest {
      */
     @Test
     public void unpublishCollection () throws DotDataException, DotSecurityException {
+
+        contentletAPI.publish(contentlets, user, false);
 
         //Unpublish all the test contentlets
         contentletAPI.unpublish( contentlets, user, false );

@@ -12,16 +12,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URLDecoder;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -29,6 +23,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dotcms.visitor.business.VisitorAPI;
+import com.dotcms.visitor.domain.Visitor;
+import com.dotmarketing.portlets.contentlet.business.DotContentletStateException;
+
+import com.dotmarketing.portlets.rules.business.RulesEngine;
+import com.dotmarketing.portlets.rules.model.Rule;
+import com.dotmarketing.util.*;
+import com.liferay.portal.language.LanguageException;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.exception.MethodInvocationException;
@@ -63,26 +65,16 @@ import com.dotmarketing.factories.ClickstreamFactory;
 import com.dotmarketing.filters.CMSFilter;
 import com.dotmarketing.portlets.containers.model.Container;
 import com.dotmarketing.portlets.contentlet.business.ContentletAPI;
-import com.dotmarketing.portlets.contentlet.business.DotContentletStateException;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.htmlpageasset.model.IHTMLPage;
 import com.dotmarketing.portlets.htmlpages.business.HTMLPageAPI;
 import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.Structure;
-import com.dotmarketing.util.Config;
-import com.dotmarketing.util.CookieUtil;
-import com.dotmarketing.util.InodeUtils;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.util.VelocityProfiler;
-import com.dotmarketing.util.VelocityUtil;
-import com.dotmarketing.util.WebKeys;
 import com.dotmarketing.viewtools.DotTemplateTool;
 import com.dotmarketing.viewtools.RequestWrapper;
 import com.dotmarketing.viewtools.content.ContentMap;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
-import com.liferay.portal.language.LanguageException;
 import com.liferay.portal.language.LanguageUtil;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
@@ -99,6 +91,8 @@ public abstract class VelocityServlet extends HttpServlet {
 	private static PortletAPI portletAPI = APILocator.getPortletAPI();
 
 	private static HostWebAPI hostWebAPI = WebAPILocator.getHostWebAPI();
+
+	private static VisitorAPI visitorAPI = APILocator.getVisitorAPI();
 
 	public static  ThreadLocal<Context> velocityCtx = Logger.velocityCtx;
 
@@ -128,7 +122,6 @@ public abstract class VelocityServlet extends HttpServlet {
         /*
 		 * Getting host object form the session
 		 */
-        HostWebAPI hostWebAPI = WebAPILocator.getHostWebAPI();
         Host host;
         try {
             host = hostWebAPI.getCurrentHost(request);
@@ -191,16 +184,15 @@ public abstract class VelocityServlet extends HttpServlet {
 
 
 			HttpSession session = request.getSession(false);
-			boolean timemachine=false;
 			boolean ADMIN_MODE=false;
 			boolean PREVIEW_MODE=false;
 			boolean EDIT_MODE=false;
 			if(session!=null){
-				timemachine=session.getAttribute("tm_date")!=null;
-				ADMIN_MODE = !timemachine && session!=null && (session.getAttribute(com.dotmarketing.util.WebKeys.ADMIN_MODE_SESSION) != null);
-				PREVIEW_MODE = !timemachine && ADMIN_MODE && (session.getAttribute(com.dotmarketing.util.WebKeys.PREVIEW_MODE_SESSION) != null);
-				EDIT_MODE = !timemachine && ADMIN_MODE && (session.getAttribute(com.dotmarketing.util.WebKeys.EDIT_MODE_SESSION) != null);
+				ADMIN_MODE = PageRequestModeUtil.isAdminMode(session);
+				PREVIEW_MODE = PageRequestModeUtil.isPreviewMode(session);
+				EDIT_MODE = PageRequestModeUtil.isEditMode(session);
 			}
+
 			String value = request.getHeader("X-Requested-With");
 			if ((value != null) && value.equals("XMLHttpRequest") && EDIT_MODE && ADMIN_MODE) {
 				ADMIN_MODE = false;
@@ -217,6 +209,12 @@ public abstract class VelocityServlet extends HttpServlet {
 			LanguageWebAPI langWebAPI = WebAPILocator.getLanguageWebAPI();
 			langWebAPI.checkSessionLocale(request);
 
+			// we will always need a visitor in admin mode
+			if(ADMIN_MODE){
+				visitorAPI.getVisitor(request,true);
+			}
+			
+			
 			if (PREVIEW_MODE && ADMIN_MODE) {
 				// preview mode has the left hand menu and edit buttons on the
 				// working page
@@ -319,6 +317,8 @@ public abstract class VelocityServlet extends HttpServlet {
 	protected void doAdminMode(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// LIVE MODE - LIVE PAGE
 
+
+
 		com.liferay.portal.model.User backendUser = null;
 		backendUser = com.liferay.portal.util.PortalUtil.getUser(request);
 
@@ -377,8 +377,14 @@ public abstract class VelocityServlet extends HttpServlet {
 	public void doLiveMode(HttpServletRequest request, HttpServletResponse response) throws Exception {
 	    LicenseUtil.startLiveMode();
 	    try {
-    		String uri = URLDecoder.decode(request.getRequestURI(), UtilMethods.getCharsetConfiguration());
-    		Host host = (Host)request.getAttribute("host");
+			String uri = URLDecoder.decode(request.getRequestURI(), UtilMethods.getCharsetConfiguration());
+    		Host host;
+            try {
+                host = hostWebAPI.getCurrentHost(request);
+            } catch (Exception e) {
+                Logger.error(this, "Unable to retrieve current request host for URI " + uri);
+                throw new ServletException(e.getMessage(), e);
+            }
 
 			//Find the current language
 			long currentLanguageId = VelocityUtil.getLanguageId(request);
@@ -420,18 +426,64 @@ public abstract class VelocityServlet extends HttpServlet {
     		response.setContentType(CHARSET);
     		request.setAttribute("idInode", String.valueOf(ident.getInode()));
     		Logger.debug(VelocityServlet.class, "VELOCITY HTML INODE=" + ident.getInode());
-    
+
+			Optional<Visitor> visitor = visitorAPI.getVisitor(request);
+
+			boolean newVisitor = false;
+			boolean newVisit = false;
+
     		/*
     		 * JIRA http://jira.dotmarketing.net/browse/DOTCMS-4659
     		//Set long lived cookie regardless of who this is */
     		String _dotCMSID = UtilMethods.getCookieValue(request.getCookies(),
     				com.dotmarketing.util.WebKeys.LONG_LIVED_DOTCMS_ID_COOKIE);
-    
+
     		if (!UtilMethods.isSet(_dotCMSID)) {
     			// create unique generator engine
     			Cookie idCookie = CookieUtil.createCookie();
+				_dotCMSID = idCookie.getValue();
     			response.addCookie(idCookie);
+				newVisitor = true;
+
+				if(visitor.isPresent()) {
+					visitor.get().setDmid(UUID.fromString(_dotCMSID));
+				}
+
     		}
+
+            String _oncePerVisitCookie = UtilMethods.getCookieValue(request.getCookies(),
+                    WebKeys.ONCE_PER_VISIT_COOKIE);
+
+            if (!UtilMethods.isSet(_oncePerVisitCookie)) {
+				newVisit = true;
+            }
+
+			if(newVisitor) {
+				RulesEngine.fireRules(request, response, Rule.FireOn.ONCE_PER_VISITOR);
+				if(response.isCommitted()) {
+                /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+					Logger.debug(VelocityServlet.class, "A ONCE_PER_VISITOR RuleEngine Action has committed the response.");
+					return;
+				}
+			}
+
+			if(newVisit) {
+   				RulesEngine.fireRules(request, response, Rule.FireOn.ONCE_PER_VISIT);
+				if(response.isCommitted()) {
+                /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+					Logger.debug(VelocityServlet.class, "A ONCE_PER_VISIT RuleEngine Action has committed the response.");
+					return;
+				}
+			}
+
+			RulesEngine.fireRules(request, response, Rule.FireOn.EVERY_PAGE);
+
+			if(response.isCommitted()) {
+                /* Some form of redirect, error, or the request has already been fulfilled in some fashion by one or more of the actionlets. */
+				Logger.debug(VelocityServlet.class, "An EVERY_PAGE RuleEngine Action has committed the response.");
+				return;
+			}
+
     
     		com.liferay.portal.model.User user = null;
     		HttpSession session = request.getSession(false);
@@ -494,6 +546,9 @@ public abstract class VelocityServlet extends HttpServlet {
     			}
     		}
 
+			//Fire the page rules until we know we have permission.
+			RulesEngine.fireRules(request, response, page, Rule.FireOn.EVERY_PAGE);
+
     		Logger.debug(VelocityServlet.class, "Recording the ClickStream");
     		if(Config.getBooleanProperty("ENABLE_CLICKSTREAM_TRACKING", false)) {
     			if (user != null) {
@@ -512,7 +567,14 @@ public abstract class VelocityServlet extends HttpServlet {
     		String language = String.valueOf(currentLanguageId);
     		String urlMap = (String) request.getAttribute(WebKeys.WIKI_CONTENTLET_INODE);
     		String queryString = request.getQueryString();
-			PageCacheParameters cacheParameters = new BlockPageCache.PageCacheParameters(userId, language, urlMap, queryString);
+    		String persona = null;
+    		Optional<Visitor> v = APILocator.getVisitorAPI().getVisitor(request, false);
+    		if(v.isPresent() && v.get().getPersona() !=null){
+    			persona=v.get().getPersona().getKeyTag();
+    		}
+
+    				
+			PageCacheParameters cacheParameters = new BlockPageCache.PageCacheParameters(userId, language, urlMap, queryString, persona);
 
     		boolean buildCache = false;
     		String key = VelocityUtil.getPageCacheKey(request, response);
@@ -554,7 +616,7 @@ public abstract class VelocityServlet extends HttpServlet {
     			String trimmedPage = out.toString().trim();
     			response.getWriter().write(trimmedPage);
     			response.getWriter().close();
-    			synchronized (key) {
+    			synchronized (key.intern()) {
     				//CacheLocator.getHTMLPageCache().remove(page);
     				CacheLocator.getBlockPageCache().add(page, trimmedPage, cacheParameters);
     			}
@@ -621,8 +683,8 @@ public abstract class VelocityServlet extends HttpServlet {
         context.put( "canViewDiff", new Boolean( LicenseUtil.getLevel() > 199 ? true : false ) );
 
         context.put( "HTMLPAGE_ASSET_STRUCTURE_TYPE", htmlPage.isContent() ? ((Contentlet)htmlPage).getStructureInode() : APILocator.getHTMLPageAssetAPI().DEFAULT_HTMLPAGE_ASSET_STRUCTURE_INODE);
-        context.put( "HTMLPAGE_IS_CONTENT" , htmlPage.isContent());
-        
+        context.put("HTMLPAGE_IS_CONTENT", htmlPage.isContent());
+
 		boolean canUserWriteOnTemplate = permissionAPI.doesUserHavePermission(
 		        APILocator.getHTMLPageAssetAPI().getTemplate(htmlPage, true),
 				PERMISSION_WRITE, user, true);
@@ -815,7 +877,7 @@ public abstract class VelocityServlet extends HttpServlet {
 
         String uri = request.getRequestURI();
 
-        Host host = hostWebAPI.getCurrentHost( request );
+        Host host = hostWebAPI.getCurrentHost(request);
 
         StringBuilder preExecuteCode = new StringBuilder();
         Boolean widgetPreExecute = false;
@@ -838,6 +900,7 @@ public abstract class VelocityServlet extends HttpServlet {
 
         // creates the context where to place the variables
         response.setContentType( CHARSET );
+		request.setAttribute("EDIT_MODE", Boolean.TRUE);
         Context context = VelocityUtil.getWebContext( request, response );
 
 		IHTMLPage htmlPage = VelocityUtil.getPage(id, request, false, context);
@@ -849,8 +912,8 @@ public abstract class VelocityServlet extends HttpServlet {
 		List<PublishingEndPoint> receivingEndpoints = pepAPI.getReceivingEndPoints();
         // to check user has permission to write on this page
         boolean hasAddChildrenPermOverHTMLPage = permissionAPI.doesUserHavePermission( htmlPage, PERMISSION_CAN_ADD_CHILDREN, backendUser );
-        boolean hasWritePermOverHTMLPage = permissionAPI.doesUserHavePermission( htmlPage, PERMISSION_WRITE, backendUser );
-        boolean hasPublishPermOverHTMLPage = permissionAPI.doesUserHavePermission( htmlPage, PERMISSION_PUBLISH, backendUser );
+        boolean hasWritePermOverHTMLPage = permissionAPI.doesUserHavePermission(htmlPage, PERMISSION_WRITE, backendUser);
+        boolean hasPublishPermOverHTMLPage = permissionAPI.doesUserHavePermission(htmlPage, PERMISSION_PUBLISH, backendUser);
         boolean hasRemotePublishPermOverHTMLPage = hasPublishPermOverHTMLPage && LicenseUtil.getLevel() > 199;
         boolean hasEndPoints = UtilMethods.isSet( receivingEndpoints ) && !receivingEndpoints.isEmpty();
 
@@ -885,7 +948,7 @@ public abstract class VelocityServlet extends HttpServlet {
 
         Identifier templateIdentifier = APILocator.getIdentifierAPI().find( cmsTemplate );
 
-        Logger.debug( VelocityServlet.class, "VELOCITY TEMPLATE INODE=" + cmsTemplate.getInode() );
+        Logger.debug(VelocityServlet.class, "VELOCITY TEMPLATE INODE=" + cmsTemplate.getInode());
 
         VelocityUtil.makeBackendContext( context, htmlPage, cmsTemplate.getInode(), id.getURI(), request, true, true, false, host );
         // added to show tabs

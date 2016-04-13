@@ -4,12 +4,9 @@
 package com.dotmarketing.viewtools.content;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
+import com.dotmarketing.tag.model.Tag;
 import org.apache.velocity.Template;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -260,7 +257,26 @@ public class ContentMap {
 				}
 				return null;
 			}else if(f != null && f.getFieldType().equals(Field.FieldType.TAG.toString())){
-				return new TagList((String)conAPI.getFieldValue(content, f));
+
+				StringBuilder tags = new StringBuilder();
+
+				//Search for the list of tags related to this contentlet
+				List<Tag> foundTags = APILocator.getTagAPI().getTagsByInode(content.getInode());
+				if ( foundTags != null && !foundTags.isEmpty() ) {
+
+					Iterator<Tag> iterator = foundTags.iterator();
+					while ( iterator.hasNext() ) {
+
+						Tag foundTag = iterator.next();
+						tags.append(foundTag.getTagName());
+
+						if ( iterator.hasNext() ) {
+							tags.append(",");
+						}
+					}
+				}
+
+				return new TagList(tags.toString());
 			}else if(f != null && f.getFieldType().equals(Field.FieldType.HOST_OR_FOLDER.toString())){
 				if(FolderAPI.SYSTEM_FOLDER.equals(content.getFolder())){
 					try{
@@ -401,7 +417,7 @@ public class ContentMap {
 	/**
 	 * Returns the {@link Contentlet} object this map is associated to.
 	 * 
-	 * @return The {@link Contentlet} object. 
+	 * @return The {@link Contentlet} object.
 	 */
 	public Contentlet getContentObject() {
 		return this.content;

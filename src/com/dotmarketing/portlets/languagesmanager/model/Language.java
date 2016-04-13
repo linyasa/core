@@ -151,4 +151,17 @@ public class Language implements Serializable {
 
         return new EqualsBuilder().append(this.id, castOther.id).isEquals();
     }
+
+	@Override
+	public String toString() {
+		if(this.getCountryCode()!=null){
+			return (this.getLanguageCode() + "-"+ this.getCountryCode()).toLowerCase();
+		}
+		return this.getLanguageCode().toLowerCase();
+	}
+    
+    
+    
+    
+    
 }

@@ -2,13 +2,15 @@ package com.dotmarketing.servlets;
 
 import com.dotcms.content.elasticsearch.util.ESClient;
 import com.dotcms.enterprise.LicenseUtil;
+import com.dotcms.repackage.com.maxmind.geoip2.exception.GeoIp2Exception;
 import com.dotcms.repackage.org.apache.commons.lang.SystemUtils;
-import com.dotcms.repackage.org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BooleanQuery;
+import com.dotcms.util.GeoIp2CityDbUtil;
 import com.dotcms.workflow.EscalationThread;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
-import com.dotmarketing.business.DotGuavaCacheAdministratorImpl;
+import com.dotmarketing.business.ChainableCacheAdministratorImpl;
 import com.dotmarketing.business.PermissionAPI;
 import com.dotmarketing.cache.VirtualLinksCache;
 import com.dotmarketing.cms.factories.PublicCompanyFactory;
@@ -16,6 +18,7 @@ import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotHibernateException;
+import com.dotmarketing.exception.DotRuntimeException;
 import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.init.DotInitScheduler;
 import com.dotmarketing.loggers.mbeans.Log4jConfig;
@@ -30,15 +33,18 @@ import com.dotmarketing.quartz.job.ShutdownHookThread;
 import com.dotmarketing.util.*;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.util.ReleaseInfo;
+
 import org.quartz.SchedulerException;
 
 import javax.management.*;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.*;
 import java.net.URLEncoder;
@@ -118,7 +124,7 @@ public class InitServlet extends HttpServlet {
                      Without a license this testCluster call will fail as the LicenseManager calls the ClusterFactory.removeNodeFromCluster()
                      if a license is not found.
                      */
-                    ((DotGuavaCacheAdministratorImpl) CacheLocator.getCacheAdministrator().getImplementationObject()).testCluster();
+                    ((ChainableCacheAdministratorImpl) CacheLocator.getCacheAdministrator().getImplementationObject()).testCluster();
                     Logger.info( this, "     Ping Sent" );
                 } catch ( Exception e ) {
                     Logger.error( this, "   Ping Error: " + e.getMessage() );
@@ -247,6 +253,25 @@ public class InitServlet extends HttpServlet {
 			throw new ServletException("Unable to initialize system folder", e1);
 		}
 
+		// Create the GeoIP2 database reader on startup since it takes around 2
+		// seconds to load the file. If the prop is not set, just move on
+		if (UtilMethods.isSet(Config.getStringProperty(
+				"GEOIP2_CITY_DATABASE_PATH", ""))) {
+			try {
+				Logger.info(this, "");
+				GeoIp2CityDbUtil geoIp2Util = GeoIp2CityDbUtil.getInstance();
+				// Validation query to initialize the GeoIP DB
+				String state = geoIp2Util
+						.getSubdivisionIsoCode("www.google.com");
+				Logger.info(this,
+						"Local GeoIP2 DB connection established successfully!");
+			} catch (IOException | GeoIp2Exception | DotRuntimeException e) {
+				Logger.info(this,
+						"Could not read from GeoIP2 DB: " + e.getMessage());
+			}
+			Logger.info(this, "");
+		}
+		
         /*
          * SHOULD BE LAST THING THAT HAPPENS
          */
@@ -278,7 +303,8 @@ public class InitServlet extends HttpServlet {
 			//Just get the Engine to make sure it gets inited on time before the first request
 			VelocityUtil.getEngine();
 
-
+			// Tell the world we are started up?
+			System.setProperty(WebKeys.DOTCMS_STARTED_UP, "true");
 
 
 
@@ -463,7 +489,9 @@ public class InitServlet extends HttpServlet {
 					HibernateUtil.closeSession();
 				} catch (DotHibernateException e) {
 					Logger.error(InitServlet.class, e.getMessage(), e);
-				}
+				} finally {
+	                DbConnectionFactory.closeConnection();
+	            }
             }
 
         }

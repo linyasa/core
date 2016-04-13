@@ -1,4 +1,3 @@
-
 create table ABContact (
 	contactId varchar(100) not null primary key,
 	userId varchar(100) not null,
@@ -15,8 +14,8 @@ create table ABContact (
 	homePhone varchar(100) null,
 	homeFax varchar(100) null,
 	homeCell varchar(100) null,
-	homePager varchar(100) null,
 	homeTollFree varchar(100) null,
+	homePager varchar(100) null,
 	homeEmailAddress varchar(100) null,
 	businessCompany varchar(100) null,
 	businessStreet varchar(100) null,
@@ -836,7 +835,7 @@ create table User_ (
 	userId varchar(100) not null primary key,
 	companyId varchar(100) not null,
 	createDate timestamp null,
-	password_ varchar(100) null,
+	password_ text null,
 	passwordEncrypted bool,
 	passwordExpirationDate timestamp null,
 	passwordReset bool,
@@ -1282,9 +1281,11 @@ create table analytic_summary_pages (
 );
 create table tag (
    tag_id varchar(100) not null,
-   tagname varchar(255),
+   tagname varchar(255) not null,
    host_id varchar(255),
    user_id varchar(255),
+   persona boolean default false,
+   mod_date timestamp,
    primary key (tag_id)
 );
 create table user_comments (
@@ -1862,6 +1863,8 @@ create table workflow_task (
 create table tag_inode (
    tag_id varchar(100) not null,
    inode varchar(100) not null,
+   field_var_name varchar(255),
+   mod_date timestamp,
    primary key (tag_id, inode)
 );
 create table click (
@@ -2468,6 +2471,7 @@ ALTER TABLE campaign ALTER active SET DEFAULT false;
 insert into User_ (userId, companyId, createDate, password_, passwordEncrypted, passwordReset, firstName, middleName, lastName, male, birthday, emailAddress, skinId, dottedSkins, roundedSkins, greeting, layoutIds, loginDate, failedLoginAttempts, agreedToTermsOfUse, active_) values ('dotcms.org.default', 'default', current_timestamp, 'password', 'f', 'f', '', '', '', 't', '01/01/1970', 'default@dotcms.org', '01', 'f', 'f', 'Welcome!', '', current_timestamp, 0, 'f', 't');
 create index addres_userid_index on address(userid);
 create index tag_user_id_index on tag(user_id);
+create index tag_is_persona_index on tag(persona);
 create index tag_inode_tagid on tag_inode(tag_id);
 create index tag_inode_inode on tag_inode(inode);
 -- These two indexes are here instead of the hibernate file because Oracle by default creates an index on a unique field.  So creating an index would try to create the same index twice.
@@ -2685,7 +2689,7 @@ CREATE TRIGGER structure_host_folder_trigger BEFORE INSERT OR UPDATE
     ON structure FOR EACH ROW
     EXECUTE PROCEDURE structure_host_folder_check();
 
-CREATE OR REPLACE FUNCTION load_records_to_index(server_id character varying, records_to_fetch int)
+CREATE OR REPLACE FUNCTION load_records_to_index(server_id character varying, records_to_fetch int, priority_level int)
   RETURNS SETOF dist_reindex_journal AS'
 DECLARE
    dj dist_reindex_journal;
@@ -2693,6 +2697,7 @@ BEGIN
 
     FOR dj IN SELECT * FROM dist_reindex_journal
        WHERE serverid IS NULL
+       AND priority <= priority_level
        ORDER BY priority ASC
        LIMIT records_to_fetch
        FOR UPDATE
@@ -3329,3 +3334,12 @@ create table cluster_server_action(
 	time_out_seconds bigint not null,
 	PRIMARY KEY (server_action_id)
 );
+
+-- Rules Engine
+create table dot_rule(id varchar(36) primary key,name varchar(255) not null,fire_on varchar(20),short_circuit boolean default false,parent_id varchar(36) not null,folder varchar(36) not null,priority int default 0,enabled boolean default false,mod_date timestamp);
+create table rule_condition_group(id varchar(36) primary key,rule_id varchar(36) references dot_rule(id),operator varchar(10) not null,priority int default 0,mod_date timestamp);
+create table rule_condition(id varchar(36) primary key,conditionlet text not null,condition_group varchar(36) references rule_condition_group(id),comparison varchar(36) not null,operator varchar(10) not null,priority int default 0,mod_date timestamp);
+create table rule_condition_value (id varchar(36) primary key,condition_id varchar(36) references rule_condition(id), paramkey varchar(255) not null, value text,priority int default 0);
+create table rule_action (id varchar(36) primary key,rule_id varchar(36) references dot_rule(id),priority int default 0,actionlet text not null,mod_date timestamp);
+create table rule_action_pars(id varchar(36) primary key,rule_action_id varchar(36) references rule_action(id), paramkey varchar(255) not null,value text);
+create index idx_rules_fire_on on dot_rule (fire_on);

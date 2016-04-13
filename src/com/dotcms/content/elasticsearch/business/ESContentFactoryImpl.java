@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import com.dotcms.repackage.org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
-import com.dotcms.repackage.org.elasticsearch.index.query.functionscore.random.RandomScoreFunctionBuilder;
+import org.elasticsearch.index.query.functionscore.FunctionScoreQueryBuilder;
+import org.elasticsearch.index.query.functionscore.random.RandomScoreFunctionBuilder;
 
 import org.springframework.util.NumberUtils;
 
@@ -22,21 +22,21 @@ import com.dotcms.content.elasticsearch.business.IndiciesAPI.IndiciesInfo;
 import com.dotcms.content.elasticsearch.util.ESClient;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.lang.StringUtils;
-import com.dotcms.repackage.org.elasticsearch.ElasticsearchException;
-import com.dotcms.repackage.org.elasticsearch.action.count.CountRequestBuilder;
-import com.dotcms.repackage.org.elasticsearch.action.search.SearchPhaseExecutionException;
-import com.dotcms.repackage.org.elasticsearch.action.search.SearchRequestBuilder;
-import com.dotcms.repackage.org.elasticsearch.action.search.SearchResponse;
-import com.dotcms.repackage.org.elasticsearch.client.Client;
-import com.dotcms.repackage.org.elasticsearch.index.query.FilterBuilders;
-import com.dotcms.repackage.org.elasticsearch.index.query.QueryBuilder;
-import com.dotcms.repackage.org.elasticsearch.index.query.QueryBuilders;
-import com.dotcms.repackage.org.elasticsearch.index.query.QueryStringQueryBuilder;
-import com.dotcms.repackage.org.elasticsearch.search.SearchHit;
-import com.dotcms.repackage.org.elasticsearch.search.SearchHits;
-import com.dotcms.repackage.org.elasticsearch.search.internal.InternalSearchHits;
-import com.dotcms.repackage.org.elasticsearch.search.sort.SortBuilders;
-import com.dotcms.repackage.org.elasticsearch.search.sort.SortOrder;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.count.CountRequestBuilder;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.internal.InternalSearchHits;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import com.dotcms.repackage.net.sf.hibernate.ObjectNotFoundException;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
@@ -574,7 +574,9 @@ public class ESContentFactoryImpl extends ContentletFactory {
                 wff.deleteWorkflowTask(wft);
             }
 
-            
+            //Remove the tag references to this Contentlet
+            APILocator.getTagAPI().deleteTagInodesByInode(con.getInode());
+
             if(InodeUtils.isSet(con.getInode())){
                 APILocator.getPermissionAPI().removePermissions(con);
 
@@ -1226,7 +1228,11 @@ public class ESContentFactoryImpl extends ContentletFactory {
      * @return
      */
     private SearchRequestBuilder createRequest(Client client, String query, String sortBy) {
-        if(Config.getBooleanProperty("ELASTICSEARCH_USE_FILTERS_FOR_SEARCHING",false)) {
+    	
+    	
+    	
+    	
+        if(Config.getBooleanProperty("ELASTICSEARCH_USE_FILTERS_FOR_SEARCHING",false) && sortBy!=null && ! sortBy.toLowerCase().startsWith("score")) {
 
             if("random".equals(sortBy)){
                 return client.prepareSearch()
@@ -1276,7 +1282,8 @@ public class ESContentFactoryImpl extends ContentletFactory {
             if(offset>0)
                 srb.setFrom(offset);
 
-            if(UtilMethods.isSet(sortBy)) {
+            if(UtilMethods.isSet(sortBy) ) {
+            	sortBy = sortBy.toLowerCase();
             	if(sortBy.endsWith("-order")) {
             	    // related content ordering
             	    int ind0=sortBy.indexOf('-'); // relationships tipicaly have a format stname1-stname2
@@ -1295,6 +1302,24 @@ public class ESContentFactoryImpl extends ContentletFactory {
             	        }
             	    }
             	}
+            	else if(sortBy.startsWith("score")){
+            		String[] test = sortBy.split("\\s+");
+            		String defualtSecondarySort = "moddate";
+            		SortOrder defaultSecondardOrder = SortOrder.DESC;
+            		
+            		if(test.length>2){
+            			if(test[2].equalsIgnoreCase("desc"))
+            				defaultSecondardOrder = SortOrder.DESC;
+            			else
+            				defaultSecondardOrder = SortOrder.ASC;
+            		}
+            		if(test.length>1){
+            			defualtSecondarySort= test[1];
+            		}
+
+            		srb.addSort("_score", SortOrder.DESC);
+            		srb.addSort(defualtSecondarySort, defaultSecondardOrder);
+            	}
             	else if(!sortBy.startsWith("undefined") && !sortBy.startsWith("undefined_dotraw") && !sortBy.equals("random")) {
             		String[] sortbyArr=sortBy.split(",");
 	            	for (String sort : sortbyArr) {
@@ -1305,6 +1330,9 @@ public class ESContentFactoryImpl extends ContentletFactory {
 					}
             	}
             }
+            
+            
+            
             try{
             	resp = srb.execute().actionGet();
             }catch (SearchPhaseExecutionException e) {
@@ -1702,12 +1730,12 @@ public class ESContentFactoryImpl extends ContentletFactory {
                 Logger.debug(ESContentFactoryImpl.class, "Structure Variable Name not found");
                 //return query;
             }
-
-            Structure selectedStructure = CacheLocator.getContentTypeCache().getStructureByVelocityVarName(structureVarName);
-
-            if ((selectedStructure == null) || !InodeUtils.isSet(selectedStructure.getInode())) {
-                Logger.debug(ESContentFactoryImpl.class, "Structure not found");
-                //return query;
+            if(structureVarName!=null){
+	            Structure selectedStructure = CacheLocator.getContentTypeCache().getStructureByVelocityVarName(structureVarName);
+	            if ((selectedStructure == null) || !InodeUtils.isSet(selectedStructure.getInode())) {
+	                Logger.debug(ESContentFactoryImpl.class, "Structure not found");
+	                //return query;
+	            }
             }
 
             //delete additional blank spaces on date range

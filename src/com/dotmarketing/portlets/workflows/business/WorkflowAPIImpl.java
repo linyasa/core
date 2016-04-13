@@ -106,7 +106,7 @@ public class WorkflowAPIImpl implements WorkflowAPI, WorkflowAPIOsgiService {
 	}
 
 	public void registerBundleService () {
-		if(Config.getBooleanProperty("felix.osgi.enable", true)){
+		if(System.getProperty(WebKeys.OSGI_ENABLED)!=null){
 			// Register main service
 			BundleContext context = HostActivator.instance().getBundleContext();
 			Hashtable<String, String> props = new Hashtable<String, String>();
@@ -886,7 +886,9 @@ public class WorkflowAPIImpl implements WorkflowAPI, WorkflowAPIOsgiService {
 					}
 				}
 			}
-			APILocator.getContentletAPI().refresh(processor.getContentlet());
+			if(UtilMethods.isSet(processor.getContentlet())){
+			    APILocator.getContentletAPI().refresh(processor.getContentlet());
+			}
 			if(local){
 				HibernateUtil.commitTransaction();
 			}

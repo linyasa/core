@@ -19,13 +19,13 @@ import com.dotcms.repackage.javax.ws.rs.core.Context;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
 import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import com.dotcms.repackage.org.codehaus.jackson.map.ObjectMapper;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONArray;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONException;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONObject;
 import com.dotcms.rest.BaseRestPortlet;
 import com.dotcms.rest.InitDataObject;
 import com.dotcms.rest.ResourceResponse;
+import com.dotcms.rest.WebResource;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.cache.FieldsCache;
 import com.dotmarketing.exception.DotDataException;
@@ -41,14 +41,23 @@ import com.liferay.portal.model.User;
 public class ESContentResourcePortlet extends BaseRestPortlet {
 
 	ContentletAPI esapi = APILocator.getContentletAPI();
+    private final WebResource webResource = new WebResource();
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("search")
-	public Response search(@Context HttpServletRequest request, JSONObject esQuery) throws DotDataException, DotSecurityException{
+	public Response search(@Context HttpServletRequest request, String esQueryStr) throws DotDataException, DotSecurityException{
 
-		InitDataObject initData = init(null, true, request, false);
+		JSONObject esQuery = null;
+		try {
+			esQuery = new JSONObject(esQueryStr);
+		} catch (Exception e1) {
+			Logger.warn(this.getClass(), "unable to create JSONObject");
+			throw new DotDataException("malformed json : " + e1.getMessage());
+		}
+
+		
+        InitDataObject initData = webResource.init(null, true, request, false, null);
 
 		HttpSession session = request.getSession();
 
@@ -64,7 +73,6 @@ public class ESContentResourcePortlet extends BaseRestPortlet {
 
 		User user = initData.getUser();
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			
 
@@ -115,7 +123,7 @@ public class ESContentResourcePortlet extends BaseRestPortlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes({MediaType.APPLICATION_JSON})
 	@Path("search")
-	public Response searchPost(@Context HttpServletRequest request, JSONObject esQuery) throws DotDataException, DotSecurityException{
+	public Response searchPost(@Context HttpServletRequest request, String esQuery) throws DotDataException, DotSecurityException{
 		return search(request, esQuery);
 	}
 	
@@ -132,7 +140,7 @@ public class ESContentResourcePortlet extends BaseRestPortlet {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response searchRaw(@Context HttpServletRequest request) {
 
-		InitDataObject initData = init(null, true, request, false);
+        InitDataObject initData = webResource.init(null, true, request, false, null);
 
 		HttpSession session = request.getSession();
 

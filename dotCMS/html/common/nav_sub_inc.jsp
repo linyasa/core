@@ -243,11 +243,16 @@ dojo.require("dojo.cookie");
 
 
          // check for new notifications now and every N seconds
-        checkNotifications();
+        //checkNotifications();
 
-         window.setInterval(function(){
-			checkNotifications();
-		}, 5000);
+		<% if(Config.getBooleanProperty("KEEP_SESSION_ALIVE", true)) {%>
+			// Call Every 5 seconds
+			window.setInterval(function(){
+				checkNotifications();
+			}, 5000);
+    	<%} else { %>
+			setTimeout("checkNotifications()",5000);
+    	<%} %>
 
     });
 
@@ -415,10 +420,12 @@ dojo.require("dojo.cookie");
             else {
                 alert(sameUserIdAlreadyRegisteredErrorMsg);
             }
-        } else if(exception.javaClassName == 'com.dotmarketing.exception.DotSecurityException'){
+        } else {
+            if(exception.javaClassName == 'com.dotmarketing.exception.DotSecurityException'){
                 alert(doNotHavePermissionsMsg);
-            }else {
-            alert("Server error: " + exception);
+            } else {
+                alert("Server error: " + exception.message);
+            }
         }
     }
 
@@ -725,7 +732,7 @@ dojo.require("dojo.cookie");
 				<div style="text-align:center;font-size:77%;color:#999;"><%=LanguageUtil.get(pageContext, "Toll-Free") %>+1 877-936-8267</div>
 				<div style="text-align:center;font-size:146.5%;color:#999;"><%=LanguageUtil.get(pageContext, "or") %></div>
 				<div style="text-align:center;">
-					<a href="http://dotcms.org/enterprise/" target="_blank"><%=LanguageUtil.get(pageContext, "Click-here-to-login-to-your-account") %></a>
+					<a href="https://my.dotcms.com" target="_blank"><%=LanguageUtil.get(pageContext, "Click-here-to-login-to-your-account") %></a>
 				</div>
 			</td>
 		</tr></table>

@@ -5,10 +5,13 @@ import com.dotcms.content.elasticsearch.business.ESContentFactoryImpl;
 import com.dotcms.content.elasticsearch.business.IndiciesFactory;
 import com.dotcms.content.elasticsearch.business.IndiciesFactoryImpl;
 import com.dotcms.enterprise.DashboardProxy;
+import com.dotcms.enterprise.RulesFactoryProxy;
 import com.dotcms.enterprise.ServerActionFactoryImplProxy;
 import com.dotcms.enterprise.cluster.ServerFactoryImpl;
 import com.dotcms.enterprise.cluster.action.business.ServerActionFactory;
 import com.dotcms.enterprise.linkchecker.LinkCheckerFactoryImpl;
+import com.dotmarketing.portlets.personas.business.PersonaFactory;
+import com.dotmarketing.portlets.personas.business.PersonaFactoryImpl;
 import com.dotcms.journal.business.ESDistributedJournalFactoryImpl;
 import com.dotcms.notifications.business.NotificationFactory;
 import com.dotcms.notifications.business.NotificationFactoryImpl;
@@ -49,12 +52,15 @@ import com.dotmarketing.portlets.languagesmanager.business.LanguageFactoryImpl;
 import com.dotmarketing.portlets.linkchecker.business.LinkCheckerFactory;
 import com.dotmarketing.portlets.links.business.MenuLinkFactory;
 import com.dotmarketing.portlets.links.business.MenuLinkFactoryImpl;
+import com.dotcms.enterprise.rules.RulesFactory;
 import com.dotmarketing.portlets.templates.business.TemplateFactory;
 import com.dotmarketing.portlets.templates.business.TemplateFactoryImpl;
 import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkFactory;
 import com.dotmarketing.portlets.virtuallinks.business.VirtualLinkFactoryImpl;
 import com.dotmarketing.portlets.workflows.business.WorkFlowFactory;
 import com.dotmarketing.portlets.workflows.business.WorkflowFactoryImpl;
+import com.dotmarketing.tag.business.TagFactory;
+import com.dotmarketing.tag.business.TagFactoryImpl;
 import com.dotmarketing.util.Logger;
 
 /**
@@ -214,6 +220,19 @@ public class FactoryLocator extends Locator<FactoryIndex>{
         return (ServerActionFactory) getInstance(FactoryIndex.SERVER_ACTION_FACTORY);
     }
 
+    public static RulesFactory getRulesFactory(){
+        return (RulesFactory) getInstance(FactoryIndex.RULES_FACTORY);
+    }
+
+    public static TagFactory getTagFactory(){
+        return (TagFactory) getInstance(FactoryIndex.TAG_FACTORY);
+    }
+    
+    public static PersonaFactory getPersonaFactory(){
+        return (PersonaFactory) getInstance(FactoryIndex.PERSONA_FACTORY);
+    }
+    
+
     private static Object getInstance(FactoryIndex index) {
 
 		if(instance == null){
@@ -281,7 +300,10 @@ enum FactoryIndex
 	PUSHED_ASSETS_FACTORY,
 	SERVER_FACTORY,
 	NOTIFICATION_FACTORY, 
-	SERVER_ACTION_FACTORY;
+	SERVER_ACTION_FACTORY,
+	RULES_FACTORY,
+	TAG_FACTORY,
+	PERSONA_FACTORY;
 
 	Object create() {
 		switch(this) {
@@ -319,6 +341,9 @@ enum FactoryIndex
             case SERVER_FACTORY: return new ServerFactoryImpl();
             case NOTIFICATION_FACTORY: return new NotificationFactoryImpl();
             case SERVER_ACTION_FACTORY: return new ServerActionFactoryImplProxy();
+            case RULES_FACTORY: return new RulesFactoryProxy();
+            case PERSONA_FACTORY: return new PersonaFactoryImpl();
+            case TAG_FACTORY: return new TagFactoryImpl();
 		}
 		throw new AssertionError("Unknown Factory Index: " + this);
 	}

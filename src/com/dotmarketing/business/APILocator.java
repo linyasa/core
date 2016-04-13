@@ -10,6 +10,7 @@ import com.dotcms.content.elasticsearch.business.ESIndexAPI;
 import com.dotcms.content.elasticsearch.business.IndiciesAPI;
 import com.dotcms.content.elasticsearch.business.IndiciesAPIImpl;
 import com.dotcms.enterprise.ESSeachAPI;
+import com.dotcms.enterprise.RulesAPIProxy;
 import com.dotcms.enterprise.priv.ESSearchProxy;
 import com.dotcms.enterprise.ServerActionAPIImplProxy;
 import com.dotcms.enterprise.cluster.action.business.ServerActionAPI;
@@ -31,6 +32,8 @@ import com.dotcms.timemachine.business.TimeMachineAPI;
 import com.dotcms.timemachine.business.TimeMachineAPIImpl;
 import com.dotcms.enterprise.cache.provider.CacheProviderAPI;
 import com.dotcms.enterprise.cache.provider.CacheProviderAPIImpl;
+import com.dotcms.visitor.business.VisitorAPI;
+import com.dotcms.visitor.business.VisitorAPIImpl;
 import com.dotmarketing.business.portal.PortletAPI;
 import com.dotmarketing.business.portal.PortletAPIImpl;
 import com.dotmarketing.cms.polls.business.PollsAPI;
@@ -75,6 +78,9 @@ import com.dotmarketing.portlets.languagesmanager.business.LanguageAPIImpl;
 import com.dotmarketing.portlets.linkchecker.business.LinkCheckerAPI;
 import com.dotmarketing.portlets.links.business.MenuLinkAPI;
 import com.dotmarketing.portlets.links.business.MenuLinkAPIImpl;
+import com.dotmarketing.portlets.personas.business.PersonaAPI;
+import com.dotmarketing.portlets.personas.business.PersonaAPIImpl;
+import com.dotcms.enterprise.rules.RulesAPI;
 import com.dotmarketing.portlets.structure.business.FieldAPI;
 import com.dotmarketing.portlets.structure.business.FieldAPIImpl;
 import com.dotmarketing.portlets.structure.business.StructureAPI;
@@ -281,7 +287,7 @@ public class APILocator extends Locator<APIIndex>{
 		return (WorkflowAPI) getInstance(APIIndex.WORKFLOW_API);
 	}
 
-	public static CacheProviderAPI getCacheProviderPI () {
+	public static CacheProviderAPI getCacheProviderAPI () {
 		return (CacheProviderAPI) getInstance(APIIndex.CACHE_PROVIDER_API);
 	}
 
@@ -337,6 +343,10 @@ public class APILocator extends Locator<APIIndex>{
 	public static HTMLPageAssetAPI getHTMLPageAssetAPI() {
         return (HTMLPageAssetAPI)getInstance(APIIndex.HTMLPAGE_ASSET_API);
     }
+	
+	public static PersonaAPI getPersonaAPI() {
+        return (PersonaAPI)getInstance(APIIndex.PERSONA_API);
+    }
 
 	public static ServerActionAPI getServerActionAPI() {
 	    return (ServerActionAPI)getInstance(APIIndex.SERVER_ACTION_API);
@@ -344,6 +354,14 @@ public class APILocator extends Locator<APIIndex>{
 
 	public static ESSeachAPI getEsSearchAPI () {
 		return (ESSeachAPI) getInstance( APIIndex.ES_SEARCH_API );
+	}
+
+    public static RulesAPI getRulesAPI () {
+		return (RulesAPI) getInstance( APIIndex.RULES_API );
+	}
+
+    public static VisitorAPI getVisitorAPI () {
+		return (VisitorAPI) getInstance( APIIndex.VISITOR_API );
 	}
 
 
@@ -435,9 +453,12 @@ enum APIIndex
 	NOTIFICATION_API,
 
 	HTMLPAGE_ASSET_API,
-
+	PERSONA_API,
+	
 	SERVER_ACTION_API,
-	ES_SEARCH_API;
+	ES_SEARCH_API,
+    RULES_API,
+    VISITOR_API;
 
 
 	Object create() {
@@ -495,10 +516,13 @@ enum APIIndex
 		case NOTIFICATION_API: return new NotificationAPIImpl();
 
 		case HTMLPAGE_ASSET_API: return new HTMLPageAssetAPIImpl();
+		case PERSONA_API: return new PersonaAPIImpl();
 
 		
 		case SERVER_ACTION_API: return new ServerActionAPIImplProxy();
 		case ES_SEARCH_API: return new ESSearchProxy();
+		case RULES_API: return new RulesAPIProxy();
+		case VISITOR_API: return new VisitorAPIImpl();
 
 		
 		}

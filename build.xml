@@ -25,7 +25,7 @@
     <property name="build.war" value="${build.dir}/war" />
     <property name="build.compiler.fulldepend" value="true" />
     <property name="deploy.dir" value="${basedir}/dotCMS/WEB-INF/lib" />
-    <property name="ant.build.javac.target" value="1.7"/>
+    <property name="ant.build.javac.target" value="1.8"/>
     <property name="war.name" value="dotcms"/>
     <property name="endorsed_libs" value="${basedir}/dotCMS/WEB-INF/endorsed_libs" />
     <property name="agent.version" value="31"/>
@@ -44,6 +44,7 @@
     <property name="license.project.home" value="../license"/>
     <property name="enterprise.project.home" value="../enterprise-2.x"/>
 
+    <property name="tomcat.branch" value="${tomcat.install.branch}"/>
     <property name="tomcat.home" value="${tomcat.install.location}"/>
     <property name="tomcat.version" value="${tomcat.install.version}"/>
     <property name="jboss7.home" value="${jboss7.install.location}"/>
@@ -54,6 +55,35 @@
     </tstamp>
 
     <path id="build-classpath">
+        <pathelement path="${build.classes}" />
+    </path>
+
+    <path id="tests-classpath">
+        <pathelement location="${java.home}/../lib/tools.jar"/>
+
+        <fileset dir="libs/test">
+            <include name="*.jar" />
+        </fileset>
+
+        <fileset dir="libs/buildlibs">
+            <include name="*.jar" />
+        </fileset>
+
+        <!--We should be able to remove it soon-->
+        <fileset dir="libs/buildlibs/jsp">
+            <include name="jasper.jar" />
+            <include name="jasper-el.jar" />
+            <include name="el-api.jar" />
+            <include name="tomcat-util.jar" />
+            <include name="tomcat-juli.jar" />
+            <include name="tomcat-api.jar" />
+        </fileset>
+        <!--We should be able to remove it soon-->
+
+        <fileset dir="${lib.app}">
+            <include name="**/*.jar" />
+            <exclude name="**/dotcms_*.jar" />
+        </fileset>
         <pathelement path="${build.classes}" />
     </path>
 
@@ -176,7 +206,7 @@
     </target>
 
     <target name="compile" depends="check-src-build,prepare" description="Compiles all source code.">
-        <javac debug="true" encoding="UTF-8" debuglevel="lines,vars,source" fork="true" srcdir="${src.dir}" destdir="${build.classes}" source="1.7" target="1.7" compiler="javac1.7" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
+        <javac debug="true" encoding="UTF-8" debuglevel="lines,vars,source" fork="true" srcdir="${src.dir}" destdir="${build.classes}" source="1.8" target="1.8" compiler="javac1.8" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <classpath refid="files-classpath" />
         </javac>
         <copy file="${src.dir}/com/dotmarketing/beans/DotCMSSeq.hbm.xml" tofile="${build.classes}/com/dotmarketing/beans/DotCMSSeq.hbm.xml" />
@@ -322,8 +352,8 @@
 
         </jasper2>
         <javac debug="true" debuglevel="lines,vars,source"  encoding="UTF-8"
-               fork="true" srcdir="${src.jsp}" destdir="${build.classes}" source="1.7"
-               target="1.7" compiler="javac1.7" nowarn="true" optimize="true"
+               fork="true" srcdir="${src.jsp}" destdir="${build.classes}" source="1.8"
+               target="1.8" compiler="javac1.8" nowarn="true" optimize="true"
                memoryinitialsize="256m" memorymaximumsize="512m">
             <classpath refid="files-classpath" />
         </javac>
@@ -346,7 +376,7 @@
         <antcall target="clean" />
 
         <!--Clone tomcat-->
-        <git-clone-pull repository="https://github.com/dotCMS/tomcat.git" version="${tomcat.version}" dest="${tomcat.home}"/>
+        <git-clone-pull repository="https://github.com/dotCMS/tomcat.git" version="${tomcat.branch}" dest="${tomcat.home}"/>
 
         <!--Generate the war-->
         <antcall target="war" />
@@ -467,7 +497,14 @@
     </target>
 
     <target name="compile-tests" depends="prepare,compile,deploy-config" description="Compiles all test source code.">
-        <javac encoding="UTF-8" debug="true" debuglevel="lines,vars,source" fork="true" srcdir="${src.tests.dir}" destdir="${build.classes}" source="1.7" target="1.7" compiler="javac1.7" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
+
+        <copy todir="${lib.app}">
+            <fileset dir="libs/test/">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
+
+        <javac encoding="UTF-8" debug="true" debuglevel="lines,vars,source" fork="true" srcdir="${src.tests.dir}" destdir="${build.classes}" source="1.8" target="1.8" compiler="javac1.8" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <classpath refid="files-classpath" />
         </javac>
         <copy todir="${build.classes}">
@@ -480,8 +517,8 @@
 
     <target name="create-jar-tests" depends="prepare,compile" description="Compiles all test source code and outputs a jar with the tests only">
         <mkdir dir="${build.dir}/testbuild" />
-        <javac encoding="UTF-8" debug="true" debuglevel="lines,vars,source" fork="true" srcdir="${src.tests.dir}" destdir="${build.dir}/testbuild" source="1.7" target="1.7" compiler="javac1.7" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
-            <classpath refid="files-classpath" />
+        <javac encoding="UTF-8" debug="true" debuglevel="lines,vars,source" fork="true" srcdir="${src.tests.dir}" destdir="${build.dir}/testbuild" source="1.8" target="1.8" compiler="javac1.8" nowarn="true" optimize="true" memoryinitialsize="256m" memorymaximumsize="512m">
+            <classpath refid="tests-classpath" />
         </javac>
         <copy todir="${build.dir}/testbuild">
             <fileset dir="${src.tests.dir}">
@@ -490,6 +527,11 @@
         </copy>
         <jar jarfile="${distribution.file.output}/dotcms_tests_${dotcms.release.version}.jar" basedir="${build.dir}/testbuild" />
 
+        <copy todir="${distribution.file.output}">
+            <fileset dir="libs/test/">
+                <include name="*.jar"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="uncomment-test-servlet" description="By default we need ServletTestRunner to be commented in web.xml so deployments doesn't have /servlet/test as a public endpoint.">
@@ -940,8 +982,8 @@
         <copy todir="${tomcat.home}/lib/">
             <fileset dir="libs/buildlibs/">
                 <include name="mail.jar"/>
-                <include name="sqljdbc41.jar"/>
-                <include name="mysql-connector-java-5.1.33-bin.jar"/>
+                <include name="sqljdbc42.jar"/>
+                <include name="mysql-connector-java-5.1.37-bin.jar"/>
                 <include name="postgresql-9.0-801.jdbc3.jar"/>
                 <include name="ojdbc5.jar"/>
                 <include name="jtds-1.2.2.jar"/>
@@ -1037,7 +1079,7 @@
     </target>
 
     <target name="clone-pull-tomcat">
-        <git-clone-pull repository="https://github.com/dotCMS/tomcat.git" version="${tomcat.version}" dest="${tomcat.home}"/>
+        <git-clone-pull repository="https://github.com/dotCMS/tomcat.git" version="${tomcat.branch}" dest="${tomcat.home}"/>
     </target>
     <target name="clone-pull-jboss7">
         <git-clone-pull repository="https://github.com/dotCMS/jboss7.git" version="${jboss7.version}" dest="${jboss7.home}"/>

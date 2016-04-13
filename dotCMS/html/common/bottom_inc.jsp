@@ -1,12 +1,18 @@
 
 	<script type="text/javascript">
 		function dotMakeBodVisible(){
-			dojo.style(dojo.body(), "visibility", "visible");
+			
+			if(dojo.style(dojo.body(), "visibility") != "visible"){
+				setTimeout( "dotMakeBodVisible()",3000);
+				dojo.style(dojo.body(), "visibility", "visible");
+				
+			}
+
 		}
 		
 		dojo.addOnLoad(dotMakeBodVisible);
-		setTimeout( "dotMakeBodVisible",2000);
-	
+		
+
 	</script>
 </body>
 </html>

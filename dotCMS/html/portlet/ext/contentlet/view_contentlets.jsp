@@ -1,6 +1,5 @@
 <%@page import="com.dotcms.repackage.bsh.This"%>
 <%@page import="com.dotmarketing.util.Logger"%>
-<%@page import="com.dotcms.repackage.org.mockito.internal.matchers.EndsWith"%>
 <%@ include file="/html/portlet/ext/contentlet/init.jsp" %>
 <%@ include file="/html/portlet/ext/remotepublish/init.jsp" %>
 
@@ -166,7 +165,9 @@
 				LanguageUtil.get(pageContext, "Widget"),
 				LanguageUtil.get(pageContext, "Form"),
 				LanguageUtil.get(pageContext, "File"),
-				LanguageUtil.get(pageContext, "HTMLPage")};
+				LanguageUtil.get(pageContext, "HTMLPage"),
+				LanguageUtil.get(pageContext, "Persona"),
+				};
 
 		boolean enterprise = LicenseUtil.getLevel() > 199;
 
@@ -223,7 +224,9 @@
            						? "formIcon"
                    						:	(s.getStructureType() ==4)
                    						? "fileIcon"
-                   								: "pageIcon";
+                              			:	(s.getStructureType() ==6)
+                              				? "personaIcon"
+                              					: "pageIcon";
 
 
 

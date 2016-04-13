@@ -1,16 +1,18 @@
 package com.dotmarketing.factories;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dotcms.util.HttpRequestDataUtil;
 import com.dotmarketing.beans.BrowserSniffer;
 import com.dotmarketing.beans.Clickstream;
 import com.dotmarketing.beans.Clickstream404;
@@ -32,20 +34,32 @@ import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 import com.liferay.portal.model.User;
 
+/**
+ * Provides an entry point for interacting with {@link Clickstream} objects.
+ * Each {@link Clickstream} object represents a visit from a given user to a
+ * site, and allow to generate site statistics regarding the most-visited pages,
+ * site visits, etc. that can be seen in the Dashboard portlet.
+ * 
+ * @author root
+ * @version 1.0
+ * @since Mar 22, 2012
+ *
+ */
 public class ClickstreamFactory {
 
+	public static final String CLICKSTREAM_SESSION_ATTR_KEY = "clickstream";
 
 	/**
 	 * Adds a new request to the stream of clicks. The HttpServletRequest is
 	 * converted to a ClickstreamRequest object and added to the clickstream.
 	 *
 	 * @param request
-	 *            The serlvet request to be added to the clickstream
+	 *            - The servlet request to be added to the clickstream.
 	 * @throws DotDataException
-	 * @throws DotStateException
+	 *             An error occurred when interacting with the database.
 	 */
 	public static Clickstream addRequest(HttpServletRequest request, HttpServletResponse response,
-			Host host) throws DotStateException, DotDataException {
+			Host host) throws DotDataException {
 
 		if(request.getAttribute("CLICKSTREAM_RECORDED")!=null){
 			return (Clickstream) request.getSession().getAttribute("clickstream");
@@ -68,6 +82,7 @@ public class ClickstreamFactory {
 			associatedIdentifier = (String) request.getAttribute(WebKeys.CLICKSTREAM_IDENTIFIER_OVERRIDE);
 		}
 		if (!UtilMethods.isSet(associatedIdentifier)) {
+
 			// Maybe is a problem with the URL, so we need to find it
 			// in other place "request.getRequestURI()"
 			String uri = "";
@@ -81,6 +96,7 @@ public class ClickstreamFactory {
 			if (!UtilMethods.isSet(uri)) {
 				uri = pointer;
 			}
+
 			associatedIdentifier = APILocator.getIdentifierAPI().find(host, uri).getInode();
 		}
 
@@ -93,18 +109,25 @@ public class ClickstreamFactory {
 			clickstream.setHostname(request.getRemoteHost());
 		}
 		if (clickstream.getRemoteAddress() == null) {
-			clickstream.setRemoteAddress(request.getRemoteAddr());
+			try {
+				InetAddress address = HttpRequestDataUtil.getIpAddress(request);
+				if (UtilMethods.isSet(address)) {
+					clickstream.setRemoteAddress(address.getHostAddress());
+				}
+			} catch (UnknownHostException e) {
+				Logger.debug(ClickstreamFactory.class, "Could not retrieve IP address from request.");
+			}
 		}
-
-		// if this is the first request in the click stream
-		if (clickstream.getClickstreamRequests().size() == Config.getIntProperty("MIN_CLICKSTREAM_REQUESTS_TO_SAVE", 2)) {
-			// setup initial referrer
+		// Setup initial referrer
+		if (clickstream.getInitialReferrer() == null) {
 			if (request.getHeader("Referer") != null) {
 				clickstream.setInitialReferrer(request.getHeader("Referer"));
 			} else {
 				clickstream.setInitialReferrer("");
 			}
-
+		}
+		// if this is the first request in the click stream
+		if (clickstream.getClickstreamRequests().size() == Config.getIntProperty("MIN_CLICKSTREAM_REQUESTS_TO_SAVE", 2)) {
 			if (request.getHeader("User-Agent") != null) {
 				clickstream.setUserAgent(request.getHeader("User-Agent"));
 			} else {
@@ -128,7 +151,7 @@ public class ClickstreamFactory {
 			String _dotCMSID = "";
 			if(!UtilMethods.isSet(UtilMethods.getCookieValue(request.getCookies(),
 					com.dotmarketing.util.WebKeys.LONG_LIVED_DOTCMS_ID_COOKIE))) {
-				Cookie idCookie = CookieUtil.createCookie();
+				CookieUtil.createCookie();
 
 			}
 			_dotCMSID = UtilMethods.getCookieValue(request.getCookies(),

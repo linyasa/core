@@ -9,7 +9,7 @@
 <%@page import="com.dotcms.content.elasticsearch.business.ESIndexAPI"%>
 <%@page import="java.lang.management.RuntimeMXBean"%>
 <%@page import="java.lang.management.ManagementFactory"%>
-<%@page import="com.dotmarketing.business.DotGuavaCacheAdministratorImpl"%>
+<%@page import="com.dotmarketing.business.ChainableCacheAdministratorImpl"%>
 <%@page import="com.dotmarketing.business.cache.provider.h2.H2CacheLoader"%>
 <%@page import="com.dotmarketing.business.CacheLocator"%>
 <%@ page import="java.util.Calendar"%>
@@ -118,68 +118,39 @@ function checkReindexation () {
 	CMSMaintenanceAjax.getReindexationProgress(checkReindexationCallback);
 }
 
+/** Stops de re-indexation process and clears the database table that contains 
+    the remaining non re-indexed records. */
 function stopReIndexing(){
 	CMSMaintenanceAjax.stopReindexation(checkReindexationCallback);
+}
+
+/** Stops de re-indexation process and clears the database table that contains 
+    the remaining non re-indexed records. Moreover, switches the current index 
+    to point to the new one. */
+function stopReIndexingAndSwitchover() {
+	dijit.byId('stopReindexAndSwitch').set('label', '<%= LanguageUtil.get(pageContext,"Switching-To-New-Index") %>');
+	dijit.byId('stopReindexAndSwitch').set('disabled', true);
+	CMSMaintenanceAjax.stopReindexationAndSwitchover(checkReindexationCallback);
+}
+
+/** Downloads the main information of the records that could not be re-indexed 
+    as a .CSV file*/
+function downloadFailedAsCsv() {
+	var href = "<portlet:actionURL windowState='<%= WindowState.MAXIMIZED.toString() %>'>";
+    href += "<portlet:param name='struts_action' value='/ext/cmsmaintenance/view_cms_maintenance' />";
+    href += "<portlet:param name='cmd' value='export-failed-as-csv' />";      
+    href += "<portlet:param name='referer' value='<%= java.net.URLDecoder.decode(referer, "UTF-8") %>' />";       
+    href += "</portlet:actionURL>";
+    window.location.href=href;
 }
 
 function optimizeCallback() {
 	showDotCMSSystemMessage("<%=LanguageUtil.get(pageContext,"Optimize-Done")%>");
 }
 
-function checkFixAssetCallback (responser) {
-	$("fixAssetsButton").disabled = false;
-
-	var fixAssetInfoDiv = document.getElementById("fixAssetInfo");
-	var fixAssetTimeDiv = document.getElementById("fixAssetTime");
-	var infodiv = "";
-
-	if(responser != undefined){
-
-		for(i=0;i<responser.size();i++){
-			response=responser[i];
-			var total = response['total'];
-			var actual = response['actual'];
-			error = response['error'];
-			var currentIndexPath = response['currentIndexPath'];
-			var initialTime = response['initialTime'];
-			var finalTime = response['finalTime'];
-			var running = response['running'];
-			var percentage = response['percentage'];
-			var elapsed = response['elapsed'];
-			var remaining = response['remaining'];
-		     description = response['description'];
-
-		     infodiv =infodiv +"<%= LanguageUtil.get(pageContext,"The-Task-perform-was") %> " + description + " .<%= LanguageUtil.get(pageContext,"The-total-of-assets-to-change-is") %> " + total + " <%= LanguageUtil.get(pageContext,"--and--") %> " + error + " <%= LanguageUtil.get(pageContext,"assets-were-succesfully-fixed") %>"+"<br />";
-		     infodiv  =infodiv+"<%= LanguageUtil.get(pageContext,"The-start-time-was") %> " + initialTime + " <%= LanguageUtil.get(pageContext,"and-ended-on") %>  "+ finalTime+"<br /><br />";
-
-			}
-
-			fixAssetInfoDiv.innerHTML = infodiv;
-			//fixAssetTimeDiv.innerHTML = timeDiv;
-			document.getElementById("fixAssetsMessage").innerHTML ="";
-			//$("fixAssetsButton").disabled = true;
-			document.getElementById("fixAssetsButtonDiv").style.display = "";
-
-		//	setTimeout("fixAssetsCallback()", 10000000);
-	}
-
-	else{
-		fixAssetInfoDiv.innerHTML = "<%= LanguageUtil.get(pageContext,"No-Tasks-were-executed") %>"
-		fixAssetTimeDiv.innerHTML = "";
-
-		document.getElementById("fixAssetsButtonDiv").style.display = "";
-		document.getElementById("fixAssetsMessage").innerHTML ="";
-		//setTimeout("fixAssetsCallback()", 10000000);
-
-	}
-
-	setTimeout("fixAssetsCallback()", 10000000);
-}
-
-
 function checkFixAsset()
 {
-	CMSMaintenanceAjax.getFixAssetsProgress(checkFixAssetCallback);
+	CMSMaintenanceAjax.getFixAssetsProgress(fixAssetsCallback);
 }
 
 function doCreateZipAjax(dataOnly)
@@ -259,43 +230,35 @@ function fixAssetsCallback(responser)
 	var fixAssetInfoDiv = document.getElementById("fixAssetInfo");
 	var fixAssetTimeDiv = document.getElementById("fixAssetTime");
 	var infodiv = "";
-	if(responser!= null){
 
-		for(i=0;i<responser.size();i++){
-			response=responser[i];
+	if(responser != undefined){
+
+		for(i = 0; i < responser.size(); i++){
+			response = responser[i];
 			var total = response['total'];
-			var actual = response['actual'];
-			error = response['error'];
-			var currentIndexPath = response['currentIndexPath'];
+			var errorsFixed = response['errorsFixed'];
 			var initialTime = response['initialTime'];
 			var finalTime = response['finalTime'];
-			var running = response['running'];
-			var percentage = response['percentage'];
-			var elapsed = response['elapsed'];
-			var remaining = response['remaining'];
-		     description = response['description'];
+			var description = response['description'];
 
-		     infodiv =infodiv +"<%= LanguageUtil.get(pageContext,"The-Task-perform-was") %> " + description + " .<%= LanguageUtil.get(pageContext,"The-total-of-assets-to-change-is") %> " + total + " <%= LanguageUtil.get(pageContext,"--and--") %> " + error + " <%= LanguageUtil.get(pageContext,"assets-were-succesfully-fixed") %>"+"<br />";
-		     infodiv  =infodiv+"<%= LanguageUtil.get(pageContext,"The-start-time-was") %> " + initialTime + " <%= LanguageUtil.get(pageContext,"and-ended-on") %>  "+ finalTime+"<br /><br />";
+			infodiv = infodiv + "<%= LanguageUtil.get(pageContext,"The-Task-perform-was") %> " + description
+                                + " .<%= LanguageUtil.get(pageContext,"The-total-of-assets-to-change-is") %> " + total
+                                + " <%= LanguageUtil.get(pageContext,"--and--") %> " + errorsFixed
+                                + " <%= LanguageUtil.get(pageContext,"assets-were-succesfully-fixed") %>"+"<br />";
 
+            infodiv = infodiv + "<%= LanguageUtil.get(pageContext,"The-start-time-was") %> " + initialTime
+                                + " <%= LanguageUtil.get(pageContext,"and-ended-on") %>  "+ finalTime+"<br /><br />";
 			}
 
 			fixAssetInfoDiv.innerHTML = infodiv;
-			document.getElementById("fixAssetsMessage").innerHTML ="";
-			document.getElementById("fixAssetsButtonDiv").style.display = "";
-
-	}
-
-	else{
+	} else {
 		fixAssetInfoDiv.innerHTML = "<%= LanguageUtil.get(pageContext,"No-Tasks-were-executed") %>"
 		fixAssetTimeDiv.innerHTML = "";
-
-		document.getElementById("fixAssetsButtonDiv").style.display = "";
-		document.getElementById("fixAssetsMessage").innerHTML ="";
 	}
+
+    document.getElementById("fixAssetsMessage").innerHTML ="";
+    document.getElementById("fixAssetsButtonDiv").style.display = "";
 }
-
-
 
 function doDeleteContentlets(){
 	var ids= document.getElementById('contentIdsList').value;
@@ -495,7 +458,7 @@ function refreshCache(){
 	var x = dijit.byId("cacheStatsCp");
 	var y =Math.floor(Math.random()*1123213213);
 
-	<%if(CacheLocator.getCacheAdministrator().getImplementationClass().equals(DotGuavaCacheAdministratorImpl.class)){%>
+	<%if(CacheLocator.getCacheAdministrator().getImplementationClass().equals(ChainableCacheAdministratorImpl.class)){%>
 		if(dijit.byId("showSize").checked){
 			x.attr( "href","/html/portlet/ext/cmsmaintenance/cachestats_guava.jsp?showSize=true&r=" + y  );
 
@@ -1503,6 +1466,12 @@ dd.leftdl {
                         <td colspan="2" align="center">
                             <button dojoType="dijit.form.Button"  iconClass="reindexIcon" onClick="stopReIndexing();">
                                 <%= LanguageUtil.get(pageContext,"Stop-Reindexation") %>
+                            </button>
+                            <button dojoType="dijit.form.Button"  iconClass="resolveIcon" id="stopReindexAndSwitch" onClick="stopReIndexingAndSwitchover();">
+                                <%= LanguageUtil.get(pageContext,"Stop-Reindexation-And-Make-Active") %>
+                            </button>
+                            <button dojoType="dijit.form.Button"  iconClass="downloadIcon" onClick="downloadFailedAsCsv();">
+                                <%= LanguageUtil.get(pageContext,"Download-Failed-Records-As-CSV") %>
                             </button>
                         </td>
                     </tr>
