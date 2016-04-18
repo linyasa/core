@@ -50,6 +50,7 @@ import com.dotmarketing.portlets.structure.model.Field.FieldType;
 import com.dotmarketing.portlets.structure.model.Relationship;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.portlets.workflows.model.WorkflowAction;
+import com.dotmarketing.tag.model.Tag;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.InodeUtils;
 import com.dotmarketing.util.Logger;
@@ -57,6 +58,7 @@ import com.dotmarketing.util.SecurityLogger;
 import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.viewtools.content.util.ContentUtils;
 import com.liferay.portal.model.User;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -72,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -600,6 +603,31 @@ public class ContentResource {
 				jo.put(f.getVelocityVarName(), "/contentAsset/raw-data/" +  con.getIdentifier() + "/" + f.getVelocityVarName()	);
 				jo.put(f.getVelocityVarName() + "ContentAsset", con.getIdentifier() + "/" +f.getVelocityVarName()	);
 			}
+			else if(f.getFieldType().equals(Field.FieldType.TAG.toString())) {
+                List<Tag> tagList =null;
+				try {
+					tagList = APILocator.getTagAPI().getTagsByInode(con.getInode());
+				} catch (DotDataException e) {
+					Logger.error(this, e.getMessage(), e);
+				}
+                if(tagList ==null || tagList.size()==0) continue;
+                StringBuilder tagg = new StringBuilder();
+                for ( Tag t : tagList ) {
+                	if(t.getTagName() ==null) continue;
+                	String myTag = t.getTagName().trim();
+                    tagg.append(myTag).append(',');
+                }
+                if(tagg.length()>0){
+                	jo.put(f.getVelocityVarName(), tagg.toString().subSequence(0, tagg.length()-1));
+                }
+			}
+			else if(f.getFieldType().equals(Field.FieldType.CATEGORY.toString())) {
+				
+				
+				
+			}
+			
+			
 		}
 
 		if(s.getStructureType() == Structure.STRUCTURE_TYPE_WIDGET && "true".equals(render)) {
@@ -1199,9 +1227,8 @@ public class ContentResource {
 								throw new RuntimeException(ex);
 							}
 						}
-						else {
-							APILocator.getContentletAPI().setContentletProperty(contentlet, ff, value);
-						}
+						APILocator.getContentletAPI().setContentletProperty(contentlet, ff, value);
+						
 					}
 				}
 			}
