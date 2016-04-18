@@ -505,6 +505,26 @@ public class ContentResource {
 					m.put(f.getVelocityVarName(), "/contentAsset/raw-data/" +  c.getIdentifier() + "/" + f.getVelocityVarName()	);
 					m.put(f.getVelocityVarName() + "ContentAsset", c.getIdentifier() + "/" +f.getVelocityVarName()	);
 				}
+				
+				else if(f.getFieldType().equals(Field.FieldType.TAG.toString())) {
+	                List<Tag> tagList =null;
+					try {
+						tagList = APILocator.getTagAPI().getTagsByInode(c.getInode());
+					} catch (DotDataException e) {
+						Logger.error(this, e.getMessage(), e);
+					}
+	                if(tagList ==null || tagList.size()==0) continue;
+	                StringBuilder tagg = new StringBuilder();
+	                for ( Tag t : tagList ) {
+	                	if(t.getTagName() ==null) continue;
+	                	String myTag = t.getTagName().trim();
+	                    tagg.append(myTag).append(',');
+	                }
+	                if(tagg.length()>0){
+	                	m.put(f.getVelocityVarName(), tagg.toString().subSequence(0, tagg.length()-1));
+	                }
+				}
+				
 			}
 
 			if(s.getStructureType() == Structure.STRUCTURE_TYPE_WIDGET && "true".equals(render)) {
@@ -621,11 +641,7 @@ public class ContentResource {
                 	jo.put(f.getVelocityVarName(), tagg.toString().subSequence(0, tagg.length()-1));
                 }
 			}
-			else if(f.getFieldType().equals(Field.FieldType.CATEGORY.toString())) {
-				
-				
-				
-			}
+			
 			
 			
 		}
