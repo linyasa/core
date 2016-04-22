@@ -115,7 +115,7 @@ function suggestTagsForSearch(e, searchField, hostInSession) {
 		contentSearchField = searchField;
 	}
 
-	tagVelocityVarName = e.target.id;
+    tagVelocityVarName = e.target.id;
 
 	if (!tagsContainer || tagsContainer == "") {
 		tagsContainer = document.getElementById("widget_" + tagVelocityVarName);
@@ -149,8 +149,8 @@ function suggestTagsForSearch(e, searchField, hostInSession) {
 	}
 
 	/*
-	 NOTE: The hostInSession parameter will be passed only when searching tags in the content search so it is safe to use it
-	 as the final host value filter for the getSuggestedTag method.
+     NOTE: The hostInSession parameter will be passed only when searching tags in the content search so it is safe to use it
+     as the final host value filter for the getSuggestedTag method.
 	 */
 	if (hostInSession) {
 		selectedHostOrFolderId = hostInSession;
@@ -193,13 +193,13 @@ function closeSuggetionBox(e) {
 }
 
 function removeAllTags() {
-	var tags = query(".tagLink");
-	if (tags.length) {
-		for (i = 0; tags.length > i; i++) {
-			var tagToRemove = tags[i];
-			clearTag(tagToRemove);
-		}
-	}
+    var tags = query(".tagLink");
+    if (tags.length) {
+        for (i = 0; tags.length > i; i++) {
+            var tagToRemove = tags[i];
+            clearTag(tagToRemove);
+        }
+    }
 }
 
 function removeLastTag() {
@@ -263,23 +263,27 @@ function showTagsForSearch(result) {
 			tagName = RTrim(tagName);
 			tagName = LTrim(tagName);
 			if (tag.persona) {
-				personasTags += "<a href=\"#\" class=\"persona\" onClick=\"useThisTagForSearch(event)\"><span class=\"personaIcon\"></span>" + tagName + "</a>";
+				personasTags += "<a href=\"#\" class=\"persona\"><span class=\"personaIcon\"></span>" + tagName + "</a>";
 			} else {
-				tags += "<a href=\"#\" onClick=\"useThisTagForSearch(event)\"><span class=\"tagIcon\"></span>" + tagName + "</a>";
+				tags += "<a href=\"#\"><span class=\"tagIcon\"></span>" + tagName + "</a>";
 			}
 		});
 
 		if (tagVelocityVarName) {
-			var tagDiv = document.getElementById(suggestedDiv);
+			if (dojo.byId(suggestedDiv)) {
+				dojo.style(suggestedDiv, "display", "block");
+				dojo.style(suggestedDiv, "left", getInputPosition());
+				dojo.style(suggestedDiv, "top", getInputHeight());
+			}
+
+            var tagDiv = document.getElementById(suggestedDiv);
 			tagDiv.innerHTML = personasTags + tags;
 
-			setTimeout(function() {
-				if (dojo.byId(suggestedDiv)) {
-					dojo.style(suggestedDiv, "display", "block");
-					dojo.style(suggestedDiv, "left", getInputPosition());
-					dojo.style(suggestedDiv, "top", getInputHeight());
-				}
-			}, 500)
+            var links = tagDiv.children;
+
+            for (var i = 0; i < links.length; i++) {
+                links[i].onclick = useThisTagForSearch;
+            }
 
 			pos = null;
 			if (!keyboardEvents) {
@@ -298,9 +302,9 @@ function clearSuggestTagsForSearch() {
 			dojo.style(suggestedDiv, "display", "none");
 		}
 		if (suggestedDiv) {
-			if (dojo.byId(suggestedDiv)) {
-				dojo.byId(suggestedDiv).innerHTML = "";
-			}
+            if (dojo.byId(suggestedDiv)) {
+                dojo.byId(suggestedDiv).innerHTML = "";
+            }
 		}
 		dojo.byId(tagVelocityVarName).focus();
 		tagVelocityVarName = null;
