@@ -115,7 +115,7 @@ function suggestTagsForSearch(e, searchField, hostInSession) {
 		contentSearchField = searchField;
 	}
 
-    tagVelocityVarName = e.target.id;
+	tagVelocityVarName = e.target.id;
 
 	if (!tagsContainer || tagsContainer == "") {
 		tagsContainer = document.getElementById("widget_" + tagVelocityVarName);
@@ -149,8 +149,8 @@ function suggestTagsForSearch(e, searchField, hostInSession) {
 	}
 
 	/*
-     NOTE: The hostInSession parameter will be passed only when searching tags in the content search so it is safe to use it
-     as the final host value filter for the getSuggestedTag method.
+	 NOTE: The hostInSession parameter will be passed only when searching tags in the content search so it is safe to use it
+	 as the final host value filter for the getSuggestedTag method.
 	 */
 	if (hostInSession) {
 		selectedHostOrFolderId = hostInSession;
@@ -193,13 +193,13 @@ function closeSuggetionBox(e) {
 }
 
 function removeAllTags() {
-    var tags = query(".tagLink");
-    if (tags.length) {
-        for (i = 0; tags.length > i; i++) {
-            var tagToRemove = tags[i];
-            clearTag(tagToRemove);
-        }
-    }
+	var tags = query(".tagLink");
+	if (tags.length) {
+		for (i = 0; tags.length > i; i++) {
+			var tagToRemove = tags[i];
+			clearTag(tagToRemove);
+		}
+	}
 }
 
 function removeLastTag() {
@@ -273,11 +273,14 @@ function showTagsForSearch(result) {
 			var tagDiv = document.getElementById(suggestedDiv);
 			tagDiv.innerHTML = personasTags + tags;
 
-			if (dojo.byId(suggestedDiv)) {
-				dojo.style(suggestedDiv, "display", "block");
-				dojo.style(suggestedDiv, "left", getInputPosition());
-				dojo.style(suggestedDiv, "top", getInputHeight());
-			}
+			setTimeout(function() {
+				if (dojo.byId(suggestedDiv)) {
+					dojo.style(suggestedDiv, "display", "block");
+					dojo.style(suggestedDiv, "left", getInputPosition());
+					dojo.style(suggestedDiv, "top", getInputHeight());
+				}
+			}, 500)
+
 			pos = null;
 			if (!keyboardEvents) {
 				var tagsOptionsLinksWrapper = dojo.byId(tagVelocityVarName + "Wrapper");
@@ -295,9 +298,9 @@ function clearSuggestTagsForSearch() {
 			dojo.style(suggestedDiv, "display", "none");
 		}
 		if (suggestedDiv) {
-            if (dojo.byId(suggestedDiv)) {
-                dojo.byId(suggestedDiv).innerHTML = "";
-            }
+			if (dojo.byId(suggestedDiv)) {
+				dojo.byId(suggestedDiv).innerHTML = "";
+			}
 		}
 		dojo.byId(tagVelocityVarName).focus();
 		tagVelocityVarName = null;
