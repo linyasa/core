@@ -282,6 +282,7 @@ function showTagsForSearch(result) {
             var links = tagDiv.children;
 
             for (var i = 0; i < links.length; i++) {
+                console.log(links[i])
                 links[i].onclick = useThisTagForSearch;
             }
 
@@ -331,6 +332,7 @@ function animateExitingTag(tagSuggested) {
 }
 
 function useThisTagForSearch(e) {
+    console.log('useThisTagForSearch', e)
 	var tagLink = e.target;
 	var tagSuggested = tagLink.text || tagLink.value.replace(",", "");
 	var tagExists = isTagAdded(tagSuggested);
