@@ -214,6 +214,7 @@ var pos;
 var keyboardEvents;
 var keys = dojo.require("dojo.keys");
 var query = dojo.require("dojo.query");
+dojo.on = dojo.require("dojo.on");
 
 function focusSelectedTag(e) {
 	var tagsOptionsLinks = query("#" + suggestedDiv + " a");
@@ -281,7 +282,8 @@ function showTagsForSearch(result) {
             var links = tagDiv.children;
             for (var i = 0; i < links.length; i++) {
                 console.log(links[i])
-                links[i].addEventListener('click', useThisTagForSearch)
+                dojo.on(links[i], 'click', useThisTagForSearch);
+                // links[i].addEventListener('click', useThisTagForSearch)
                 //links[i].onclick = useThisTagForSearch;
             }
 
