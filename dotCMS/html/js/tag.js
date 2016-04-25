@@ -259,33 +259,41 @@ function showTagsForSearch(result) {
 	if (result.length > 0) {
 		var tags = "";
 		var personasTags = "";
+        var tagDiv = dojo.byId(suggestedDiv);
+        tagDiv.innerHTML = "";
 		result.each(function(tag) {
+            console.log(tag);
 			var tagName = tag.tagName;
 			tagName = RTrim(tagName);
 			tagName = LTrim(tagName);
+            var tagOptionNode = document.createElement('a');
+            var tagOptionIconNode = document.createElement('span');
 			if (tag.persona) {
-				personasTags += "<a href=\"#\" class=\"persona\"><span class=\"personaIcon\"></span>" + tagName + "</a>";
+                tagOptionNode.className = "persona";
+                tagOptionIconNode.className = "personaIcon";
 			} else {
-				tags += "<a href=\"#\"><span class=\"tagIcon\"></span>" + tagName + "</a>";
+                tagOptionIconNode.className = "tagIcon";
 			}
+            tagOptionNode.appendChild(tagOptionIconNode);
+            tagOptionNode.text = tagName;
+            tagOptionNode.onclick = useThisTagForSearch;
+            tagDiv.appendChild(tagOptionNode);
 		});
 
 		if (tagVelocityVarName) {
-            var tagDiv = dojo.byId(suggestedDiv);
 			if (tagDiv) {
-                tagDiv.innerHTML = personasTags + tags;
 				dojo.style(suggestedDiv, "display", "block");
 				dojo.style(suggestedDiv, "left", getInputPosition());
 				dojo.style(suggestedDiv, "top", getInputHeight());
 			}
 
-            var links = tagDiv.children;
-            for (var i = 0; i < links.length; i++) {
-                console.log(links[i])
-                dojo.on(links[i], 'click', useThisTagForSearch);
-                // links[i].addEventListener('click', useThisTagForSearch)
-                //links[i].onclick = useThisTagForSearch;
-            }
+            // var links = tagDiv.children;
+            // for (var i = 0; i < links.length; i++) {
+            //     console.log(links[i])
+            //
+            //     // links[i].addEventListener('click', useThisTagForSearch)
+            //     //links[i].onclick = useThisTagForSearch;
+            // }
 
 			pos = null;
 			if (!keyboardEvents) {
@@ -301,11 +309,11 @@ function showTagsForSearch(result) {
 function clearSuggestTagsForSearch() {
 	if (tagVelocityVarName) {
 		if (dojo.byId(suggestedDiv)) {
-			dojo.style(suggestedDiv, "display", "none");
+			//dojo.style(suggestedDiv, "display", "none");
 		}
 		if (suggestedDiv) {
             if (dojo.byId(suggestedDiv)) {
-                dojo.byId(suggestedDiv).innerHTML = "";
+                //dojo.byId(suggestedDiv).innerHTML = "";
             }
 		}
 		dojo.byId(tagVelocityVarName).focus();
