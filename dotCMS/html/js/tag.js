@@ -270,20 +270,19 @@ function showTagsForSearch(result) {
 		});
 
 		if (tagVelocityVarName) {
-			if (dojo.byId(suggestedDiv)) {
+            var tagDiv = dojo.byId(suggestedDiv);
+			if (tagDiv) {
+                tagDiv.innerHTML = personasTags + tags;
 				dojo.style(suggestedDiv, "display", "block");
 				dojo.style(suggestedDiv, "left", getInputPosition());
 				dojo.style(suggestedDiv, "top", getInputHeight());
 			}
 
-            var tagDiv = document.getElementById(suggestedDiv);
-			tagDiv.innerHTML = personasTags + tags;
-
             var links = tagDiv.children;
-
             for (var i = 0; i < links.length; i++) {
                 console.log(links[i])
-                links[i].onclick = useThisTagForSearch;
+                links[i].addEventListener('click', useThisTagForSearch)
+                //links[i].onclick = useThisTagForSearch;
             }
 
 			pos = null;
