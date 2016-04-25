@@ -274,14 +274,14 @@
                         else {
                             row=dojo.create("tr",null,dojo.byId("repotableBody"));
                         }
-
+						console.log(lic);
                         var serial=lic.id;
                         var optd=dojo.create("td",{"nowrap":"true"},row);
 
                         if(lic.serverid==licenseAdmin.currentServerId  ) {
                         	dojo.addClass(dojo.byId("generateCode"), "hidden");
                             dojo.create("span",{"class":"unlockIcon", title:"<%= UtilMethods.javaScriptify(LanguageUtil.get(pageContext, "license-tip-free") )%>"},
-                                    dojo.create("a",{href:"javascript:licenseAdmin.free()"},optd));
+                                    dojo.create("a",{href:"javascript:licenseAdmin.free('"+lic.id+"','"+lic.fullserverid+"')"},optd));
                         
                         } else if(!lic.available) {    
                         	dojo.addClass(dojo.byId("generateCode"), "hidden");
