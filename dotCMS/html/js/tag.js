@@ -275,7 +275,7 @@ function showTagsForSearch(result) {
                 tagOptionIconNode.className = "tagIcon";
 			}
             tagOptionNode.appendChild(tagOptionIconNode);
-            tagOptionNode.text = tagName;
+            tagOptionNode.textContent = tagName;
             tagOptionNode.onclick = useThisTagForSearch;
             tagDiv.appendChild(tagOptionNode);
 		});
@@ -309,11 +309,11 @@ function showTagsForSearch(result) {
 function clearSuggestTagsForSearch() {
 	if (tagVelocityVarName) {
 		if (dojo.byId(suggestedDiv)) {
-			//dojo.style(suggestedDiv, "display", "none");
+			dojo.style(suggestedDiv, "display", "none");
 		}
 		if (suggestedDiv) {
             if (dojo.byId(suggestedDiv)) {
-                //dojo.byId(suggestedDiv).innerHTML = "";
+                dojo.byId(suggestedDiv).innerHTML = "";
             }
 		}
 		dojo.byId(tagVelocityVarName).focus();
