@@ -193,78 +193,92 @@ public class PortletURLImpl implements PortletURL {
 	}
 
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		return generatePortletUrl(_portletReq, _req, _encrypt, _secure, _layoutId, _portletName, _action, _anchor, _windowState, _portletMode, _params);
+	}
 
-		sb.append(PortalUtil.getPortalURL(_req, _secure));
+	private static String generatePortletUrl(PortletRequest portletReq,
+											 HttpServletRequest req,
+											 boolean encrypt,
+											 boolean secure,
+											 String layoutId,
+											 String portletName,
+											 boolean action,
+											 boolean anchor,
+											 WindowState windowState,
+											 PortletMode portletMode, Map params) {
+		StringBuilder sb = new StringBuilder();
 
-		String ctxPath = null;
-		if (_portletReq != null) {
-			ctxPath = (String)_portletReq.getPortletSession().getAttribute(
-				WebKeys.CTX_PATH, PortletSession.APPLICATION_SCOPE);
+		sb.append(PortalUtil.getPortalURL(req, secure));
+
+		String ctxPath;
+		if (portletReq != null) {
+			ctxPath = (String)portletReq.getPortletSession().getAttribute(
+					WebKeys.CTX_PATH, PortletSession.APPLICATION_SCOPE);
 		}
 		else {
-			ctxPath = (String)_req.getSession().getAttribute(WebKeys.CTX_PATH);
+			ctxPath = (String)req.getSession().getAttribute(WebKeys.CTX_PATH);
 		}
 
-		sb.append(ctxPath);
+		sb.append(ctxPath != null ? ctxPath : "/c");
 		sb.append("/portal");
-		sb.append(PortalUtil.getAuthorizedPath(_req));
+		sb.append(PortalUtil.getAuthorizedPath(req));
 		sb.append("/layout?");
 
 		Key key = null;
+		// @todo ggranum: this try-ignore looks worth an investigation.
 		try {
-			if (_encrypt) {
-				key = PortalUtil.getCompany(_req).getKeyObj();
+			if (encrypt) {
+				key = PortalUtil.getCompany(req).getKeyObj();
 			}
 		}
 		catch (Exception e) {
-			Logger.error(this,e.getMessage(),e);
+			Logger.error(PortletURLImpl.class, e.getMessage(), e);
 		}
 
 		sb.append(WebKeys.PORTLET_URL_LAYOUT_ID);
 		sb.append(StringPool.EQUAL);
-		sb.append(_processValue(key, _layoutId));
+		sb.append(processValue(key, layoutId));
 		sb.append(StringPool.AMPERSAND);
 
 		sb.append(WebKeys.PORTLET_URL_PORTLET_NAME);
 		sb.append(StringPool.EQUAL);
-		sb.append(_processValue(key, _portletName));
+		sb.append(processValue(key, portletName));
 		sb.append(StringPool.AMPERSAND);
 
 		sb.append(WebKeys.PORTLET_URL_ACTION);
 		sb.append(StringPool.EQUAL);
-		sb.append(_action ? _processValue(key, ACTION_TRUE) :
-			_processValue(key, ACTION_FALSE));
+		sb.append(action ? processValue(key, ACTION_TRUE) :
+			processValue(key, ACTION_FALSE));
 		sb.append(StringPool.AMPERSAND);
 
-		if (_windowState != null) {
+		if (windowState != null) {
 			sb.append(WebKeys.PORTLET_URL_WINDOW_STATE);
 			sb.append(StringPool.EQUAL);
-			sb.append(_processValue(key, _windowState.toString()));
+			sb.append(processValue(key, windowState.toString()));
 			sb.append(StringPool.AMPERSAND);
 		}
 
-		if (_portletMode != null) {
+		if (portletMode != null) {
 			sb.append(WebKeys.PORTLET_URL_PORTLET_MODE);
 			sb.append(StringPool.EQUAL);
-			sb.append(_processValue(key, _portletMode.toString()));
+			sb.append(processValue(key, portletMode.toString()));
 			sb.append(StringPool.AMPERSAND);
 		}
 
-		Iterator itr = _params.entrySet().iterator();
+		Iterator itr = params.entrySet().iterator();
 
 		while (itr.hasNext()) {
 			Map.Entry entry = (Map.Entry)itr.next();
 
 			String name =
-				PortalUtil.getPortletNamespace(_portletName) +
-				(String)entry.getKey();
+					PortalUtil.getPortletNamespace(portletName) +
+					(String)entry.getKey();
 			String[] values = (String[])entry.getValue();
 
 			for (int i = 0; i < values.length; i++) {
 				sb.append(name);
 				sb.append(StringPool.EQUAL);
-				sb.append(_processValue(key, values[i]));
+				sb.append(processValue(key, values[i]));
 
 				if ((i + 1 < values.length) || itr.hasNext()) {
 					sb.append(StringPool.AMPERSAND);
@@ -272,19 +286,19 @@ public class PortletURLImpl implements PortletURL {
 			}
 		}
 
-		if (_encrypt) {
+		if (encrypt) {
 			sb.append(StringPool.AMPERSAND + WebKeys.ENCRYPT + "=1");
 		}
 
-		if (!BrowserSniffer.is_ns_4(_req)) {
-			if (_anchor && (_windowState != null) &&
-				(!_windowState.equals(WindowState.MAXIMIZED))) {
+		if (!BrowserSniffer.is_ns_4(req)) {
+			if (anchor && (windowState != null) &&
+				(!windowState.equals(WindowState.MAXIMIZED))) {
 
 				if (sb.lastIndexOf(StringPool.AMPERSAND) != (sb.length() - 1)) {
 					sb.append(StringPool.AMPERSAND);
 				}
 
-				sb.append("#p_").append(_portletName);
+				sb.append("#p_").append(portletName);
 			}
 		}
 
@@ -341,7 +355,7 @@ public class PortletURLImpl implements PortletURL {
 		return _secure;
 	}
 
-	private String _processValue(Key key, String value) {
+	private static String processValue(Key key, String value) {
 		if (key == null) {
 			return Http.encodeURL(value);
 		}
@@ -355,8 +369,8 @@ public class PortletURLImpl implements PortletURL {
 		}
 	}
 
-	protected final String ACTION_FALSE = "0";
-	protected final String ACTION_TRUE = "1";
+	protected static final String ACTION_FALSE = "0";
+	protected static final String ACTION_TRUE = "1";
 
 	private HttpServletRequest _req;
 	private PortletRequest _portletReq;

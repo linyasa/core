@@ -30,7 +30,7 @@ if(!validate){
 		<meta content="no-cache" http-equiv="Pragma">
 		<meta content="0" http-equiv="Expires">
 	</head>
-	<body onload="top.location = '<%= CTX_PATH %>/';">
+	<body onload="window.location =  '<%= CTX_PATH %>/';">
 	
 		<table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
 			<tr>

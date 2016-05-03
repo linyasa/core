@@ -154,7 +154,7 @@ if(errorMessage != null){
 	session.setAttribute("_dotLoginMessages", errorMessage);
 	session.setAttribute("_failedLoginName", login);
 	SessionErrors.clear(request);
-	out.println("<html><head><script>top.location = '/c/portal_public/login';</script></head><body></body></html>");
+	out.println("<html><head><script>window.location =  '/c/portal_public/login';</script></head><body></body></html>");
 	return;
 }
 %>

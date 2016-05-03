@@ -120,7 +120,6 @@ public class RuleResource {
     @POST
     @JSONP
     @Path("/rules")
-    
     @Produces({MediaType.APPLICATION_JSON, "application/javascript"})
     @Consumes(MediaType.APPLICATION_JSON)
     public Response add(@Context HttpServletRequest request, @PathParam("siteId") String siteId, RestRule restRule) {

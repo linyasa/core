@@ -119,8 +119,9 @@ public class APILocator extends Locator<APIIndex>{
 	}
 
 	public synchronized static void init(){
-		if(instance != null)
+		if(instance != null){
 			return;
+		}
 		instance = new APILocator();
 	}
 

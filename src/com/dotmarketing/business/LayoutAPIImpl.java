@@ -85,7 +85,7 @@ public class LayoutAPIImpl implements LayoutAPI {
 		}
 		Collections.sort(layouts, new Comparator<Layout>() {
 			public int compare(Layout l1, Layout l2) {
-				return new Integer(l1.getTabOrder()).compareTo(new Integer(l2.getTabOrder()));
+				return new Integer(l1.getTabOrder()).compareTo(l2.getTabOrder());
 			}
 		});
 		return layouts;

@@ -10,6 +10,7 @@ import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.ConditionResourc
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.ConditionValueResource;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.ConditionGroupResource;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.RuleResource;
+import com.dotcms.rest.api.v1.system.layouts.LayoutsResource;
 import com.dotcms.rest.api.v1.system.ruleengine.actionlets.ActionletsResource;
 import com.dotcms.rest.api.v1.system.ruleengine.conditionlets.ConditionletsResource;
 import com.dotcms.rest.api.v1.system.i18n.I18NResource;
@@ -67,6 +68,7 @@ public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Ap
 					REST_CLASSES.add(ConditionletsResource.class);
 					REST_CLASSES.add(ActionResource.class);
 					REST_CLASSES.add(ActionletsResource.class);
+					REST_CLASSES.add(LayoutsResource.class);
 					REST_CLASSES.add(I18NResource.class);
 					REST_CLASSES.add(LanguagesResource.class);
 

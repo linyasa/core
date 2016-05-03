@@ -123,7 +123,7 @@ function togglePublish(){
 }
 
 function editTemplate(inode){
-	top.location="<portlet:actionURL windowState="<%= WindowState.MAXIMIZED.toString() %>"><portlet:param name="struts_action" value="/ext/templates/edit_template" /><portlet:param name="cmd" value="edit" /></portlet:actionURL>&inode=" + inode + "&referer=<%=referer%>";
+	window.location = "<portlet:actionURL windowState="<%= WindowState.MAXIMIZED.toString() %>"><portlet:param name="struts_action" value="/ext/templates/edit_template" /><portlet:param name="cmd" value="edit" /></portlet:actionURL>&inode=" + inode + "&referer=<%=referer%>";
 }
 
 function delTemplate(inode, referer) {
@@ -193,7 +193,7 @@ function deleteCallback(data,arg1){
 }
 
 function processDelete(inode, referer) {
-	top.location="<portlet:actionURL windowState="<%= WindowState.MAXIMIZED.toString() %>"><portlet:param name="struts_action" value="/ext/templates/edit_template" /><portlet:param name="cmd" value="full_delete" /></portlet:actionURL>&inode=" + inode + "&referer=" + referer;
+	window.location = "<portlet:actionURL windowState="<%= WindowState.MAXIMIZED.toString() %>"><portlet:param name="struts_action" value="/ext/templates/edit_template" /><portlet:param name="cmd" value="full_delete" /></portlet:actionURL>&inode=" + inode + "&referer=" + referer;
 }
 
 

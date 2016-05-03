@@ -1,5 +1,7 @@
 package com.dotmarketing.business;
 
+import com.dotcms.repackage.com.google.common.collect.Lists;
+import com.dotcms.repackage.javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,7 @@ public class Layout implements Serializable{
 	private String name;
 	private String description;
 	private int tabOrder;
-	private List<String> portletIds;
+	private List<String> portletIds = Lists.newArrayList();
 	
 	public String getName() {
 		return name;
@@ -41,11 +43,13 @@ public class Layout implements Serializable{
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	@NotNull
 	public List<String> getPortletIds() {
 		return portletIds;
 	}
 	public void setPortletIds(List<String> portletIds) {
-		this.portletIds = portletIds;
+		this.portletIds = portletIds != null ? portletIds : Lists.newArrayList();
 	}
 
 	public Map<String, Object> toMap() {
