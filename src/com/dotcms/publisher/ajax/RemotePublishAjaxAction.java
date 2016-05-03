@@ -785,16 +785,18 @@ public class RemotePublishAjaxAction extends AjaxAction {
                 response.getWriter().println( jsonResponse.toString() );
             }
         } catch(DotPublisherException e){
+            Throwable cause = e.getCause();
+
             JSONObject jsonResponse = new JSONObject();
 
             try {
-                jsonResponse.put( "errors", e.getMessage() );
+                jsonResponse.put("errors", e.getMessage());
             } catch (JSONException e1) {
                 sendGeneralError(response, e);
             }
 
             //And send it back to the user
-            response.getWriter().println( jsonResponse.toString() );
+            response.getWriter().println(jsonResponse.toString());
         }catch ( Exception e ) {
             sendGeneralError(response, e);
         }

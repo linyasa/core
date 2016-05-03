@@ -152,7 +152,7 @@ public class PublisherAPIImpl extends PublisherAPI{
 					  idToProcess = identifier;
 
 					  if (assets.contains(identifier)){
-						throw new AssetAlreadyLinkWithBundleException( user, identifier );
+						continue;
 					  }
 
                       DotConnect dc = new DotConnect();
