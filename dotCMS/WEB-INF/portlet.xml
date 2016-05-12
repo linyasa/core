@@ -3499,6 +3499,19 @@
 		<display-name>ES Query Tool</display-name>
 		<portlet-class>com.dotcms.rest.elasticsearch.ESContentResourcePortlet</portlet-class>
 	</portlet>
+
+	<portlet>
+		<portlet-name>ANGULAR_PORTLET1</portlet-name>
+		<display-name>Angular Portlet 1</display-name>
+		<portlet-class>com.dotcms.rest.poc.AngularResourcePortlet</portlet-class>
+	</portlet>
+
+	<portlet>
+		<portlet-name>ANGULAR_PORTLET2</portlet-name>
+		<display-name>Angular Portlet 2</display-name>
+		<portlet-class>com.dotcms.rest.poc.AngularResourcePortlet</portlet-class>
+	</portlet>
+
 	<portlet>
 		<portlet-name>RULES_ENGINE_PORTLET</portlet-name>
 		<display-name>Rules Editor</display-name>

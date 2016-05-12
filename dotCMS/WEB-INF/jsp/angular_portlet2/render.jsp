@@ -1,0 +1,1 @@
+<h1>Hello word!, Portlet 2</h1>
