@@ -504,6 +504,7 @@ bottom="/html/common/box_bottom.jsp">
 <!-- END Button Row -->
 
 <!-- START Split Box -->
+<my-app>loading...</my-app>
 <div dojoType="dijit.layout.BorderContainer" design="sidebar" gutters="false" liveSplitters="true" id="borderContainer" class="shadowBox headerBox" style="height:100px;">
 
 <!-- START Left Column -->
