@@ -113,7 +113,7 @@ dojo.require("dojo.hash");
                 constructor : function() {},
 
                 show : function(href, tabId) {
-
+                        console.log('showwww')
                         var r = Math.floor(Math.random() * 1000000000);
                         if (href.indexOf("?") > -1) {
                                 href = href + "&r=" + r;

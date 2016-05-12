@@ -154,6 +154,11 @@ THIS FILE AND ITS INCLUDES
 		.imageBG{background-color:<%= company.getSize() %>;background-image:url(<%= dotBackImage %>);background-repeat:no-repeat;background-position:top center;background-size:100% auto;height:75px;position:absolute;top:0;left:0;width:100%;z-index:-2;}
 	</style>
 
+  <script src="https://code.angularjs.org/2.0.0-beta.17/angular2-polyfills.js"></script>
+  <script src="https://code.angularjs.org/tools/system.js"></script>
+  <script src="https://code.angularjs.org/tools/typescript.js"></script>
+  <script src="/html/js/angular/config.js"></script>
+
 
 </head>
 
