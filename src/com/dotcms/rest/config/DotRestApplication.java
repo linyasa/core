@@ -40,6 +40,7 @@ public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Ap
 					REST_CLASSES.add(com.dotcms.rest.AuditPublishingResource.class);
 					REST_CLASSES.add(com.dotcms.rest.WidgetResource.class);
 					REST_CLASSES.add(com.dotcms.rest.CMSConfigResource.class);
+					REST_CLASSES.add(com.dotcms.rest.poc.AngularResourcePortlet.class);
 					REST_CLASSES.add(com.dotcms.rest.OSGIResource.class);
 					REST_CLASSES.add(com.dotcms.rest.UserResource.class);
 					REST_CLASSES.add(com.dotcms.rest.ClusterResource.class);
