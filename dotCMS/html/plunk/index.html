@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>angular2 playground</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="text/javascript" src="/html/js/dojo/release/dojo/dojo/dojo.js?b=3.6"></script>
+    <script type="text/javascript">
+      djConfig = {
+         parseOnLoad: false,
+         useXDomain: false,
+         isDebug: false,
+         locale:'en-us',
+         modulePaths: { dotcms: "/html/js/dotcms" }
+     };
+    </script>
+    <script type="text/javascript">
+      dojo.require("dijit.Dialog");
+      dojo.require("dijit.form.Form");
+      dojo.require("dijit.form.RadioButton");
+      dojo.require("dijit.form.Button");
+      dojo.require("dijit.form.CheckBox");
+      dojo.require("dijit.form.DateTextBox");
+      dojo.require("dijit.form.FilteringSelect");
+      dojo.require("dijit.form.TextBox");
+      dojo.require("dijit.form.ValidationTextBox");
+      dojo.require("dijit.form.Textarea");
+      dojo.require("dijit.Menu");
+      dojo.require("dijit.MenuItem");
+      dojo.require("dijit.MenuSeparator");
+      dojo.require("dijit.ProgressBar");
+      dojo.require("dijit.PopupMenuItem");
+      dojo.require('dijit.layout.TabContainer');
+      dojo.require('dijit.layout.ContentPane');
+      dojo.require('dojox.layout.ContentPane');
+      dojo.require("dijit.layout.BorderContainer");
+      dojo.require("dijit.TitlePane");
+      dojo.require("dijit.Tooltip");
+      dojo.require("dojo.parser");
+      dojo.require("dojo.fx");
+      //dojo.require("dotcms.dojo.data.UsersReadStore");
+      dojo.require("dojox.form.DropDownSelect");
+      dojo.require("dojox.json.query");
+      dojo.require("dijit.form.NumberTextBox");
+      dojo.require("dijit.form.TimeTextBox");
+      //dojo.require("dotcms.dijit.image.ImageEditor");
+      dojo.require("dojox.widget.Calendar");
+      dojo.require("dojo.date.locale");
+      dojo.require("dojox.form.Uploader");
+      dojo.require("dojox.form.uploader.FileList");
+      dojo.require("dojox.form.uploader.plugins.HTML5");
+      dojo.require("dijit.form.ComboBox");
+      dojo.require("dijit.TooltipDialog");
+      dojo.require("dojox.grid.EnhancedGrid");
+      dojo.require("dojox.grid.enhanced.plugins.Menu");
+      dojo.require("dojo.data.ItemFileReadStore");
+      dojo.require("dijit.form.Form");
+      dojo.require("dojo.io.script");
+    </script>
+    <!-- <script src="http://localhost:8080/html/js/dotcms/dojo/data/UsersReadStore.js"></script> -->
+
+    <script src="https://code.angularjs.org/2.0.0-beta.17/angular2-polyfills.js"></script>
+    <script src="https://code.angularjs.org/tools/system.js"></script>
+    <script src="https://code.angularjs.org/tools/typescript.js"></script>
+    <script src="config.js"></script>
+    <script>
+      System.import('app').catch(console.error.bind(console));
+    </script>
+  </head>
+
+  <body>
+    <my-app>
+    loading...
+  </my-app>
+  </body>
+
+</html>

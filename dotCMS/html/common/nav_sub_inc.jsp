@@ -40,7 +40,7 @@
         } else {
             boolean isPerpetual = LicenseUtil.isPerpetual();
             boolean isTrial = LicenseUtil.getLicenseType().equals("trial");
-            
+
             Date td = new Date();
             Date ed = LicenseUtil.getValidUntil();
 
@@ -528,7 +528,7 @@ dojo.require("dojo.cookie");
 
 <!-- Start Site Tools -->
 <% if (signedIn) { %>
-    <div id="admin-site-tools-div">
+  <div id="admin-site-tools-div">
 		<!-- Updates -->
         <% if (licenseMessage != null) { %>
             <a class="goEnterpriseLink" href="<%=licenseURL%>" id="goEnterpriseLink"><span class="keyIcon"></span><%=licenseMessage%></a>
@@ -536,13 +536,13 @@ dojo.require("dojo.cookie");
 
    		<a id="autoUpdaterLink" style="display:none;" class="goEnterpriseLink"  href="javascript: showAutoUpdaterPopUp();"><span class="exclamation-red"></span><%= LanguageUtil.get(pageContext, "Update-available") %></a>
 		<!-- User Notifications -->
-			<a href="#" id="hasNotifications" onclick="showNotifications();" ><span id="notificationsIcon" class="hostStoppedIcon"></a>
+			<a href="#" id="hasNotifications" onclick="showNotifications();"><span id="notificationsIcon" class="hostStoppedIcon"></span></a>
 		<!-- User Actions -->
 		<% if (request.getSession().getAttribute(WebKeys.PRINCIPAL_USER_ID) == null) { %>
 			<a href="#" id="account-trigger" onclick="toggleAccount();" class="trigger-off"><%=user.getFullName()%></a>
-	    <% } else { %>
-	        <a href="<%=CTX_PATH%>/portal<%=PortalUtil.getAuthorizedPath(request)%>/logout_as?referer=<%=CTX_PATH%>"><span class="plusIcon"></span><%= LanguageUtil.get(pageContext, "logout-as") %> <%=user.getFullName()%></a>
-	    <% } %>
+	  <% } else { %>
+	    <a href="<%=CTX_PATH%>/portal<%=PortalUtil.getAuthorizedPath(request)%>/logout_as?referer=<%=CTX_PATH%>"><span class="plusIcon"></span><%= LanguageUtil.get(pageContext, "logout-as") %> <%=user.getFullName()%></a>
+	  <% } %>
 	</div>
 <% } %>
 
@@ -603,7 +603,7 @@ dojo.require("dojo.cookie");
             <div id="portal_loginas_errors"></div>
             <form id="portal_login_as_users_form" action="<%=CTX_PATH%>/portal<%=PortalUtil.getAuthorizedPath(request)%>/login_as?referer=<%=CTX_PATH%>" method="post">
                 <div id="portal_login_as_users_select" class="formRow" style="text-align:center;">
-                    <div dojoType="dotcms.dojo.data.UsersReadStore" jsId="usersStore" includeRoles="false"></div>
+                    // <div dojoType="dotcms.dojo.data.UsersReadStore" jsId="usersStore" includeRoles="false"></div>
                     <%= LanguageUtil.get(pageContext, "Select-User" ) %> : &nbsp;
                         <select id="portal_login_as_user" name="portal_login_as_user" dojoType="dijit.form.FilteringSelect" onchange="clearErrorMsg()"
                         store="usersStore" searchDelay="300" pageSize="30" labelAttr="name"
@@ -764,5 +764,3 @@ dojo.require("dojo.cookie");
 	        </script>
     <%	}
     }%>
-
-

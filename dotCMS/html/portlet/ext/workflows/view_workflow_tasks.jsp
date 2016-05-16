@@ -524,14 +524,14 @@ bottom="/html/common/box_bottom.jsp">
 						  </div>
 						  <div id="cell-right">
 							<%if(isAdministrator) { %>
-							<input type="radio" dojoType="dijit.form.RadioButton" id="showAllLink" name="assignedto" onclick="showTasks4AllUsers()"><%=LanguageUtil.get(pageContext, "all") %> </input>
+							<input type="radio" dojoType="dijit.form.RadioButton" id="showAllLink" name="assignedto" onclick="showTasks4AllUsers()" /><%=LanguageUtil.get(pageContext, "all") %>
 	                        <%} %>
 	                      </div>
 					  </div>
 					  <div id="table-row">
 					  	 <div id="cell-left"> </div>
 					     <div id="cell-right">
-                       		 <input type="radio" dojoType="dijit.form.RadioButton" id="showme" name="assignedto" checked="true" onclick="assignedToMe()"><%=LanguageUtil.get(pageContext, "me") %></input>
+                       		 <input type="radio" dojoType="dijit.form.RadioButton" id="showme" name="assignedto" checked="true" onclick="assignedToMe()" /><%=LanguageUtil.get(pageContext, "me") %>
 						</div>
 					 </div>
 					</div>
