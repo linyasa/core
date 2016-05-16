@@ -49,6 +49,7 @@ import com.dotmarketing.factories.PreviewFactory;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.SecurityLogger;
 import com.dotmarketing.util.UtilMethods;
+import com.dotmarketing.util.poc.JWTUtil;
 import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.RequiredLayoutException;
 import com.liferay.portal.SendPasswordException;
@@ -351,6 +352,11 @@ public class LoginAction extends Action {
 			headerStr.append(CookieKeys.ID).append("=\"").append(UserManagerUtil.encryptUserId(userId)).append("\";")
 				.append(secure).append(";").append(httpOnly).append(";Path=/").append(";Max-Age=").append(maxAge);
 			res.addHeader("SET-COOKIE", headerStr.toString());
+
+            //JWT
+            Long jwtMaxAge = !maxAge.equals("0") ? Long.valueOf(maxAge) : 31536000L;
+            String jwtAccessToken = JWTUtil.generateToken(UserManagerUtil.encryptUserId(userId), userId, userId, jwtMaxAge);
+            JWTUtil.createJWTCookie(req, res, jwtAccessToken);
 
 			EventsProcessor.process(PropsUtil.getArray(PropsUtil.LOGIN_EVENTS_PRE), req, res);
 			EventsProcessor.process(PropsUtil.getArray(PropsUtil.LOGIN_EVENTS_POST), req, res);

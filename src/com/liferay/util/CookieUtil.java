@@ -231,7 +231,7 @@ public class CookieUtil {
 		return res;
 	}
 
-	private static boolean containsCookie(Cookie[] cookies, String name) {
+	public static boolean containsCookie(Cookie[] cookies, String name) {
 		if(cookies==null) return false;
 
 		for (Cookie cookie : cookies) {
