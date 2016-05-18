@@ -26,7 +26,6 @@ System.register(["angular2/core", 'angular2/http'], function(exports_1, context_
                     var _this = this;
                     http.get('/api/jwt/poc1').subscribe(function (res) {
                         _this.poc1Response = res.json();
-                        console.log(_this.poc1Response);
                     });
                 }
                 Portlet1 = __decorate([
