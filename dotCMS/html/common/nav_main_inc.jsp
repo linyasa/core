@@ -11,6 +11,8 @@ var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refre
 </script>
 <div id="menu" class="navbar">
         <ul class="level1 horizontal" id="root">
+          <li><a href="/html/ng?id=Portlet 1">Porlet 1</a></li>
+          <li><a href="/html/ng?id=Portlet 2">Porlet 2</a></li>
 
         <%for(int l=0;l< layouts.length ;l++){
                 String tabName =LanguageUtil.get(pageContext, LanguageUtil.get(pageContext, layouts[l].getName()));
