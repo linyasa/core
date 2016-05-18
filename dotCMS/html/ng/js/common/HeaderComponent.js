@@ -28,7 +28,7 @@ System.register(["angular2/core", "angular2/router"], function(exports_1, contex
                 HeaderComponent = __decorate([
                     core_1.Component({
                         selector: "header-component",
-                        template: "\n        <nav class=\"navbar navbar-inverse\">\n            <div class=\"container\">\n                <div class=\"navbar-header\">\n                    <a class=\"navbar-brand\" [routerLink]=\"['Welcome']\">New NG Navigation</a>\n                </div>\n                <ul class=\"nav navbar-nav navbar-right\">\n                    <li><a [routerLink]=\"['Portlet 1']\">Porlet1</a></li>\n                    <li><a [routerLink]=\"['Portlet 2']\">Porlet2</a></li>\n                    <li><a href=\"/c/portal/layout?p_l_id=34885ddb-3537-4a79-a02c-0550c5087d5c\">Workflow Task</a></li>\n                </ul>\n            </div>\n        </nav>\n    ",
+                        template: "\n        <nav class=\"navbar navbar-inverse\">\n            <div class=\"container\">\n                <div class=\"navbar-header\">\n                    <a class=\"navbar-brand\" [routerLink]=\"['Welcome']\">New NG Navigation</a>\n                </div>\n                <ul class=\"nav navbar-nav navbar-right\">\n                    <li><a [routerLink]=\"['ANGULAR_PORTLET3']\">ANGULAR_PORTLET3</a></li>\n                    <li><a [routerLink]=\"['ANGULAR_PORTLET4']\">ANGULAR_PORTLET4</a></li>\n                    <li><a href=\"/c/portal/layout?p_l_id=34885ddb-3537-4a79-a02c-0550c5087d5c\">Workflow Task</a></li>\n                </ul>\n            </div>\n        </nav>\n    ",
                         providers: [],
                         directives: [router_1.RouterLink]
                     }), 
