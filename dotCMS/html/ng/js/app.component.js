@@ -42,8 +42,8 @@ System.register(["angular2/core", "angular2/router", './common/WelcomeComponent'
                 AppComponent = __decorate([
                     router_1.RouteConfig([
                         { path: '/html/ng/', name: 'Welcome', component: WelcomeComponent_1.WelcomeComponent },
-                        { path: '/html/ng/p/portlet1', name: 'Portlet 1', component: Portlet1_1.Portlet1 },
-                        { path: '/html/ng/p/portlet2', name: 'Portlet 2', component: Portlet2_1.Portlet2 },
+                        { path: '/html/ng/p/ANGULAR_PORTLET3', name: 'ANGULAR_PORTLET3', component: Portlet1_1.Portlet1 },
+                        { path: '/html/ng/p/ANGULAR_PORTLET4', name: 'ANGULAR_PORTLET4', component: Portlet2_1.Portlet2 },
                     ]),
                     core_1.Component({
                         selector: "my-app",

@@ -23,7 +23,7 @@ System.register(["angular2/core"], function(exports_1, context_1) {
                 }
                 Portlet1 = __decorate([
                     core_1.Component({
-                        selector: "porlet1",
+                        selector: "ANGULAR_PORTLET3",
                         template: "\n        <h1>Porlet 1</h1>\n    ",
                         providers: []
                     }), 
