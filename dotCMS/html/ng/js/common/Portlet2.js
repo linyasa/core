@@ -1,4 +1,4 @@
-System.register(["angular2/core", 'angular2/http'], function(exports_1, context_1) {
+System.register(["angular2/core"], function(exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -10,31 +10,24 @@ System.register(["angular2/core", 'angular2/http'], function(exports_1, context_
     var __metadata = (this && this.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    var core_1, http_1;
+    var core_1;
     var Portlet2;
     return {
         setters:[
             function (core_1_1) {
                 core_1 = core_1_1;
-            },
-            function (http_1_1) {
-                http_1 = http_1_1;
             }],
         execute: function() {
             Portlet2 = (function () {
-                function Portlet2(http) {
-                    var _this = this;
-                    http.get('/api/jwt/poc2').subscribe(function (res) {
-                        _this.poc2Response = res.json();
-                    });
+                function Portlet2() {
                 }
                 Portlet2 = __decorate([
                     core_1.Component({
-                        selector: "ANGULAR_PORTLET4",
-                        template: "\n        <h1>Porlet 2</h1>\n        <br>\n        <h1>This response is coming from a RESTful resource (/api/jwt/poc2): {{poc2Response?.Success}}</h1>\n    ",
-                        providers: [http_1.HTTP_PROVIDERS]
+                        selector: "porlet2",
+                        template: "\n        <h1>Porlet 2</h1>\n    ",
+                        providers: []
                     }), 
-                    __metadata('design:paramtypes', [http_1.Http])
+                    __metadata('design:paramtypes', [])
                 ], Portlet2);
                 return Portlet2;
             }());

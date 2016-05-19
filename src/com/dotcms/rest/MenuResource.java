@@ -24,6 +24,7 @@ import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.StrutsPortlet;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,9 +40,9 @@ public class MenuResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Menu> getMenus(@PathParam("from") String from, @Context HttpServletRequest httpServletRequest)
+    public Collection<Menu> getMenus(@Context HttpServletResponse response, @PathParam("from") String from, @Context HttpServletRequest httpServletRequest)
             throws SystemException, PortalException, DotDataException, ClassNotFoundException {
-
+        response.setHeader("Access-Control-Allow-Origin", "*");
         App appFrom = App.valueOf(from.toUpperCase());
         Collection<Menu> menus = new ArrayList<Menu>();
 
@@ -85,10 +86,18 @@ public class MenuResource {
             menuContext.setPortletId( portletId );
             String linkHREF = getUrl(menuContext);
             String linkName = LanguageUtil.get(menuContext.getUser(), "com.dotcms.repackage.javax.portlet.title." + portletId);
+            boolean isAngular = isAngular( portletId );
 
-            menuItems.add ( new MenuItem(portletId, linkHREF, linkName) );
+            menuItems.add ( new MenuItem(portletId, linkHREF, linkName, isAngular) );
         }
         return menuItems;
+    }
+
+    private boolean isAngular(String portletId) throws ClassNotFoundException {
+        Portlet portlet = APILocator.getPortletAPI().findPortlet(portletId);
+        String portletClass = portlet.getPortletClass();
+        Class classs = Class.forName( portletClass );
+        return PortletController.class.isAssignableFrom( classs );
     }
 
     private String getUrl(MenuContext menuContext) throws ClassNotFoundException {
