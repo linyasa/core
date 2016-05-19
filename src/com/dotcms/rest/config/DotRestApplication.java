@@ -1,6 +1,7 @@
 package com.dotcms.rest.config;
 
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
+import com.dotcms.rest.MenuResource;
 import com.dotcms.rest.RulesEnginePortlet;
 import com.dotcms.rest.TagResource;
 import com.dotcms.rest.api.v1.languages.LanguagesResource;
@@ -70,6 +71,8 @@ public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Ap
 					REST_CLASSES.add(ActionletsResource.class);
 					REST_CLASSES.add(I18NResource.class);
 					REST_CLASSES.add(LanguagesResource.class);
+
+					REST_CLASSES.add(MenuResource.class);
 
 				}
 			}
