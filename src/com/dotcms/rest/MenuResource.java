@@ -11,6 +11,8 @@ import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.Layout;
 import com.dotmarketing.business.LayoutAPI;
 import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.util.poc.JWTUtil;
+import com.dotmarketing.util.poc.UnauthorizedException;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
 import com.liferay.portal.ejb.UserLocalManagerUtil;
@@ -18,10 +20,12 @@ import com.liferay.portal.language.LanguageException;
 import com.liferay.portal.language.LanguageUtil;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.User;
+import com.liferay.portal.util.CookieKeys;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.StrutsPortlet;
+import com.liferay.util.CookieUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,7 +46,9 @@ public class MenuResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Collection<Menu> getMenus(@Context HttpServletResponse response, @PathParam("from") String from, @Context HttpServletRequest httpServletRequest)
             throws SystemException, PortalException, DotDataException, ClassNotFoundException {
-        response.setHeader("Access-Control-Allow-Origin", "*");
+
+        checkToken(httpServletRequest);
+        //response.setHeader("Access-Control-Allow-Origin", "*");
         App appFrom = App.valueOf(from.toUpperCase());
         Collection<Menu> menus = new ArrayList<Menu>();
 
@@ -129,6 +135,16 @@ public class MenuResource {
         }
 
         return null;
+    }
+
+    private void checkToken(HttpServletRequest httpServletRequest){
+        try {
+            //If the token does not exist or is not valid an exception will be thrown
+            String accessToken = CookieUtil.get(httpServletRequest.getCookies(), CookieKeys.JWT_ACCESS_TOKEN);
+            JWTUtil.parseToken(accessToken);
+        }catch(Exception e){
+            throw new UnauthorizedException();
+        }
     }
 
 }
