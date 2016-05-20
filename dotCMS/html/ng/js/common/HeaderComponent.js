@@ -31,44 +31,44 @@ System.register(["angular2/core", "angular2/router", 'angular2/http'], function(
                 }
                 HeaderComponent.prototype.ngOnInit = function () {
                     /*this.menus = [{
-                        tabName: 'T1',
-                        tabDescription: 'AAAAA',
-                        url: 'http://localhost:8080/aaaaa',
-                        menuItems: [
-                            {
-                                name: 'T11',
-                                url: 'http://localhost:8080/bbbbb'
-                            },
-                            {
-                                name: 'T12',
-                                url: 'http://localhost:8080/bbbbb'
-                            },
-                            {
-                                name: 'ANGULAR_PORTLET3',
-                                url: 'http://localhost:8080/bbbbb'
-                            }
-                        ]
-                    },
-                        {
-                            tabName: 'T2',
-                            tabDescription: 'BBB',
-                            url: 'http://localhost:8080/bbbb',
-                            menuItems: [
-                                {
-                                    name: 'T11',
-                                    url: '/bbbbb'
-                                }
-                            ]
-                        }];*/
+                     tabName: 'T1',
+                     tabDescription: 'AAAAA',
+                     url: 'http://localhost:8080/aaaaa',
+                     menuItems: [
+                     {
+                     name: 'T11',
+                     url: 'http://localhost:8080/bbbbb'
+                     },
+                     {
+                     name: 'T12',
+                     url: 'http://localhost:8080/bbbbb'
+                     },
+                     {
+                     name: 'ANGULAR_PORTLET3',
+                     url: 'http://localhost:8080/bbbbb'
+                     }
+                     ]
+                     },
+                     {
+                     tabName: 'T2',
+                     tabDescription: 'BBB',
+                     url: 'http://localhost:8080/bbbb',
+                     menuItems: [
+                     {
+                     name: 'T11',
+                     url: '/bbbbb'
+                     }
+                     ]
+                     }];*/
                     var _this = this;
-                    this.http.get('http://localhost:8080/api/core_web/menu')
+                    this.http.get('/api/core_web/menu')
                         .subscribe(function (res) { return _this.menus = res.json(); });
                 };
                 HeaderComponent = __decorate([
                     core_1.Component({
                         selector: "header-component",
-                        styles: ["\n        .t1 {\n          font-size: 12px;\n        }\n\n        .t2{\n        font-size: 10px;\n        }\n    "],
-                        template: "\n    <span *ngFor=\"#menu of menus\" style=\"display: inline;\">\n        <a href=\"{{menu.url}}\"><label class=\"t1\">{{menu.tabName}}</label></a>\n        <ul>\n            <li *ngFor=\"#menuItem of menu.menuItems\">\n            <a href=\"{{menuItem.url}}\" *ngIf=\"!menuItem.angular\">\n                <label class=\"t2\">{{menuItem.name}}</label>\n            </a>\n\n            <a [routerLink]=\"[menuItem.id]\" *ngIf=\"menuItem.angular\">\n                <label class=\"t2\">{{menuItem.name}}</label>\n            </a>\n            </li>\n        </ul>\n    </span>\n    ",
+                        styles: ["\n        .t1 {\n          font-size: 12px;\n        }\n        .t2{\n        font-size: 10px;\n        }\n    "],
+                        template: "\n    <div class=\"container\">\n        <span *ngFor=\"#menu of menus\" style=\"display: inline; float: left;\">\n            <a href=\"{{menu.url}}\"><label class=\"t1\">{{menu.tabName}}</label></a>\n            <ul>\n                <li *ngFor=\"#menuItem of menu.menuItems\">\n                <a href=\"{{menuItem.url}}\" *ngIf=\"!menuItem.angular\">\n                    <label class=\"t2\">{{menuItem.name}}</label>\n                </a>\n                <a [routerLink]=\"[menuItem.id]\" *ngIf=\"menuItem.angular\">\n                    <label class=\"t2\">{{menuItem.name}}</label>\n                </a>\n                </li>\n            </ul>\n        </span>\n    </div>\n    ",
                         providers: [[http_1.HTTP_PROVIDERS]],
                         directives: [router_1.RouterLink]
                     }), 
