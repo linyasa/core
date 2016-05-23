@@ -1,0 +1,23 @@
+footer {
+    border-top: solid 1px whitesmoke;
+    padding-top: 10px;
+    text-align: center
+}
+
+.navbar.navbar-inverse {
+    border-radius: 0;
+}
+
+.page-header, .page-header h1 {
+    margin-top: 0;
+}
+
+.media-list a {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+}
+
+.media-list a:hover {
+    background-color: whitesmoke
+}
