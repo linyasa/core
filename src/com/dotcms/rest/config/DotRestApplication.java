@@ -1,9 +1,7 @@
 package com.dotcms.rest.config;
 
-import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
-import com.dotcms.rest.MenuResource;
-import com.dotcms.rest.RulesEnginePortlet;
-import com.dotcms.rest.TagResource;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import com.dotcms.rest.*;
 import com.dotcms.rest.api.v1.languages.LanguagesResource;
 import com.dotcms.rest.api.v1.personas.PersonaResource;
 import com.dotcms.rest.api.v1.sites.ruleengine.rules.actions.ActionResource;
@@ -16,12 +14,24 @@ import com.dotcms.rest.api.v1.system.ruleengine.conditionlets.ConditionletsResou
 import com.dotcms.rest.api.v1.system.i18n.I18NResource;
 import com.dotcms.rest.api.v1.user.UserResource;
 import com.dotcms.rest.personas.PersonasResourcePortlet;
+import io.swagger.jaxrs.config.BeanConfig;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Application {
+public class DotRestApplication extends javax.ws.rs.core.Application {
 	protected volatile static Set<Class<?>> REST_CLASSES = null;
+
+	public DotRestApplication(){
+		BeanConfig beanConfig = new BeanConfig();
+		beanConfig.setVersion("1.0.2");
+		beanConfig.setSchemes(new String[]{"http"});
+		beanConfig.setHost("localhost:8080");
+		beanConfig.setBasePath("/api");
+		beanConfig.setResourcePackage("com.dotcms.rest");
+		beanConfig.setScan(true);
+		beanConfig.setPrettyPrint(true);
+	}
 
 	@Override
 	public Set<Class<?>> getClasses() {
@@ -73,6 +83,11 @@ public class DotRestApplication extends com.dotcms.repackage.javax.ws.rs.core.Ap
 					REST_CLASSES.add(LanguagesResource.class);
 
 					REST_CLASSES.add(MenuResource.class);
+
+					REST_CLASSES.add(io.swagger.jaxrs.listing.SwaggerSerializers.class);
+					REST_CLASSES.add(io.swagger.jaxrs.listing.ApiListingResource.class);
+
+					REST_CLASSES.add(SimpleTestResource.class);
 
 				}
 			}

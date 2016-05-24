@@ -1,8 +1,8 @@
 package com.dotcms.rest.api.v1.system.i18n;
 
-import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.ClientBuilder;
-import com.dotcms.repackage.javax.ws.rs.core.MediaType;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.MediaType;
 import junit.framework.Assert;
 import com.dotcms.repackage.org.glassfish.jersey.jackson.JacksonFeature;
 import org.junit.Test;

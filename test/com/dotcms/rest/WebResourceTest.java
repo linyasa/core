@@ -5,8 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
-import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 
 import com.dotcms.repackage.org.codehaus.cargo.util.Base64;
 import com.dotcms.repackage.org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -22,7 +22,7 @@ import com.dotmarketing.business.ApiProvider;
 import com.dotmarketing.business.LayoutAPI;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.servlets.test.ServletTestRunner;
-import com.dotcms.repackage.javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.NotAuthorizedException;
 import com.liferay.portal.model.User;
 
 import java.util.HashMap;

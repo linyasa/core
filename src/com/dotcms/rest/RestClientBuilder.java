@@ -1,9 +1,9 @@
 package com.dotcms.rest;
 
 import com.dotcms.publisher.util.TrustFactory;
-import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.ClientBuilder;
-import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import com.dotmarketing.util.Config;
 
 /**

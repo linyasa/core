@@ -2,9 +2,9 @@ package com.dotcms.rest.api;
 
 import com.dotcms.repackage.com.fasterxml.jackson.databind.DeserializationFeature;
 import com.dotcms.repackage.com.fasterxml.jackson.databind.ObjectMapper;
-import com.dotcms.repackage.javax.ws.rs.core.Feature;
-import com.dotcms.repackage.javax.ws.rs.ext.ContextResolver;
-import com.dotcms.repackage.javax.ws.rs.ext.Provider;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
 
 @Provider
 public class MyObjectMapperProvider implements ContextResolver<ObjectMapper> {

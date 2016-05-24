@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.dotcms.enterprise.publishing.PublishDateUpdater;
-import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import com.dotcms.repackage.org.apache.log4j.MDC;
 import com.dotcms.rest.RestClientBuilder;
 import com.dotmarketing.util.PushPublishLogger;

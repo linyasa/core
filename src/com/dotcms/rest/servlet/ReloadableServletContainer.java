@@ -43,9 +43,8 @@ package com.dotcms.rest.servlet;
 import com.dotcms.repackage.com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.dotcms.repackage.com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.dotcms.repackage.com.google.common.base.Throwables;
-import com.dotcms.repackage.javax.ws.rs.core.Application;
-import com.dotcms.repackage.org.glassfish.jersey.server.ResourceConfig;
-import com.dotcms.repackage.org.glassfish.jersey.servlet.ServletContainer;
+import javax.ws.rs.core.Application;
+
 import com.dotcms.rest.annotation.CacheControlFilter;
 import com.dotcms.rest.api.CorsFilter;
 import com.dotcms.rest.api.MyObjectMapperProvider;
@@ -55,6 +54,9 @@ import com.dotcms.rest.exception.mapper.JsonParseExceptionMapper;
 import com.dotcms.rest.exception.mapper.UnrecognizedPropertyExceptionMapper;
 import com.dotmarketing.business.DotStateException;
 import com.dotmarketing.util.Logger;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.servlet.ServletContainer;
+
 
 import java.io.IOException;
 

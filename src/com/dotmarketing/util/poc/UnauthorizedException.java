@@ -1,7 +1,7 @@
 package com.dotmarketing.util.poc;
 
-import com.dotcms.repackage.javax.ws.rs.WebApplicationException;
-import com.dotcms.repackage.javax.ws.rs.core.Response;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
 /**
  * Created by freddyrodriguez on 20/5/16.

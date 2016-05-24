@@ -1,9 +1,11 @@
 package com.dotcms.rest;
 
-import com.dotcms.repackage.javax.ws.rs.*;
-import com.dotcms.repackage.javax.ws.rs.core.Context;
-import com.dotcms.repackage.javax.ws.rs.core.MediaType;
-import com.dotcms.repackage.org.glassfish.jersey.server.JSONP;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+
+import io.swagger.annotations.*;
+import org.glassfish.jersey.server.JSONP;
 import com.dotcms.rest.annotation.NoCache;
 import com.dotcms.rest.validation.MenuContext;
 import com.dotcms.spring.portlet.PortletController;
@@ -30,6 +32,7 @@ import com.liferay.util.CookieUtil;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,19 +40,38 @@ import java.util.List;
 /**
  * Created by freddyrodriguez on 18/5/16.
  */
+@Api(tags = {"Menu", "Angular"})
 @Path("/{from}/menu")
 public class MenuResource {
 
     public enum App{CORE, CORE_WEB};
 
+
+    /*@POST
+    @ApiOperation(value = "Add a new Mnue item",
+            notes = "This Rest service is just to test swagger")
+    @ApiResponses(value = {@ApiResponse(code = 400, message = "If the Menu Item already exists") })
+    public void getMenus(@ApiParam(value = "New Menu Item", required = true)
+                             @PathParam("from") MenuItem menuItem) {
+
+    }*/
+
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Collection<Menu> getMenus(@Context HttpServletResponse response, @PathParam("from") String from, @Context HttpServletRequest httpServletRequest)
+    @ApiOperation(value = "Return DOTCMS menu",
+            notes = "Returns the new dotcms menu",
+            response = Menu[].class)
+    @ApiResponses(value = {@ApiResponse(code = 404, message = "Invalid Application") })
+    public Collection<Menu> getMenus(@Context HttpServletResponse response,
+                                     @ApiParam(value = "Application for which you want to generate the menu", allowableValues = "core,core_web", required = true)
+                                     @PathParam("from") String from,
+                                     @Context HttpServletRequest httpServletRequest)
             throws SystemException, PortalException, DotDataException, ClassNotFoundException {
 
-        checkToken(httpServletRequest);
+        //checkToken(httpServletRequest);
         //response.setHeader("Access-Control-Allow-Origin", "*");
         App appFrom = App.valueOf(from.toUpperCase());
+
         Collection<Menu> menus = new ArrayList<Menu>();
 
         HttpSession session = httpServletRequest.getSession();

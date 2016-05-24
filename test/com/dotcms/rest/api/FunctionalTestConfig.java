@@ -1,7 +1,7 @@
 package com.dotcms.rest.api;
 
-import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 import com.dotcms.repackage.org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import com.dotcms.rest.RestClientBuilder;
 import com.dotmarketing.beans.Host;

@@ -1,7 +1,7 @@
 //package com.dotcms.rest;
 //
 //import com.dotcms.repackage.commons_httpclient_3_1.org.apache.commons.httpclient.HttpStatus;
-//import com.dotcms.repackage.javax.ws.rs.core.Response;
+//import javax.ws.rs.core.Response;
 //import com.dotcms.repackage.org.codehaus.jettison.json.JSONObject;
 //import com.dotcms.repackage.org.hamcrest.CoreMatchers;
 //import com.dotcms.repackage.org.mockito.Mockito;

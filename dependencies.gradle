@@ -277,4 +277,5 @@ dependencies {
     provided fileTree("${project.projectDir}/libs/buildlibs").include('jtds-*.jar', 'mail.jar', 'mysql-conn*.jar', 'ojdbc*.jar', 'postgres*.jar', 'sqljdbc*.jar')
 
     compile group: 'org.apache.xmlgraphics', name: 'batik-rasterizer', version:'1.8'
+    compile group: 'io.swagger', name: 'swagger-jersey2-jaxrs', version:'1.5.0'
 }

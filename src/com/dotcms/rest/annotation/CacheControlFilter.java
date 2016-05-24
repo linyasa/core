@@ -1,11 +1,11 @@
 package com.dotcms.rest.annotation;
 
 import com.dotcms.repackage.javax.annotation.Priority;
-import com.dotcms.repackage.javax.ws.rs.Priorities;
-import com.dotcms.repackage.javax.ws.rs.container.ContainerRequestContext;
-import com.dotcms.repackage.javax.ws.rs.container.ContainerResponseContext;
-import com.dotcms.repackage.javax.ws.rs.container.ContainerResponseFilter;
-import com.dotcms.repackage.javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.Priorities;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.MultivaluedMap;
 import com.dotcms.rest.annotation.Cacheable;
 import com.dotcms.rest.annotation.NoCache;
 
