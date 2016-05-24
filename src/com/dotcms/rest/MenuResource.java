@@ -44,17 +44,8 @@ import java.util.List;
 @Path("/{from}/menu")
 public class MenuResource {
 
-    public enum App{CORE, CORE_WEB};
+    public enum App{CORE, ROUTING};
 
-
-    /*@POST
-    @ApiOperation(value = "Add a new Mnue item",
-            notes = "This Rest service is just to test swagger")
-    @ApiResponses(value = {@ApiResponse(code = 400, message = "If the Menu Item already exists") })
-    public void getMenus(@ApiParam(value = "New Menu Item", required = true)
-                             @PathParam("from") MenuItem menuItem) {
-
-    }*/
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -63,7 +54,7 @@ public class MenuResource {
             response = Menu[].class)
     @ApiResponses(value = {@ApiResponse(code = 404, message = "Invalid Application") })
     public Collection<Menu> getMenus(@Context HttpServletResponse response,
-                                     @ApiParam(value = "Application for which you want to generate the menu", allowableValues = "core,core_web", required = true)
+                                     @ApiParam(value = "Application for which you want to generate the menu", allowableValues = "core,routing", required = true)
                                      @PathParam("from") String from,
                                      @Context HttpServletRequest httpServletRequest)
             throws SystemException, PortalException, DotDataException, ClassNotFoundException {
