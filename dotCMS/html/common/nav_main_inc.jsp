@@ -5,6 +5,7 @@
 <%@page import="com.dotmarketing.business.APILocator"%>
 
 <%@page import="java.util.List"%><%@page import="com.dotmarketing.util.UtilMethods"%>
+<%@ page import="com.dotcms.spring.portlet.PortletController" %>
 <script>
 var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refreshing to retrieve the proper tabId based on the portletId
 
@@ -34,6 +35,8 @@ var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refre
                 Object object = Class.forName(portlet.getPortletClass()).newInstance();
                 if(object instanceof BaseRestPortlet){
                     tabHREF =  "javascript:dotAjaxNav.show('/api/portlet/"+ portletIDs.get(0) + "/', '" + l + "');";
+            	} else if(object instanceof PortletController ){
+                    tabHREF =  "/spring/portlet/" + portletIDs.get(0);
             	}
 
                 %>
@@ -67,14 +70,17 @@ var portletTabMap = {}; // this holds a Map of portletId, tabId, used when refre
                                                         }
                                                         try{
                                                         	Object obj = Class.forName(p.getPortletClass()).newInstance();
-	                                                        if(obj instanceof BaseRestPortlet){
-	                                                                linkHREF =  "javascript:dotAjaxNav.show('/api/portlet/"+ portletIDs.get(i) + "/', '" + l + "');";
-	                                                        }
+
+                                                                if(obj instanceof BaseRestPortlet){
+                                                                    linkHREF =  "javascript:dotAjaxNav.show('/api/portlet/"+ portletIDs.get(i) + "/', '" + l + "');";
+	                                                        } else if(obj instanceof PortletController ){
+                                                                    linkHREF =  "/spring/portlet/" + portletIDs.get(i);
+                                                            }
                                                         }
                                                         catch(Exception e){
+                                                                System.out.println("###e = " + e);
                                                         	//Logger.error(this.getClass(),"error in portlet nav:" + e.getMessage());
                                                         }
-
                                                         %>
 
 
