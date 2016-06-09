@@ -47,8 +47,8 @@ public class MenuResource {
     public Collection<Menu> getMenus(@Context HttpServletResponse response, @PathParam("from") String from, @Context HttpServletRequest httpServletRequest)
             throws SystemException, PortalException, DotDataException, ClassNotFoundException {
 
-        checkToken(httpServletRequest);
-        //response.setHeader("Access-Control-Allow-Origin", "*");
+        //checkToken(httpServletRequest);
+        response.setHeader("Access-Control-Allow-Origin", "*");
         App appFrom = App.valueOf(from.toUpperCase());
         Collection<Menu> menus = new ArrayList<Menu>();
 
@@ -93,8 +93,9 @@ public class MenuResource {
             String linkHREF = getUrl(menuContext);
             String linkName = LanguageUtil.get(menuContext.getUser(), "com.dotcms.repackage.javax.portlet.title." + portletId);
             boolean isAngular = isAngular( portletId );
+            boolean isAjax = isAjax( portletId );
 
-            menuItems.add ( new MenuItem(portletId, linkHREF, linkName, isAngular) );
+            menuItems.add ( new MenuItem(portletId, linkHREF, linkName, isAngular, isAjax) );
         }
         return menuItems;
     }
@@ -104,6 +105,13 @@ public class MenuResource {
         String portletClass = portlet.getPortletClass();
         Class classs = Class.forName( portletClass );
         return PortletController.class.isAssignableFrom( classs );
+    }
+
+    private boolean isAjax(String portletId) throws ClassNotFoundException {
+        Portlet portlet = APILocator.getPortletAPI().findPortlet(portletId);
+        String portletClass = portlet.getPortletClass();
+        Class classs = Class.forName( portletClass );
+        return BaseRestPortlet.class.isAssignableFrom( classs );
     }
 
     private String getUrl(MenuContext menuContext) throws ClassNotFoundException {
@@ -120,12 +128,11 @@ public class MenuResource {
                     menuContext.getPortletId(), menuContext.getLayout().getId(), false);
             return portletURLImpl.toString() + "&dm_rlout=1&r=" + System.currentTimeMillis();
         }else if(BaseRestPortlet.class.isAssignableFrom( classs )) {
-            if (App.CORE.equals( appFrom )){
-                return "javascript:dotAjaxNav.show('/api/portlet/" + menuContext.getPortletId() + "/', '" + menuContext.getLayoutIndex() + "');";
-            }else {
-               return PortalUtil.getPortalURL(menuContext.getHttpServletRequest(), true) +
-                       "/api/portlet/" + menuContext.getPortletId() + "/', '" + menuContext.getLayoutIndex();
-            }
+            //if (App.CORE.equals( appFrom )){
+            //    return "javascript:dotAjaxNav.show('/api/portlet/" + menuContext.getPortletId() + "/', '" + menuContext.getLayoutIndex() + "');";
+            //}else {
+               return "/api/portlet/" + menuContext.getPortletId();
+            //}
         }else if(PortletController.class.isAssignableFrom( classs )){
             if (App.CORE.equals( appFrom )) {
                 return "/spring/portlet/" + menuContext.getPortletId();

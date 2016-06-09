@@ -137,6 +137,8 @@
     <portlet id="ANGULAR_PORTLET2" />
     <portlet id="ANGULAR_PORTLET3" />
     <portlet id="ANGULAR_PORTLET4" />
+	<portlet id="RuleEngineContainer" />
+
     <portlet id="PERSONAS_PORTLET" />
 	<custom-user-attribute name="user.name.random" custom-class="com.liferay.portlet.CustomUserAttributes" />
 </portlets>

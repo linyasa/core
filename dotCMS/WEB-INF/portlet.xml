@@ -3529,7 +3529,13 @@
 		<display-name>Rules Editor</display-name>
 		<portlet-class>com.dotcms.rest.RulesEnginePortlet</portlet-class>
 	</portlet>
-	
+
+	<portlet>
+		<portlet-name>RuleEngineContainer</portlet-name>
+		<display-name>Rules Editor</display-name>
+		<portlet-class>com.dotcms.spring.portlet.PortletController</portlet-class>
+	</portlet>
+
 	<portlet>
 		<portlet-name>PERSONAS_PORTLET</portlet-name>
 		<display-name>Personas</display-name>

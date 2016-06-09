@@ -27,7 +27,7 @@ public class PortletController implements Portlet {
         String accessToken = CookieUtil.get(request.getCookies(), CookieKeys.JWT_ACCESS_TOKEN);
         JWTUtil.parseToken(accessToken);
 
-        return "redirect:/html/ng?id=" + portletId;
+        return "redirect:/html/ng/?id=" + portletId;
     }
 
     @Override
