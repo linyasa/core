@@ -1,0 +1,93 @@
+apply plugin: 'application'
+apply plugin: 'osgi'
+apply plugin: 'war'
+apply plugin: 'eclipse'
+
+sourceCompatibility = '1.8'
+version = '0.1'
+
+
+repositories {
+	maven {
+        url "http://repo.dotcms.com/artifactory/libs-release"        
+    }
+}
+
+dependencies {
+	compile fileTree(dir: 'src/main/resources/libs', include: '*.jar')
+	compile (group: 'com.dotcms', name: 'dotcms', version: '3.5'){
+		transitive = true
+	}
+	providedCompile "javax.servlet:servlet-api:2.5"
+}
+
+public class TsCompileTask extends DefaultTask {
+ 
+    @InputFiles
+    File source;
+    
+    @TaskAction
+    void getNpmDependencies() {        
+        project.exec {   
+            workingDir source.toString()                
+            println "Running npm install..."
+            executable = "npm"
+            args "install" 
+            args source.toString()
+        }
+    }
+    
+    @TaskAction
+    void compile() {   
+        
+        getNpmDependencies()
+           
+        project.exec {  
+            workingDir source.toString() 
+            println "compiling TypeScript files..."
+            executable = "tsc"
+        }
+    }
+}
+ 
+task tsCompile(type:TsCompileTask) {
+    source = file("src/main/ts")
+}
+
+jar {
+    /* Compile typescript */
+    tasks.tsCompile.execute()
+    
+    /* copy js and css to portlet folder */
+    copy {
+        from 'src/main/ts/js'
+        into ('src/main/resources/ng/js')        
+
+        exclude '**/main.js.map'
+        exclude '**/main.js'
+    }       
+    copy {
+        from 'src/main/ts/css'
+        into ('src/main/resources/ng/css') 
+        
+    }
+    copy {
+            from 'src/main/ts/app'
+            into ('src/main/resources/ng/js')
+    }
+
+     manifest {
+        name = 'Angular Portlet'
+        instruction 'Bundle-Vendor', 'dotcms'
+        instruction 'Bundle-Description', 'Angular Portlet'
+        instruction 'Bundle-DocURL', 'http://www.dotcms.com'
+        instruction 'Bundle-Activator', 'com.dotcms.plugin.angular.rest.Activator'        
+        instruction 'DynamicImport-Package', '*'
+        instruction 'Import-Package', '*;version=0'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.9'
+}
+

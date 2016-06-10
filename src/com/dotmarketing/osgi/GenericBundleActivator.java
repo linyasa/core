@@ -67,6 +67,9 @@ public abstract class GenericBundleActivator implements BundleActivator {
 
     private static final String INIT_PARAM_VIEW_JSP = "view-jsp";
     private static final String INIT_PARAM_VIEW_TEMPLATE = "view-template";
+    
+    private static final String INIT_PARAM_COMPONENT_NAME = "component-name";
+    private static final String INIT_PARAM_COMPONENT_PATH = "component-path";
 
     private BundleContext context;
 
@@ -442,6 +445,21 @@ public abstract class GenericBundleActivator implements BundleActivator {
                 //Copy all the resources inside the folder of the given resource to the corresponding velocity dotCMS folders
                 moveVelocityResources( context, templatePath );
                 portlet.getInitParams().put( INIT_PARAM_VIEW_TEMPLATE, getBundleFolder( context, File.separator ) + templatePath );
+            } else if ( portlet.getPortletClass().equals( "com.dotcms.spring.portlet.PortletController" ) ) {
+            	 Map initParams = portlet.getInitParams();
+            	 String componentName = (String) initParams.get(INIT_PARAM_COMPONENT_NAME);
+                 String componentPath = (String) initParams.get( INIT_PARAM_COMPONENT_PATH );
+                 
+                 if ( !componentPath.startsWith( PATH_SEPARATOR ) ) {
+                	 componentPath = PATH_SEPARATOR + componentPath;
+                 }
+
+                 //Copy all the resources inside the folder of the given resource to the corresponding dotCMS folders
+                 //moveResources( context, componentPath );
+                 moveAngularResources(context, componentPath );
+                 //portlet.getInitParams().put( INIT_PARAM_COMPONENT_NAME, INIT_PARAM_COMPONENT_NAME );
+                 portlet.getInitParams().put( INIT_PARAM_COMPONENT_PATH, getBundleFolder( context, File.separator ) + componentPath );
+
             }
 
             Logger.info( this, "Added Portlet: " + portlet.getPortletId() );

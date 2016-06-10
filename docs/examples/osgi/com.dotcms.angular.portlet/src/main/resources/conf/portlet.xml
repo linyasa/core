@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<portlet-app>
+    <portlet>
+		<portlet-name>ANGULAR_OSGI_PORTLET</portlet-name>
+		<display-name>Angular OSGI Portlet</display-name>
+		<init-param>
+            <name>component-name</name>
+            <value>HelloComponent</value>
+        </init-param>
+        <init-param>
+            <name>component-path</name>
+            <value>/ng/</value>
+        </init-param>
+		<portlet-class>com.dotcms.spring.portlet.PortletController</portlet-class>
+	</portlet>
+</portlet-app>

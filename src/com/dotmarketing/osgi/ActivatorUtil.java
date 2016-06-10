@@ -25,6 +25,7 @@ class ActivatorUtil {
 
 	static final String PATH_SEPARATOR = "/";
     static final String OSGI_FOLDER = "/osgi";
+    static final String ANGULAR_OSGI_FOLDER="/ng/js/osgi";
     static final String VELOCITY_FOLDER = "/WEB-INF/velocity";
 
     /**
@@ -59,6 +60,17 @@ class ActivatorUtil {
 
         //return OSGI_FOLDER + File.separator + context.getBundle().getBundleId();
         return OSGI_FOLDER + separator + jarFileName;
+    }
+    
+    static String getBundleAngularFolder ( BundleContext context, String separator ) {
+
+        //We will use the bundle jar name as the folder name for the osgi resources we move inside dotCMS
+        String bundleLocation = context.getBundle().getLocation();
+        String jarFileName = FilenameUtils.getName( bundleLocation );
+        jarFileName = jarFileName.replace( ".jar", "" );
+
+        //return OSGI_FOLDER + File.separator + context.getBundle().getBundleId();
+        return ANGULAR_OSGI_FOLDER + separator + jarFileName;
     }
 
     static ModuleConfig getModuleConfig () {
@@ -103,6 +115,13 @@ class ActivatorUtil {
         if ( resources.exists() ) {
             FileUtil.deltree( resources );
         }
+        
+        //Cleaning angular folder
+        resourcesPath = servletContext.getRealPath( Constants.TEXT_HTML_DIR + getBundleAngularFolder( context, "/" ) );
+        resources = new File( resourcesPath );
+        if ( resources.exists() ) {
+            FileUtil.deltree( resources );
+        }
     }
 
     /**
@@ -116,6 +135,21 @@ class ActivatorUtil {
 
         ServletContext servletContext = Config.CONTEXT;
         String destinationPath = servletContext.getRealPath( VELOCITY_FOLDER + getBundleFolder( context, "/" ) );
+
+        moveResources( context, referenceResourcePath, destinationPath );
+    }
+    
+    /**
+     * Util method to copy all the resources inside the folder of the given resource to the corresponding dotCMS folders
+     *
+     * @param context
+     * @param referenceResourcePath reference resource to get its container folder and move the resources inside that folder
+     * @throws Exception
+     */
+    static void moveAngularResources ( BundleContext context, String referenceResourcePath ) throws Exception {
+
+        ServletContext servletContext = Config.CONTEXT;
+        String destinationPath = servletContext.getRealPath( Constants.TEXT_HTML_DIR + getBundleAngularFolder( context, "/" ) );
 
         moveResources( context, referenceResourcePath, destinationPath );
     }
