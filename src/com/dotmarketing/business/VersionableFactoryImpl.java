@@ -5,17 +5,25 @@ import java.util.Date;
 import java.util.List;
 
 import com.dotcms.repackage.org.apache.commons.beanutils.BeanUtils;
-
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.beans.Inode;
 import com.dotmarketing.beans.VersionInfo;
 import com.dotmarketing.db.DbConnectionFactory;
 import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.exception.DotSecurityException;
+import com.dotmarketing.portlets.containers.model.Container;
+import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.contentlet.model.ContentletVersionInfo;
+import com.dotmarketing.portlets.files.model.File;
+import com.dotmarketing.portlets.htmlpages.business.HTMLPageFactory;
+import com.dotmarketing.portlets.htmlpages.model.HTMLPage;
+import com.dotmarketing.portlets.links.model.Link;
+import com.dotmarketing.portlets.templates.model.Template;
 import com.dotmarketing.util.InodeUtils;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
+import com.liferay.portal.model.User;
 
 /**
  *
@@ -72,22 +80,44 @@ public class VersionableFactoryImpl extends VersionableFactory {
             throw new DotDataException("Contentlets could have live versions for each language");
 
 		VersionInfo vinfo = getVersionInfo(identifier.getId());
-
+		Versionable ver = null;
 		Class clazz = InodeUtils.getClassByDBType(identifier.getAssetType());
 		if(UtilMethods.isSet(vinfo)) {
+			User user = APILocator.getUserAPI().getSystemUser();
 			if(UtilMethods.isSet(vinfo.getLiveInode())){
-	    		HibernateUtil dh = new HibernateUtil(clazz);
-	    		dh.setQuery("from inode in class " + clazz.getName() + " where inode.inode=?");
-	    		dh.setParam(vinfo.getLiveInode());
-	    		Logger.debug(this.getClass(), "findLiveVersion query: " + dh.getQuery());
-	    		return (Versionable) dh.load();
-			}else{
-				return null;
+				try {
+					if(HTMLPage.class.equals(clazz)){
+						ver= APILocator.getHTMLPageAPI().loadLivePageById(id, user, true);
+					}
+					else if(Container.class.equals(clazz)){
+						ver= APILocator.getContainerAPI().getLiveContainerById(id, user, true);
+					}
+					else if(Template.class.equals(clazz)){
+						ver= APILocator.getTemplateAPI().find(vinfo.getLiveInode(), user, true);
+					}
+					else if(File.class.equals(clazz)){
+						ver= APILocator.getFileAPI().find(vinfo.getLiveInode(), user, true);
+					}
+					else if(Contentlet.class.equals(clazz)){
+						ver= APILocator.getContentletAPI().find(vinfo.getLiveInode(), user, true);
+					}
+					
+					// ignore Links, WorkflowMessages and Inode
+
+				} catch (DotSecurityException e) {
+					Logger.warn(this.getClass(), "Security error should not happen", e);
+				}
+
+				if(ver==null){
+		    		HibernateUtil dh = new HibernateUtil(clazz);
+		    		dh.setQuery("from inode in class " + clazz.getName() + " where inode.inode=?");
+		    		dh.setParam(vinfo.getLiveInode());
+		    		Logger.debug(this.getClass(), "findLiveVersion query: " + dh.getQuery());
+		    		ver= (Versionable) dh.load();
+				}
 			}
-		}else {
-		    // hey! there is no live version for this versionable
-		    return null;
 		}
+		return ver;
 	}
 	@Override
 	protected Versionable findDeletedVersion(String id) throws DotDataException, DotStateException {
