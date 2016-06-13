@@ -1,7 +1,9 @@
 
 # README
 ----
-This is an example of how to create and load Jersey Based REST resources in dotCMS via OSGi 
+This is an example of how to create and load an angular 2 webcomponent portlet that uses a
+Jersey Based REST resource as an angular service in dotCMS via OSGi. You need to install 
+nodejs in your environment in other to execute the npm commands
 
 
 ## How to build this example
@@ -34,30 +36,5 @@ Undeploy the bundle using the dotCMS UI (CMS Admin->Dynamic Plugins->Undeploy).
 ## How to test
 ----
 
-Once installed, you can access this resource by (this assumes you are on localhost)
-
-`http://localhost:8080/api/example`
-
-or this, which requires an dotcms user to access(See authentication below)
-
-`http://localhost:8080/api/example/auth`
-
-
-You can try the put and post resources by
-
-`curl -XPUT http://localhost:8080/api/example`
-
-`curl -XPOST http://localhost:8080/api/example`
-
-
-
-
-## Authentication
-----
-This API supports the same REST auth infrastructure as other 
-rest apis in dotcms. There are 4 ways to authenticate.
-
-* user/xxx/password/yyy in the URI
-* basic http/https authentication (base64 encoded)
-* DOTAUTH header similar to basic auth and base64 encoded, e.g. setHeader("DOTAUTH", base64.encode("admin@dotcms.com:admin"))
-* Session based (form based login) for frontend or backend logged in user
+Once installed, you can access this resource by adding the angular portlet into a cms tab
+and role. Once added, you can click on the portlet link

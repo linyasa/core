@@ -1,8 +1,9 @@
 
 # README
 ----
-This is an example of how to create and load Jersey Based REST resources in dotCMS via OSGi 
-in an angular 2 webcomponent portlet
+This is an example of how to create and load an angular 2 webcomponent portlet that uses a
+Jersey Based REST resource as an angular service in dotCMS via OSGi. You need to install 
+nodejs in your environment in other to execute the npm commands
 
 
 ## How to build this example
@@ -36,4 +37,4 @@ Undeploy the bundle using the dotCMS UI (CMS Admin->Dynamic Plugins->Undeploy).
 ----
 
 Once installed, you can access this resource by adding the angular portlet into a cms tab
-and role. once added you can click on the link
+and role. Once added, you can click on the portlet link
