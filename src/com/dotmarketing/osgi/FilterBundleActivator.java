@@ -4,6 +4,7 @@ import com.dotcms.repackage.org.apache.felix.http.api.ExtHttpService;
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import com.dotcms.repackage.org.osgi.framework.ServiceReference;
 import com.dotmarketing.filters.CMSFilter;
+import com.dotmarketing.util.CollectionsUtils;
 
 import java.util.List;
 
@@ -11,18 +12,35 @@ import java.util.List;
  * Bundle for Filter activation.
  * @author jsanca
  */
-public abstract class FilterBundleActivator extends BaseBundleActivator  {
+public class FilterBundleActivator extends BaseBundleActivator  {
 
-    private List<FilterBean>  filters;
+    private final List<FilterBean>  filters;
 
     private ExtHttpService extHttpService;
 
     public FilterBundleActivator() {
         super();
+        this.filters =
+                CollectionsUtils.getNewList();
+    }
+
+    public FilterBundleActivator(final List<FilterBean>  filters) {
+        super();
+        this.filters =
+                filters;
+
     }
 
     protected FilterBundleActivator(final GenericBundleActivator bundleActivator) {
         super(bundleActivator);
+        this.filters =
+                CollectionsUtils.getNewList();
+    }
+
+    protected FilterBundleActivator(final GenericBundleActivator bundleActivator, final List<FilterBean>  filters) {
+        super(bundleActivator);
+        this.filters =
+                filters;
     }
 
 
@@ -38,11 +56,11 @@ public abstract class FilterBundleActivator extends BaseBundleActivator  {
 
 
     @Override
-    public void start(BundleContext bundleContext) throws Exception {
+    public void start(final BundleContext bundleContext) throws Exception {
 
         super.start(bundleContext);
 
-        this.filters =
+        final List<FilterBean> filters =
                 this.getFilters(bundleContext);
 
         if (null != this.filters) {
@@ -65,11 +83,14 @@ public abstract class FilterBundleActivator extends BaseBundleActivator  {
     }
 
     @Override
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop(final BundleContext bundleContext) throws Exception {
 
-        if (null != this.filters) {
+        final List<FilterBean> filters =
+                this.getFilters(bundleContext);
 
-            for (FilterBean filterBean : this.filters) {
+        if (null != filters) {
+
+            for (FilterBean filterBean : filters) {
 
                 // todo: ask Jonathan which one to used
                 CMSFilter.removeExclude
@@ -85,7 +106,10 @@ public abstract class FilterBundleActivator extends BaseBundleActivator  {
      * @param bundleContext BundleContext
      * @return List
      */
-    protected abstract List<FilterBean> getFilters (final BundleContext bundleContext);
+    protected  List<FilterBean> getFilters (final BundleContext bundleContext) {
+
+        return this.filters;
+    }
 
 
 } // E:O:F:PublishBundleActivator.

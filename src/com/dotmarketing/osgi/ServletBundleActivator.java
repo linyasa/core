@@ -3,6 +3,7 @@ package com.dotmarketing.osgi;
 import com.dotcms.repackage.org.apache.felix.http.api.ExtHttpService;
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import com.dotcms.repackage.org.osgi.framework.ServiceReference;
+import com.dotmarketing.util.CollectionsUtils;
 
 import java.util.List;
 
@@ -10,17 +11,33 @@ import java.util.List;
  * Bundle for Servet activation.
  * @author jsanca
  */
-public abstract class ServletBundleActivator extends BaseBundleActivator  {
+public class ServletBundleActivator extends BaseBundleActivator  {
 
     private ExtHttpService extHttpService;
-    protected List<ServletBean>  servlets;
+    private final List<ServletBean>  servlets;
 
     public ServletBundleActivator() {
         super();
+        this.servlets =
+                CollectionsUtils.getNewList();
+    }
+
+    public ServletBundleActivator(final List<ServletBean>  servlets) {
+        super();
+        this.servlets =
+                servlets;
     }
 
     protected ServletBundleActivator(final GenericBundleActivator bundleActivator) {
         super(bundleActivator);
+        this.servlets =
+                CollectionsUtils.getNewList();
+    }
+
+    protected ServletBundleActivator(final GenericBundleActivator bundleActivator, final List<ServletBean>  servlets) {
+        super(bundleActivator);
+        this.servlets =
+                servlets;
     }
 
 
@@ -40,7 +57,7 @@ public abstract class ServletBundleActivator extends BaseBundleActivator  {
 
         super.start(bundleContext);
 
-        this.servlets =
+        final List<ServletBean> servlets =
                 this.getServlets(bundleContext);
 
         if (null != servlets) {
@@ -48,7 +65,7 @@ public abstract class ServletBundleActivator extends BaseBundleActivator  {
             this.extHttpService =
                     this.getExtHttpService(bundleContext);
 
-            for (ServletBean servletBean : this.servlets) {
+            for (ServletBean servletBean : servlets) {
 
                 this.extHttpService.registerServlet
                         (servletBean.getAlias(),
@@ -62,10 +79,13 @@ public abstract class ServletBundleActivator extends BaseBundleActivator  {
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
 
-        if ( null != this.extHttpService
-                && null !=  this.servlets) {
+        final List<ServletBean> servlets =
+                this.getServlets(bundleContext);
 
-            for (ServletBean servletBean : this.servlets) {
+        if (null != this.extHttpService
+                && null !=  servlets) {
+
+            for (ServletBean servletBean : servlets) {
 
                 this.extHttpService.unregisterServlet(servletBean.getServlet());
             }
@@ -79,6 +99,9 @@ public abstract class ServletBundleActivator extends BaseBundleActivator  {
      * @param bundleContext {@link BundleContext}
      * @return List
      */
-    protected abstract List<ServletBean> getServlets (final BundleContext bundleContext);
+    protected List<ServletBean> getServlets (final BundleContext bundleContext) {
+
+        return this.servlets;
+    }
 
 } // E:O:F:PublishBundleActivator.

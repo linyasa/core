@@ -13,6 +13,31 @@ public class ReflectionUtils implements Serializable {
 
     /**
      * create a new instance avoiding any exception, null in case it can not be create.
+     * @param className {@link String}
+     * @return Object
+     */
+    public static final Object newInstance (final String className) { // todo: unit test me
+
+        Object o = null;
+
+        try {
+
+            if (null != className) {
+                o =
+                        newInstance(Class.forName(className));
+            }
+        } catch (ClassNotFoundException e) {
+
+            if (Logger.isErrorEnabled(ReflectionUtils.class)) {
+
+                Logger.error(ReflectionUtils.class, e.getMessage(), e);
+            }
+        }
+
+        return o;
+    }
+    /**
+     * create a new instance avoiding any exception, null in case it can not be create.
      * @param clazz {@link Class}
      * @param <T>
      * @return T
@@ -70,7 +95,8 @@ public class ReflectionUtils implements Serializable {
         return t;
     } // newInstance.
 
-    public static final Class<?> [] getTypes (final Object [] array) {
+
+    public static final Class<?> [] getTypes (final Object... array) {
 
         Class<?> [] parameterTypes = null; // todo: unit test me
 

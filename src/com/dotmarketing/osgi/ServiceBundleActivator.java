@@ -3,6 +3,7 @@ package com.dotmarketing.osgi;
 import com.dotcms.repackage.org.apache.struts.action.ActionMapping;
 import com.dotcms.repackage.org.osgi.framework.BundleActivator;
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
+import com.dotmarketing.util.CollectionsUtils;
 import com.liferay.portal.model.Portlet;
 
 import java.io.Serializable;
@@ -15,12 +16,31 @@ import java.util.List;
  */
 public class ServiceBundleActivator extends BaseBundleActivator {
 
+    private final List<ServiceBean<?>> services;
+
     public ServiceBundleActivator() {
         super();
+        this.services =
+                CollectionsUtils.getNewList();
+    }
+
+    public ServiceBundleActivator(final List<ServiceBean<?>> services) {
+        super();
+        this.services =
+                services;
     }
 
     protected ServiceBundleActivator(final GenericBundleActivator bundleActivator) {
         super(bundleActivator);
+        this.services =
+                CollectionsUtils.getNewList();
+    }
+
+    protected ServiceBundleActivator(final GenericBundleActivator bundleActivator,
+                                     final List<ServiceBean<?>> services) {
+        super(bundleActivator);
+        this.services =
+                services;
     }
 
     @Override
@@ -52,7 +72,7 @@ public class ServiceBundleActivator extends BaseBundleActivator {
      */
     protected List<ServiceBean<?>> getServices (final BundleContext bundleContext) {
 
-        return null; // return here the list of services
+        return this.services;
     }
 
-} // E:O:F:ActionBundleActivator.
+} // E:O:F:PortletActionBundleActivator.
