@@ -2,6 +2,7 @@ package com.dotmarketing.osgi;
 
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import com.dotcms.repackage.org.tuckey.web.filters.urlrewrite.Rule;
+import com.dotmarketing.util.CollectionsUtils;
 import com.dotmarketing.util.ConversionUtils;
 import com.dotmarketing.util.Converter;
 
@@ -12,9 +13,9 @@ import java.util.List;
  * Bundle for Tuckey activation.
  * @author jsanca
  */
-public abstract class TuckeyBundleActivator extends ServletBundleActivator {
+public class TuckeyBundleActivator extends ServletBundleActivator {
 
-    protected List<TuckeyBean>  tuckeys;
+    protected final List<TuckeyBean> tuckeys;
 
     private ConversionUtils conversionUtils = ConversionUtils.INSTANCE;
 
@@ -28,11 +29,27 @@ public abstract class TuckeyBundleActivator extends ServletBundleActivator {
 
     public TuckeyBundleActivator() {
         super();
+        this.tuckeys =
+                CollectionsUtils.getNewList();
     }
 
+    public TuckeyBundleActivator(final List<TuckeyBean> tuckeys) {
+        super();
+        this.tuckeys =
+                tuckeys;
+    }
 
     protected TuckeyBundleActivator(final GenericBundleActivator bundleActivator) {
         super(bundleActivator);
+        this.tuckeys =
+                CollectionsUtils.getNewList();
+    }
+
+    protected TuckeyBundleActivator(final GenericBundleActivator bundleActivator,
+                                    final List<TuckeyBean> tuckeys) {
+        super(bundleActivator);
+        this.tuckeys =
+                tuckeys;
     }
 
     @Override
@@ -40,22 +57,19 @@ public abstract class TuckeyBundleActivator extends ServletBundleActivator {
 
         super.start(bundleContext);
 
-        if (null == this.tuckeys) {
+        final List<TuckeyBean>  tuckeys =
+                this.getTuckeys(bundleContext);
 
-            this.tuckeys =
-                    this.getTuckeys(bundleContext);
-        }
+        if (null != tuckeys) {
 
-        if (null != this.tuckeys) {
+            for (TuckeyBean tuckeyBean : tuckeys) {
 
-            for (TuckeyBean tuckeyBean : this.tuckeys) {
-
-                addRules(tuckeyBean);
+                this.addRules(tuckeyBean);
             }
         }
     }
 
-    private void addRules(final TuckeyBean tuckeyBean) throws Exception {
+    protected void addRules(final TuckeyBean tuckeyBean) throws Exception {
 
         for (Rule rule : tuckeyBean.getRules()) {
 
@@ -75,16 +89,14 @@ public abstract class TuckeyBundleActivator extends ServletBundleActivator {
     @Override
     protected List<ServletBean> getServlets(BundleContext bundleContext) {
 
-        if (null == this.tuckeys) {
-
-            this.tuckeys =
-                    this.getTuckeys(bundleContext);
-        }
-
-        return this.conversionUtils.convert(this.tuckeys, this.converter);
+        return this.conversionUtils.convert(this.getTuckeys(bundleContext),
+                this.converter);
     }
 
-    protected abstract List<TuckeyBean> getTuckeys(final BundleContext bundleContext);
+    protected List<TuckeyBean> getTuckeys(final BundleContext bundleContext) {
+
+        return this.tuckeys;
+    }
 
 
-} // E:O:F:ActionBundleActivator.
+} // E:O:F:PortletActionBundleActivator.
