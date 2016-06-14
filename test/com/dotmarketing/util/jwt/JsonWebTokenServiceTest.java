@@ -11,14 +11,13 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.TimeZone;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
- * MarshalUtils
+ * JsonWebTokenService
  * Test
  * @author jsanca
  */
@@ -28,11 +27,20 @@ public class JsonWebTokenServiceTest {
 
 
     /**
-     * Testing the marshall
+     * Testing the generateToken JsonWebTokenServiceTest
      */
     @Test
-    public void marshalTest() throws ParseException, JSONException {
+    public void generateTokenTest() throws ParseException, JSONException {
 
+        final SimpleDateFormat dateFormat =
+                new SimpleDateFormat("dd/MM/yyyy");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT-8:00"));
+        dateFormat.setLenient(true);
+
+        final JsonWebTokenService jsonWebTokenService =
+                JsonWebTokenFactory.getInstance().getJsonWebTokenService();
+
+        assertNotNull(jsonWebTokenService);
 
         final MarshalFactory marshalFactory =
                 MarshalFactory.getInstance();
@@ -44,45 +52,28 @@ public class JsonWebTokenServiceTest {
 
         assertNotNull(marshalUtils);
 
-        final SimpleDateFormat dateFormat =
-                new SimpleDateFormat("dd/MM/yyyy");
-        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT-8:00"));
-        dateFormat.setLenient(true);
+        final Date date = dateFormat.parse("04/10/1981");
 
-        final DotCMSSubjectBean subjectBean =
-                new DotCMSSubjectBean(dateFormat.parse("04/10/1981"), "jsanca", "myCompany");
+        final String jsonWebTokenSubject = marshalUtils.marshal(
+                new DotCMSSubjectBean(date, "jsanca", "myCompany")
+        );
 
-        final String json = marshalUtils.marshal(subjectBean);
+        System.out.println(jsonWebTokenSubject);
 
-        assertNotNull(json);
-        System.out.println(json);
-
+        assertNotNull(jsonWebTokenSubject);
         assertTrue(
                 new JSONObject("{\"userId\":\"jsanca\",\"lastModified\":371030400000, \"companyId\":\"myCompany\"}").toString().equals
-                        (new JSONObject(json).toString())
-                );
+                        (new JSONObject(jsonWebTokenSubject).toString())
+        );
 
+        String jsonWebToken = jsonWebTokenService.generateToken(new JWTBean("jwt1",
+                jsonWebTokenSubject, "jsanca", date.getTime()
+                ));
 
-        final DotCMSSubjectBean dotCMSSubjectBean2 =
-                marshalUtils.unmarshal(json, DotCMSSubjectBean.class);
+        System.out.println(jsonWebToken);
 
-        assertNotNull(dotCMSSubjectBean2);
-        assertEquals(subjectBean, dotCMSSubjectBean2);
-
-        final DotCMSSubjectBean dotCMSSubjectBean3 =
-                marshalUtils.unmarshal(new StringReader(json), DotCMSSubjectBean.class);
-
-        assertNotNull(dotCMSSubjectBean3);
-        assertEquals(subjectBean, dotCMSSubjectBean3);
-
-        final DotCMSSubjectBean dotCMSSubjectBean4 =
-                marshalUtils.unmarshal(new ByteArrayInputStream(json.getBytes()), DotCMSSubjectBean.class);
-
-        assertNotNull(dotCMSSubjectBean4);
-        assertEquals(subjectBean, dotCMSSubjectBean4);
-
-
-
+        assertNotNull(jsonWebToken);
+        assertTrue(jsonWebToken.startsWith("eyJhbGciOiJIUzI1NiJ9"));
     }
 
 }
