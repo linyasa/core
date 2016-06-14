@@ -14,6 +14,9 @@ tomcat/work
 tomcat/logs
 tomcat/temp
 
+#custom
+plugins/*
+
 #Temporary Build Migration Ignores
 dotCMS/html/js/_rulesengine
 
