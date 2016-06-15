@@ -15,7 +15,7 @@ public class DotCMSSubjectBean implements Serializable {
 
     private final String companyId;
 
-    public DotCMSSubjectBean(Date lastModified, String userId, String companyId) {
+    public DotCMSSubjectBean(final Date lastModified, final String userId, final String companyId) {
         this.lastModified = lastModified;
         this.userId = userId;
         this.companyId = companyId;

@@ -73,6 +73,7 @@ public class JsonWebTokenFactory implements Serializable {
                         signingKeyFactoryClass =
                                 Config.getStringProperty(JSON_WEB_TOKEN_SIGNING_KEY_FACTORY, null);
 
+                        // todo: per chepio, us UtilMethods.isSet
                         if (null != signingKeyFactoryClass  && !"null".equals(signingKeyFactoryClass)) {
 
                             if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
