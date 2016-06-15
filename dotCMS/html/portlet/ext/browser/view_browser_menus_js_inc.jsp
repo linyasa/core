@@ -55,9 +55,20 @@
 	}
 
 	// POPUPS
-
+     <%if(UtilMethods.isSet(request.getParameter("in_frame"))){ %>
+          var inFrame='&in_frame=<%=request.getParameter("in_frame")%>&frame=<%=request.getParameter("frame")%>';
+          var frameName='<%=request.getParameter("frame")%>';
+     <%}else{%>
+          var inFrame ='';
+          var frameName='';
+     <%}%>
 
 	function showHostPopUp(host, cmsAdminUser, origReferer, e) {
+		if(inFrame != ''){
+			if(origReferer.indexOf('&in_frame') == -1){
+				origReferer=origReferer+inFrame
+			}
+		}
 		var referer = encodeURIComponent(origReferer);
 		if($('context_menu_popup_'+objId) == null) {
 
@@ -73,20 +84,20 @@
 			strHTML = '<div id="context_menu_popup_'+objId+'" class="contextPopupMenuBox">';
 
 			if (write) {
-				strHTML += '<a class="contextPopupMenu" href="javascript: editHost(\'' + objInode + '\',\''+referer+'\')">';
+				strHTML += '<a class="contextPopupMenu" href="javascript: editHost(\'' + objInode + '\',\''+referer+'\')" target=\''+frameName+'\'>';
 		    		strHTML += '<span class="hostIcon"></span>';
     				strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Edit-Host")) %>';
 				strHTML += '</a>';
 
                 if (enterprise) {
                     if (sendingEndpoints) {
-                        strHTML += '<a class="contextPopupMenu" href="javascript: remotePublish(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');">';
+                        strHTML += '<a class="contextPopupMenu" href="javascript: remotePublish(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
                             strHTML += '<span class="sServerIcon"></span>';
                             strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Remote-Publish")) %>';
                         strHTML += '</a>';
                     }
 
-					strHTML += '<a class="contextPopupMenu" href="javascript: addToBundle(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');">';
+					strHTML += '<a class="contextPopupMenu" href="javascript: addToBundle(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
 						strHTML += '<span class="bundleIcon"></span>';
 						strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Add-To-Bundle")) %>';
 					strHTML += '</a>';
@@ -102,20 +113,20 @@
 				var isAdminUser = <%= APILocator.getUserAPI().isCMSAdmin(user)%>;
 
 				if(isAdminUser || userRoles.folderModifiable) {
-					strHTML += '<a class="contextPopupMenu" href="javascript: addTopFolder(\'' + objId + '\',\''+referer+'\')">';
+					strHTML += '<a class="contextPopupMenu" href="javascript: addTopFolder(\'' + objId + '\',\''+referer+'\')" target=\''+frameName+'\'>';
 				  	  	strHTML += '<span class="folderAddIcon"></span>';
 		    			strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Add-Folder")) %>';
 					strHTML += '</a>';
 				}
 
 				if(containerperm && (isAdminUser || userRoles.containerModifiable)){
-					strHTML += '<a class="contextPopupMenu" href="javascript: addContainer(\''+referer+'\')">';
+					strHTML += '<a class="contextPopupMenu" href="javascript: addContainer(\''+referer+'\')" target=\''+frameName+'\'>';
 				    	strHTML += '<span class="container"></span>';
 		    			strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Add-Container")) %>';
 					strHTML += '</a>';
 				}
 				if(templateperm && (isAdminUser || userRoles.templateModifiable)){
-					strHTML += '<a class="contextPopupMenu" href="javascript: addTemplate(\''+referer+'\')">';
+					strHTML += '<a class="contextPopupMenu" href="javascript: addTemplate(\''+referer+'\')" target=\''+frameName+'\'>';
 			    		strHTML += '<span class="templateIcon"></span>';
 	    				strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Add-Template")) %>';
 					strHTML += '</a>'
@@ -126,7 +137,7 @@
 				if(isAdminUser || userRoles.fileModifiable) {
 					
 					
-					strHTML += '<a class="contextPopupMenu" href="javascript: addHTMLPage(\'' + objId + '\',\'' + referer + '\')">';
+					strHTML += '<a class="contextPopupMenu" href="javascript: addHTMLPage(\'' + objId + '\',\'' + referer + '\')" target=\''+frameName+'\'>';
 					strHTML += '<span class="newPageIcon"></span>&nbsp;';
 					strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "HTML-Page")) %>';
 					strHTML += '</a>';
@@ -135,12 +146,12 @@
 					
 					
 					
-					strHTML += '<a class="contextPopupMenu" href="javascript:addFile(\'' + objId + '\',\'' + referer + '\',false);hidePopUp(\'context_menu_popup_'+objId+'\');">';
+					strHTML += '<a class="contextPopupMenu" href="javascript:addFile(\'' + objId + '\',\'' + referer + '\',false);hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
 					    strHTML += '<span class="fileNewIcon"></span>';
 					    strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Image-or-File")) %>';
 				    strHTML += '</a>';
 
-				    strHTML += '<a class="contextPopupMenu" href="javascript:addFile(\'' + objId + '\',\'' + referer + '\',true);hidePopUp(\'context_menu_popup_'+objId+'\');">';
+				    strHTML += '<a class="contextPopupMenu" href="javascript:addFile(\'' + objId + '\',\'' + referer + '\',true);hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
                     strHTML += '<span class="fileNewIcon"></span>';
                     strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Multiple-Files")) %>';
                     strHTML += '</a>';
@@ -150,14 +161,14 @@
             if (write) {
                 strHTML += '<div class="pop_divider" ></div>';
 
-                strHTML += '<a id="' + objId + '-PasteREF" href="javascript: pasteToFolder(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu">';
+                strHTML += '<a id="' + objId + '-PasteREF" href="javascript: pasteToFolder(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu" target=\''+frameName+'\'>';
                 strHTML += '<span class="pasteIcon"></span>';
                 strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Paste")) %>';
                 strHTML += '</a>';
             }
 
 			strHTML += '<div class="pop_divider" ></div>';
-			strHTML += '<a class="contextPopupMenu" href="javascript: hidePopUp(\'context_menu_popup_'+objId+'\');">';
+			strHTML += '<a class="contextPopupMenu" href="javascript: hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
 			strHTML += '<span class="closeIcon"></span>';
 			strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Close")) %>';
 			strHTML += '</a>';
@@ -195,6 +206,11 @@
 	function showFolderPopUp(folder, cmsAdminUser, origReferer, e) {
 		if(actionLoading) return;
 		
+		if(inFrame != ''){
+			if(origReferer.indexOf('&in_frame') == -1){
+				origReferer=origReferer+inFrame
+			}
+		}
 		var referer = encodeURIComponent(origReferer);
 
 		var objId = folder.inode;
@@ -220,41 +236,41 @@
 	    		strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Edit-Folder")) %>';
 			strHTML += '</a>';
 
-			strHTML += '<a class="contextPopupMenu" href="javascript:deleteFolder(\'' + objId + '\' , \'' + referer + '\');">';
+			strHTML += '<a class="contextPopupMenu" href="javascript:deleteFolder(\'' + objId + '\' , \'' + referer + '\');" target=\''+frameName+'\'>';
 		    	strHTML += '<span class="folderDeleteIcon"></span>';
         		strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Delete")) %>';
 			strHTML += '</a>';
 
-			strHTML += '<a class="contextPopupMenu" href="javascript: publishFolder(\'' + objId + '\', \'' + referer + '\');">';
+			strHTML += '<a class="contextPopupMenu" href="javascript: publishFolder(\'' + objId + '\', \'' + referer + '\');" target=\''+frameName+'\'>';
 		    	strHTML += '<span class="folderGlobeIcon"></span>';
         		strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Publishall")) %>';
 			strHTML += '</a>';
 
             if (enterprise) {
                 if (sendingEndpoints) {
-                    strHTML += '<a class="contextPopupMenu" href="javascript: remotePublish(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');">';
+                    strHTML += '<a class="contextPopupMenu" href="javascript: remotePublish(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
                         strHTML += '<span class="sServerIcon"></span>';
                         strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Remote-Publish")) %>';
                     strHTML += '</a>';
                 }
 
-				strHTML += '<a class="contextPopupMenu" href="javascript: addToBundle(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');">';
+				strHTML += '<a class="contextPopupMenu" href="javascript: addToBundle(\'' + objId + '\', \'' + referer + '\'); hidePopUp(\'context_menu_popup_'+objId+'\');" target=\''+frameName+'\'>';
 					strHTML += '<span class="bundleIcon"></span>';
 					strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Add-To-Bundle")) %>';
 				strHTML += '</a>';
 			}
 
-			strHTML += '<a href="javascript: markForCopy(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu">';
+			strHTML += '<a href="javascript: markForCopy(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu" target=\''+frameName+'\'>';
 		    	strHTML += '<span class="folderCopyIcon"></span>';
 		        strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Copy")) %>';
 			strHTML += '</a>';
 
-			strHTML += '<a href="javascript: markForCut(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu">';
+			strHTML += '<a href="javascript: markForCut(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu" target=\''+frameName+'\'>';
 			    strHTML += '<span class="cutIcon"></span>';
 			    strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Cut")) %>';
 			strHTML += '</a>';
 
-			strHTML += '<a id="' + objId + '-PasteREF" href="javascript: pasteToFolder(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu">';
+			strHTML += '<a id="' + objId + '-PasteREF" href="javascript: pasteToFolder(\'' + objId + '\',\'' + referer +'\'); hidePopUp(\'context_menu_popup_'+objId+'\');" class="contextPopupMenu" target=\''+frameName+'\'>';
 			    strHTML += '<span class="pasteIcon"></span>';
 			    strHTML += '<%= UtilMethods.escapeSingleQuotes(LanguageUtil.get(pageContext, "Paste")) %>';
 			strHTML += '</a>';
@@ -383,6 +399,12 @@
 
 		var objId = file.inode;
 		var ident = file.identifier;
+		
+		if(inFrame != ''){
+			if(origReferer.indexOf('&in_frame') == -1){
+				origReferer=origReferer+inFrame
+			}
+		}
 		var referer = encodeURIComponent(origReferer);
 
 		if($('context_menu_popup_'+objId) == null) {
@@ -545,6 +567,12 @@
 	function showLinkPopUp(link, cmsAdminUser, origReferer, e) {
 
 		var objId = link.inode;
+		
+		if(inFrame != ''){
+			if(origReferer.indexOf('&in_frame') == -1){
+				origReferer=origReferer+inFrame
+			}
+		}
 		var referer = encodeURIComponent(origReferer);
 
 		if($('context_menu_popup_'+objId) == null) {
@@ -680,6 +708,12 @@
 
 		var objId = page.inode;
 		var objIden = page.identifier;
+		
+		if(inFrame != ''){
+			if(origReferer.indexOf('&in_frame') == -1){
+				origReferer=origReferer+inFrame
+			}
+		}
 		var referer = encodeURIComponent(origReferer);
 
 		if($('context_menu_popup_'+objId) == null) {
@@ -858,9 +892,11 @@
 		currentMenuId = id;
 
 		var popup = $(id);
-
-		var windowHeight = top.document.body.clientHeight;
-
+        <%if(UtilMethods.isSet(request.getParameter("popup")) || UtilMethods.isSet(request.getAttribute("popup")) || UtilMethods.isSet(request.getParameter("in_frame"))){ %>
+		var windowHeight = window.innerHeight;//document.body.clientHeight;
+        <%}else{%>
+        var windowHeight = top.document.body.clientHeight;
+        <%}%>
 		var popupHeight = Element.getHeight(popup);
 
 		var noPx = document.childNodes ? 'px' : 0;
@@ -890,9 +926,11 @@
 		currentChildMenuId = id;
 
 		var popup = $(id);
-
+		<%if(UtilMethods.isSet(request.getParameter("popup")) || UtilMethods.isSet(request.getAttribute("popup")) || UtilMethods.isSet(request.getParameter("in_frame"))){ %>
+		var windowHeight = window.innerHeight;//document.body.clientHeight;
+		<%}else{%>
 		var windowHeight = top.document.body.clientHeight;
-
+        <%}%>
 		var popupHeight = Element.getHeight(popup);
 
 		var noPx = document.childNodes ? 'px' : 0;
@@ -973,6 +1011,12 @@
 			var addChildren = hasAddChildrenPermissions(host.permissions);
 			if (addChildren) {
 				var objId = host.identifier;
+				
+				if(inFrame != ''){
+					if(origReferer.indexOf('&in_frame') == -1){
+						origReferer=origReferer+inFrame
+					}
+				}
 				var referer = unescape(encodeURIComponent(origReferer));
 				var containerperm = <%= APILocator.getLayoutAPI().doesUserHaveAccessToPortlet("EXT_12", user)%>;
 				var templateperm = <%= APILocator.getLayoutAPI().doesUserHaveAccessToPortlet("EXT_13", user)%>;
@@ -1014,6 +1058,12 @@
 			var folder = inodes[selectedFolder];
 			var addChildren = hasAddChildrenPermissions(folder.permissions);
 			if (addChildren) {
+				
+				if(inFrame != ''){
+					if(origReferer.indexOf('&in_frame') == -1){
+						origReferer=origReferer+inFrame
+					}
+				}
 				var referer = unescape(encodeURIComponent(origReferer));
 
 				htmlCode += '<div dojoType="dijit.MenuItem" onclick="addFolder(\'' + selectedFolder + '\', \'' + referer + '\')">';
