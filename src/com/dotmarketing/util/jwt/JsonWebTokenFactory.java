@@ -4,6 +4,7 @@ import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.ReflectionUtils;
 import com.dotmarketing.util.UtilMethods;
+import com.dotmarketing.util.marshal.MarshalFactory;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.crypto.MacProvider;
 
@@ -18,31 +19,26 @@ import java.util.Date;
  */
 public class JsonWebTokenFactory implements Serializable {
 
-    private static JsonWebTokenFactory instance = null;
-
-    private JsonWebTokenService jsonWebTokenService = null;
+    /**
+     * Used to keep the instance of the JWT Service.
+     * Should be volatile to avoid thread-caching
+     */
+    private volatile JsonWebTokenService jsonWebTokenService = null;
 
     private JsonWebTokenFactory () {
         // singleton
     }
 
+    private static class SingletonHolder {
+        private static final JsonWebTokenFactory INSTANCE = new JsonWebTokenFactory();
+    }
     /**
      * Get the instance.
      * @return JsonWebTokenFactory
      */
     public static JsonWebTokenFactory getInstance() {
 
-        if (instance == null) {
-            // Thread Safe. Might be costly operation in some case
-            synchronized (JsonWebTokenFactory.class) {
-
-                if (instance == null) {
-                    instance = new JsonWebTokenFactory();
-                }
-            }
-        }
-
-        return instance;
+        return JsonWebTokenFactory.SingletonHolder.INSTANCE;
     } // getInstance.
 
     /**
@@ -66,15 +62,13 @@ public class JsonWebTokenFactory implements Serializable {
             synchronized (JsonWebTokenFactory.class) {
 
                 try {
-                    // Thread Safe. Might be costly operation in some case
 
                     if (null == this.jsonWebTokenService) {
 
                         signingKeyFactoryClass =
                                 Config.getStringProperty(JSON_WEB_TOKEN_SIGNING_KEY_FACTORY, null);
 
-                        // todo: per chepio, us UtilMethods.isSet
-                        if (null != signingKeyFactoryClass  && !"null".equals(signingKeyFactoryClass)) {
+                        if (UtilMethods.isSet(signingKeyFactoryClass)) {
 
                             if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
 
@@ -126,7 +120,7 @@ public class JsonWebTokenFactory implements Serializable {
 
         JsonWebTokenServiceImpl() {
 
-            signingKey = MacProvider.generateKey();
+            this.signingKey = MacProvider.generateKey();
         }
 
 
@@ -158,6 +152,7 @@ public class JsonWebTokenFactory implements Serializable {
 
             //if it has been specified, let's add the expiration
             if ( jwtBean.getTtlMillis() >= 0 ) {
+
                 final long expMillis = nowMillis + jwtBean.getTtlMillis();
                 final Date exp = new Date(expMillis);
                 builder.setExpiration(exp);

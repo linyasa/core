@@ -59,14 +59,14 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
 		
 		boolean useCasFilter = Config.getBooleanProperty("FRONTEND_CAS_FILTER_ON");
 		
-        if (useCasFilter){ //todo: ask to Oswaldo tomorrow about this thing.
+        if (useCasFilter){
         	String userID = (String)session.getAttribute("edu.yale.its.tp.cas.client.filter.user");
         	Logger.debug(AutoLoginFilter.class, "Doing CasAutoLogin Filter for: " + userID);
             if(UtilMethods.isSet(userID)){                
             	LoginFactory.doCookieLogin(PublicEncryptionFactory.encryptString(userID), request, response);      	
             }
         }
-        else{ // todo: should we remove this functionality
+        else{ // todo: should we remove this functionality???
 	        String encryptedId = UtilMethods.getCookieValue(request.getCookies(), WebKeys.CMS_USER_ID_COOKIE);
 	 
 	        if (((session != null && session.getAttribute(WebKeys.CMS_USER) == null) || session == null)&& 

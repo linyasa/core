@@ -39,6 +39,8 @@ import java.util.Date;
 public class JsonWebTokenInterceptor implements WebInterceptor {
 
 
+    public static final String JSON_WEB_TOKEN_ALLOW_HTTP = "json.web.token.allowhttp";
+
     @Override
     public void destroy() {
 
@@ -52,9 +54,9 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
     @Override
     public boolean intercept(final ServletRequest req, final ServletResponse res) throws IOException {
 
-        if (Config.getBooleanProperty("json.web.token.allowhttp", false) || this.isHttpSecure (req)) {
+        if (Config.getBooleanProperty(JSON_WEB_TOKEN_ALLOW_HTTP, false) || this.isHttpSecure (req)) {
 
-            this.processJwtCookie(req,
+            this.processJwtCookie(
                     HttpServletResponse.class.cast(req),
                     HttpServletRequest.class.cast(res));
         }
@@ -62,13 +64,12 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
         return true;
     }
 
-    protected void processJwtCookie(final ServletRequest req, // todo: fix repeat parameter
-                                    final HttpServletResponse response,
+    protected void processJwtCookie(final HttpServletResponse response,
                                     final HttpServletRequest request) {
 
         final String jwtAccessToken =
                 UtilMethods.getCookieValue(
-                        HttpServletRequest.class.cast(req).getCookies(),
+                        HttpServletRequest.class.cast(request).getCookies(),
                         CookieKeys.JWT_ACCESS_TOKEN);
 
         if (null != jwtAccessToken) {

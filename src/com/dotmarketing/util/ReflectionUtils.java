@@ -16,7 +16,7 @@ public class ReflectionUtils implements Serializable {
      * @param className {@link String}
      * @return Object
      */
-    public static final Object newInstance (final String className) { // todo: unit test me
+    public static final Object newInstance (final String className) {
 
         Object o = null;
 
@@ -42,7 +42,7 @@ public class ReflectionUtils implements Serializable {
      * @param <T>
      * @return T
      */
-    public static final <T> T newInstance (final Class<T> clazz) { // todo: unit test me
+    public static final <T> T newInstance (final Class<T> clazz) {
 
         T t = null;
 
@@ -70,7 +70,7 @@ public class ReflectionUtils implements Serializable {
      * @return Object
      */
     public static final <T> T newInstance (final Class<T> clazz,
-                                           final Object... arguments) { // todo: unit test me
+                                           final Object... arguments) {
 
         T t = null;
         Constructor<?> constructor = null;
@@ -98,7 +98,7 @@ public class ReflectionUtils implements Serializable {
 
     public static final Class<?> [] getTypes (final Object... array) {
 
-        Class<?> [] parameterTypes = null; // todo: unit test me
+        Class<?> [] parameterTypes = null;
 
         if (null != array) {
 

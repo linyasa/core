@@ -1,10 +1,7 @@
 package com.dotmarketing.util.marshal;
 
 import com.dotcms.repackage.com.google.gson.*;
-import com.dotmarketing.util.Config;
-import com.dotmarketing.util.ConfigUtils;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.ReflectionUtils;
+import com.dotmarketing.util.*;
 import com.dotmarketing.util.jwt.JsonWebTokenService;
 
 import java.io.*;
@@ -17,9 +14,11 @@ import java.util.Date;
  */
 public class MarshalFactory implements Serializable {
 
-    private static MarshalFactory instance = null;
-
-    private MarshalUtils marshalUtils = null;
+    /**
+     * Used to keep the instance of the MarshalUtils.
+     * Should be volatile to avoid thread-caching
+     */
+    private volatile MarshalUtils marshalUtils = null;
 
     /**
      * In order to set a custom gson configuration in case you use the gon
@@ -35,23 +34,18 @@ public class MarshalFactory implements Serializable {
         // singleton
     }
 
+    private static class SingletonHolder {
+        private static final MarshalFactory INSTANCE = new MarshalFactory();
+    }
+
+
     /**
      * Get the instance.
      * @return MarshalFactory
      */
     public static MarshalFactory getInstance() {
 
-        if (instance == null) {
-            // Thread Safe. Might be costly operation in some case
-            synchronized (MarshalFactory.class) {
-
-                if (instance == null) {
-                    instance = new MarshalFactory();
-                }
-            }
-        }
-
-        return instance;
+        return SingletonHolder.INSTANCE;
     } // getInstance.
 
     /**
@@ -72,7 +66,7 @@ public class MarshalFactory implements Serializable {
                             Config.getStringProperty
                                     (MARSHAL_FACTORY_KEY, null);
 
-                    if (null != marshalFactoryClass && !"null".equals(marshalFactoryClass)) {
+                    if (UtilMethods.isSet(marshalFactoryClass)) {
 
                         if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
 
@@ -113,7 +107,6 @@ public class MarshalFactory implements Serializable {
     private class GsonMarshalUtils implements MarshalUtils {
 
         private final Gson gson;
-
 
         GsonMarshalUtils () {
 
