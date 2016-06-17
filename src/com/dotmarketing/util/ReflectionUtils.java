@@ -6,13 +6,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Encapsulates util method to perform reflection
+ * Encapsulates util methods to perform reflection, such as create a new instance without throwing exception (null in case of error),
+ * get the types for an array, soon.
+ *
  * @author jsanca
  */
 public class ReflectionUtils implements Serializable {
 
     /**
-     * create a new instance avoiding any exception, null in case it can not be create.
+     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
+     * This implementation is based on a class name
+     *
+     * Keep in mind you have to cast the object returned.
+     *
      * @param className {@link String}
      * @return Object
      */
@@ -36,8 +42,9 @@ public class ReflectionUtils implements Serializable {
 
         return o;
     }
+
     /**
-     * create a new instance avoiding any exception, null in case it can not be create.
+     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
      * @param clazz {@link Class}
      * @param <T>
      * @return T
@@ -65,7 +72,10 @@ public class ReflectionUtils implements Serializable {
 
 
     /**
-     * create a new instance avoiding any exception, null in case it can not be create.
+     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
+     * This approach is based on a constructor with many arguments, keep in mind the method can not find a contructor to match
+     * with the arguments, null will be returned.
+     *
      * @param clazz {@link Class}
      * @return Object
      */
@@ -95,7 +105,12 @@ public class ReflectionUtils implements Serializable {
         return t;
     } // newInstance.
 
-
+    /**
+     * Get the types of an array, you can pass an array or a comma separated arguments.
+     *
+     * @param array {@link Object}
+     * @return array of Class
+     */
     public static final Class<?> [] getTypes (final Object... array) {
 
         Class<?> [] parameterTypes = null;

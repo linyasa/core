@@ -34,6 +34,9 @@ import java.util.Date;
 
 /**
  * This Interceptor is useful to active the remember me using jwt
+ * It is going to look for a cookie and try to get the access token from it.
+ *
+ * Usually the cookie should runs under https, but you can avoid https by using the JSON_WEB_TOKEN_ALLOW_HTTP property in true.
  * @author jsanca
  */
 public class JsonWebTokenInterceptor implements WebInterceptor {

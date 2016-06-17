@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dotmarketing.business.APILocator;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.cms.login.factories.LoginFactory;
 import com.dotmarketing.filters.interceptor.WebInterceptor;
@@ -34,10 +35,15 @@ import com.dotmarketing.util.WebKeys;
 
 public class AutoLoginFilter implements Filter, WebInterceptorAware {
 
+
     private boolean alreadyStarted = false;
 
     private final List<WebInterceptor> interceptors =
             new CopyOnWriteArrayList<>();
+
+    public AutoLoginFilter() {
+
+    }
 
     public void destroy() {
 
@@ -75,6 +81,7 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
 	            LoginFactory.doCookieLogin(encryptedId, request, response);
 	        } else {
 
+                //List<WebInterceptor> interceptors = APILocator.getPorongaIntercetorFacadeAPI().getInterceptors(AutoLoginFilter.class);
                 if (!this.interceptors.isEmpty()) {
 
                     for (WebInterceptor webInterceptor : this.interceptors) {
@@ -89,9 +96,12 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
                 }
             }
 	    }
+
         chain.doFilter(req, response);
     }
     public void init(final FilterConfig config) throws ServletException {
+
+
 
         if (!this.interceptors.isEmpty()) {
 
@@ -114,4 +124,5 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
             this.interceptors.add(webInterceptor);
         }
     }
+
 }

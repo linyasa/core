@@ -85,7 +85,7 @@ public class LoginAction extends Action {
     public static final String JSON_WEB_TOKEN_DAYS_MAX_AGE = "json.web.token.days.max.age";
 
 	// Max days to live the cookie
-    public static final int    JSON_WEB_TOKEN_DAYS_MAX_AGE_DEFAULT = 2;
+    public static final int    JSON_WEB_TOKEN_DAYS_MAX_AGE_DEFAULT = 14;
 
     public ActionForward execute(
 			ActionMapping mapping, ActionForm form, HttpServletRequest req,
@@ -346,14 +346,15 @@ public class LoginAction extends Action {
 			
 			String httpOnly = Config.getBooleanProperty("COOKIES_HTTP_ONLY", false)?CookieUtil.HTTP_ONLY:"";
 			
-			String maxAge = rememberMe?"31536000":"0";
+			String maxAge = rememberMe?"31536000":"0"; // todo: by default this should be two weeks, but it might be configuration using the CONFIG.
 				
 			StringBuilder headerStr = new StringBuilder();
 			headerStr.append(CookieKeys.ID).append("=\"").append(UserManagerUtil.encryptUserId(userId)).append("\";")
 				.append(secure).append(";").append(httpOnly).append(";Path=/").append(";Max-Age=").append(maxAge);
 			res.addHeader("SET-COOKIE", headerStr.toString());
 
-            //JWT
+
+            //JWT we crT always b/c in the future we want to use it not only for the remember me, but also for restful authentication.
             this.processJsonWebToken(req, res, user, maxAge);
 
 			EventsProcessor.process(PropsUtil.getArray(PropsUtil.LOGIN_EVENTS_PRE), req, res);
@@ -380,7 +381,7 @@ public class LoginAction extends Action {
 				MarshalFactory.getInstance();
 		final MarshalUtils marshalUtils =
 				marshalFactory.getMarshalUtils();
-		final JsonWebTokenService jsonWebTokenService =
+		final JsonWebTokenService jsonWebTokenService =	
 				JsonWebTokenFactory.getInstance().getJsonWebTokenService();
 
         final int daysMaxAge = Config.getIntProperty(

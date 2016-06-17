@@ -87,7 +87,7 @@ public class CookieUtil {
 				cookie.setSecure(true);
 			}
 
-            cookie.setMaxAge(MAX_AGE_DAY_MILLIS * daysMaxAge.orElse(2));
+            cookie.setMaxAge(MAX_AGE_DAY_MILLIS * daysMaxAge.orElse(14));
 			cookie.setPath(URI);
 			response.addCookie(cookie);
 		}
