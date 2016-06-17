@@ -1,7 +1,8 @@
 package com.dotmarketing.filters.interceptor;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -29,6 +30,6 @@ public interface WebInterceptor extends Serializable {
      * @return boolean
      * @throws IOException
      */
-    boolean intercept(ServletRequest req, ServletResponse res)
+    boolean intercept(HttpServletRequest req, HttpServletResponse res)
             throws IOException;
 } // E:O:F:WebInterceptor.

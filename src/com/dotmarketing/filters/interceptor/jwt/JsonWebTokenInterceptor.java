@@ -1,5 +1,12 @@
 package com.dotmarketing.filters.interceptor.jwt;
 
+import java.io.IOException;
+import java.util.Date;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.cms.login.factories.LoginFactory;
@@ -9,7 +16,6 @@ import com.dotmarketing.filters.interceptor.WebInterceptor;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.util.WebKeys;
 import com.dotmarketing.util.jwt.DotCMSSubjectBean;
 import com.dotmarketing.util.jwt.JWTBean;
 import com.dotmarketing.util.jwt.JsonWebTokenFactory;
@@ -19,18 +25,10 @@ import com.dotmarketing.util.marshal.MarshalUtils;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
 import com.liferay.portal.ejb.CompanyLocalManagerUtil;
-import com.liferay.portal.ejb.UserLocalManagerUtil;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.CookieKeys;
 import com.liferay.util.Encryptor;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Date;
 
 /**
  * This Interceptor is useful to active the remember me using jwt
@@ -39,6 +37,7 @@ import java.util.Date;
  * Usually the cookie should runs under https, but you can avoid https by using the JSON_WEB_TOKEN_ALLOW_HTTP property in true.
  * @author jsanca
  */
+@SuppressWarnings("serial")
 public class JsonWebTokenInterceptor implements WebInterceptor {
 
 
@@ -55,14 +54,12 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
     }
 
     @Override
-    public boolean intercept(final ServletRequest req, final ServletResponse res) throws IOException {
-
+    public boolean intercept(final HttpServletRequest req, final HttpServletResponse res) throws IOException {
+    	// TODO: Verificar si el usuario esta loggeado, sino verificar el JWT
         if (Config.getBooleanProperty(JSON_WEB_TOKEN_ALLOW_HTTP, false) || this.isHttpSecure (req)) {
-
-            this.processJwtCookie(
-                    HttpServletResponse.class.cast(req),
-                    HttpServletRequest.class.cast(res));
+            this.processJwtCookie(res, req);
         }
+
 
         return true;
     }
@@ -105,7 +102,7 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
     protected boolean stillValid(final long userMillis) {
 
         // this means the userMillis still being valid (in the future)
-        return System.currentTimeMillis() - userMillis > 0;
+        return userMillis - System.currentTimeMillis() > 0;
     }
 
     protected void processSubject(final JWTBean jwtBean,

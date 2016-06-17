@@ -1,12 +1,3 @@
-/*
- * WebSessionFilter
- *
- * A filter that recognizes return users who have
- * chosen to have their login information remembered.
- * Creates a valid WebSession object and
- * passes it a contact to use to fill its information
- *
- */
 package com.dotmarketing.filters;
 
 import java.io.IOException;
@@ -23,28 +14,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.dotmarketing.business.APILocator;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.cms.login.factories.LoginFactory;
 import com.dotmarketing.filters.interceptor.WebInterceptor;
 import com.dotmarketing.filters.interceptor.WebInterceptorAware;
+import com.dotmarketing.filters.interceptor.jwt.JsonWebTokenInterceptor;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 
+/**
+ * 
+ * @author root
+ * @version 2.x
+ * @since Mar 22, 2012
+ *
+ */
+@SuppressWarnings("serial")
 public class AutoLoginFilter implements Filter, WebInterceptorAware {
 
-
-    private boolean alreadyStarted = false;
+	private boolean alreadyStarted = false;
 
     private final List<WebInterceptor> interceptors =
             new CopyOnWriteArrayList<>();
 
-    public AutoLoginFilter() {
-
-    }
-
+    @Override
     public void destroy() {
 
         if (!this.interceptors.isEmpty()) {
@@ -53,6 +48,7 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
         }
     }
 
+    @Override
     public void doFilter(final ServletRequest req,
                          final ServletResponse res,
                          final FilterChain chain) throws IOException,
@@ -63,7 +59,7 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
 		HttpSession session = request.getSession(false);
         boolean shouldContinue = true;
 		
-		boolean useCasFilter = Config.getBooleanProperty("FRONTEND_CAS_FILTER_ON");
+		boolean useCasFilter = Config.getBooleanProperty("FRONTEND_CAS_FILTER_ON", false);
 		
         if (useCasFilter){
         	String userID = (String)session.getAttribute("edu.yale.its.tp.cas.client.filter.user");
@@ -86,7 +82,7 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
 
                     for (WebInterceptor webInterceptor : this.interceptors) {
 
-                        shouldContinue &= webInterceptor.intercept(req, response);
+                        shouldContinue &= webInterceptor.intercept(request, response);
 
                         if (!shouldContinue) {
                             // if just one interceptor failed; we stopped the loop and do not continue the chain call
@@ -99,9 +95,11 @@ public class AutoLoginFilter implements Filter, WebInterceptorAware {
 
         chain.doFilter(req, response);
     }
+
+    @Override
     public void init(final FilterConfig config) throws ServletException {
 
-
+    	this.interceptors.add(new JsonWebTokenInterceptor());
 
         if (!this.interceptors.isEmpty()) {
 
