@@ -7,10 +7,7 @@ import com.dotcms.repackage.org.apache.struts.action.ActionMapping;
 import com.dotcms.repackage.org.apache.struts.config.ActionConfig;
 import com.dotcms.repackage.org.apache.struts.config.ForwardConfig;
 import com.dotcms.repackage.org.apache.struts.config.ModuleConfig;
-import com.dotcms.repackage.org.osgi.framework.Bundle;
-import com.dotcms.repackage.org.osgi.framework.BundleActivator;
-import com.dotcms.repackage.org.osgi.framework.BundleContext;
-import com.dotcms.repackage.org.osgi.framework.ServiceReference;
+import com.dotcms.repackage.org.osgi.framework.*;
 import com.dotcms.repackage.org.tuckey.web.filters.urlrewrite.NormalRule;
 import com.dotcms.repackage.org.tuckey.web.filters.urlrewrite.Rule;
 import com.dotmarketing.business.APILocator;
@@ -600,6 +597,39 @@ public abstract class GenericBundleActivator implements BundleActivator {
 
         //And add the rewrite rule
         addRewriteRule( rule );
+    }
+
+    /**
+     * Register a Service
+     *
+     * @param context
+     * @param actionlet
+     */
+    @SuppressWarnings ("unchecked")
+    protected ServiceRegistration<?> registerService (final BundleContext context, final Object service,
+                                                   final Hashtable<String, ?> properties) {
+
+        ServiceRegistration<?> serviceRegistration = null;
+
+        if (null == this.context) {
+
+            this.context = context;
+        }
+
+        if (null != service) {
+
+            serviceRegistration =
+                    this.context.registerService(service.getClass().getName(), service,
+                        properties);
+
+
+            if (Logger.isInfoEnabled(GenericBundleActivator.class)) {
+
+                Logger.info(this, "Added Service: " + service.getClass().getName());
+            }
+        }
+
+        return serviceRegistration;
     }
 
     /**
