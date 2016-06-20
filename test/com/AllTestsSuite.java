@@ -24,6 +24,7 @@ import com.dotmarketing.business.RoleAPITest;
 import com.dotmarketing.business.UserAPITest;
 import com.dotmarketing.db.DbConnectionFactoryUtilTest;
 import com.dotmarketing.db.HibernateUtilTest;
+import com.dotmarketing.filters.interceptor.jwt.JsonWebTokenInterceptorTest;
 import com.dotmarketing.plugin.PluginMergerTest;
 import com.dotmarketing.portlets.categories.business.CategoryAPITest;
 import com.dotmarketing.portlets.containers.business.ContainerAPITest;
@@ -63,7 +64,9 @@ import com.dotmarketing.portlets.workflows.business.WorkflowAPITest;
 import com.dotmarketing.portlets.workflows.model.WorkflowSearcherTest;
 import com.dotmarketing.sitesearch.ajax.SiteSearchAjaxActionTest;
 import com.dotmarketing.tag.business.TagAPITest;
-import com.dotmarketing.util.ImportUtilTest;
+import com.dotmarketing.util.*;
+import com.dotmarketing.util.jwt.JsonWebTokenServiceTest;
+import com.dotmarketing.util.marshal.MarshalUtilsTest;
 import com.dotmarketing.webdav.WebDavTest;
 import com.liferay.portal.ejb.UserLocalManagerTest;
 
@@ -123,6 +126,12 @@ import org.junit.runners.Suite;
     RemotePublishAjaxActionTest.class, //Needs Enterprise License
     ActionResourceFTest.class,
     TagAPITest.class,
+        ReflectionUtilsTest.class,
+        CollectionsUtilsTest.class,
+        MarshalUtilsTest.class,
+        JsonWebTokenServiceTest.class,
+        JsonWebTokenInterceptorTest.class,
+
 
     //Rules.
     RulesAPIFTest.class, //Needs Enterprise License.

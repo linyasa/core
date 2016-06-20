@@ -73,7 +73,7 @@ public class JsonWebTokenFactory implements Serializable {
                             if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
 
                                 Logger.debug(JsonWebTokenService.class,
-                                        "Using the singning key factory class: " + signingKeyFactoryClass);
+                                        "Using the signing key factory class: " + signingKeyFactoryClass);
                             }
 
                             signingKeyFactory =

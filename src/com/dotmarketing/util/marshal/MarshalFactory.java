@@ -2,7 +2,6 @@ package com.dotmarketing.util.marshal;
 
 import com.dotcms.repackage.com.google.gson.*;
 import com.dotmarketing.util.*;
-import com.dotmarketing.util.jwt.JsonWebTokenService;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -26,9 +25,9 @@ public class MarshalFactory implements Serializable {
     public static final String GSON_CONFIGURATOR_KEY = "gson.configurator";
 
     /**
-     * Get the  marshal factory implementation from the dotmarketing-config.properties
+     * Get the  marshal class implementation from the dotmarketing-config.properties
      */
-    public static final String MARSHAL_FACTORY_KEY = "marshal.factory";
+    public static final String MARSHAL_IMPLEMENTATION_KEY = "marshal.implementation";
 
     private MarshalFactory () {
         // singleton
@@ -64,14 +63,14 @@ public class MarshalFactory implements Serializable {
 
                     marshalFactoryClass =
                             Config.getStringProperty
-                                    (MARSHAL_FACTORY_KEY, null);
+                                    (MARSHAL_IMPLEMENTATION_KEY, null);
 
                     if (UtilMethods.isSet(marshalFactoryClass)) {
 
-                        if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
+                        if (Logger.isDebugEnabled(MarshalFactory.class)) {
 
-                            Logger.debug(JsonWebTokenService.class,
-                                    "Using the singning key factory class: " + marshalFactoryClass);
+                            Logger.debug(MarshalFactory.class,
+                                    "Using the marshall class: " + marshalFactoryClass);
                         }
 
                         this.marshalUtils =
@@ -79,11 +78,11 @@ public class MarshalFactory implements Serializable {
 
                         if (null == this.marshalUtils) {
 
-                            if (Logger.isDebugEnabled(JsonWebTokenService.class)) {
+                            if (Logger.isDebugEnabled(MarshalFactory.class)) {
 
-                                Logger.debug(JsonWebTokenService.class,
+                                Logger.debug(MarshalFactory.class,
                                         "Could not used this class: " + marshalFactoryClass +
-                                        ", using the default implementations");
+                                        ", using the default Gson implementation");
                             }
 
                             this.marshalUtils =

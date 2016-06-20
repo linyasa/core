@@ -24,6 +24,17 @@ public interface WebInterceptor extends Serializable {
     void init();
 
     /**
+     * In case you want to apply this filter just to some subset of path's return them here.
+     * Null means accept all.
+     *
+     * @return String []
+     */
+    default String [] getFilters() {
+
+        return null;
+    }
+
+    /**
      * Called in any request. Returns true if you want to continue the chain call, false otherwise.
      * @param req
      * @param res

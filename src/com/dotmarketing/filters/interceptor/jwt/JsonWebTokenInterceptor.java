@@ -1,15 +1,9 @@
 package com.dotmarketing.filters.interceptor.jwt;
 
-import java.io.IOException;
-import java.util.Date;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.dotmarketing.business.APILocator;
-import com.dotmarketing.cms.factories.PublicEncryptionFactory;
-import com.dotmarketing.cms.login.factories.LoginFactory;
+import com.dotmarketing.business.UserAPI;
+import com.dotmarketing.cms.login.LoginService;
+import com.dotmarketing.cms.login.LoginServiceFactory;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.filters.interceptor.WebInterceptor;
@@ -22,14 +16,22 @@ import com.dotmarketing.util.jwt.JsonWebTokenFactory;
 import com.dotmarketing.util.jwt.JsonWebTokenService;
 import com.dotmarketing.util.marshal.MarshalFactory;
 import com.dotmarketing.util.marshal.MarshalUtils;
+import com.dotmarketing.util.security.Encryptor;
+import com.dotmarketing.util.security.EncryptorFactory;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
-import com.liferay.portal.ejb.CompanyLocalManagerUtil;
+import com.liferay.portal.ejb.CompanyLocalManager;
+import com.liferay.portal.ejb.CompanyLocalManagerFactory;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.CookieKeys;
-import com.liferay.util.Encryptor;
+import com.liferay.portal.util.PortalUtil;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Date;
 /**
  * This Interceptor is useful to active the remember me using jwt
  * It is going to look for a cookie and try to get the access token from it.
@@ -43,6 +45,23 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
 
     public static final String JSON_WEB_TOKEN_ALLOW_HTTP = "json.web.token.allowhttp";
 
+    private JsonWebTokenService jsonWebTokenService =
+            JsonWebTokenFactory.getInstance().getJsonWebTokenService();
+
+    private MarshalUtils marshalUtils =
+            MarshalFactory.getInstance().getMarshalUtils();
+
+    private UserAPI userAPI = null;
+
+    private CompanyLocalManager companyLocalManager =
+            CompanyLocalManagerFactory.getManager();
+
+    private Encryptor encryptor =
+            EncryptorFactory.getInstance().getEncryptor();
+
+    private LoginService loginService =
+            LoginServiceFactory.getInstance().getLoginService();
+
     @Override
     public void destroy() {
 
@@ -55,13 +74,20 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
 
     @Override
     public boolean intercept(final HttpServletRequest req, final HttpServletResponse res) throws IOException {
-    	// TODO: Verificar si el usuario esta loggeado, sino verificar el JWT
-        if (Config.getBooleanProperty(JSON_WEB_TOKEN_ALLOW_HTTP, false) || this.isHttpSecure (req)) {
-            this.processJwtCookie(res, req);
+
+        if (!this.isLoggedIn(req)) {
+
+            if (Config.getBooleanProperty(JSON_WEB_TOKEN_ALLOW_HTTP, false) || this.isHttpSecure(req)) {
+                this.processJwtCookie(res, req);
+            }
         }
 
-
         return true;
+    }
+
+    protected boolean isLoggedIn (final HttpServletRequest req) {
+
+        return null != PortalUtil.getUserId(req);
     }
 
     protected void processJwtCookie(final HttpServletResponse response,
@@ -82,11 +108,8 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
                                  final HttpServletResponse response,
                                  final HttpServletRequest request) {
 
-        final JsonWebTokenService jsonWebTokenService =
-                JsonWebTokenFactory.getInstance().getJsonWebTokenService();
-
         final JWTBean jwtBean =
-                jsonWebTokenService.parseToken(jwtAccessToken);
+                this.jsonWebTokenService.parseToken(jwtAccessToken);
 
         if (null != jwtBean) {
 
@@ -109,11 +132,9 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
                                   final HttpServletResponse response,
                                   final HttpServletRequest request) {
 
-        final MarshalUtils marshalUtils =
-                MarshalFactory.getInstance().getMarshalUtils();
 
         final DotCMSSubjectBean dotCMSSubjectBean =
-                marshalUtils.unmarshal(jwtBean.getSubject(), DotCMSSubjectBean.class);
+                this.marshalUtils.unmarshal(jwtBean.getSubject(), DotCMSSubjectBean.class);
 
         if (null != dotCMSSubjectBean) {
 
@@ -130,10 +151,9 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
 
         try {
 
-            company = CompanyLocalManagerUtil.getCompany
-                    (subjectBean.getCompanyId());
+            company = this.getCompany(subjectBean.getCompanyId());
 
-            userId = Encryptor.decrypt(company.getKeyObj(),
+            userId = this.encryptor.decrypt(company.getKeyObj(),
                     subjectBean.getUserId()); // encrypt the user id.
 
             // todo: if there is a custom implementation to handle the authentication use it
@@ -150,20 +170,26 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
         }
     }
 
+    protected Company getCompany (final String companyId) throws SystemException, PortalException {
+
+        return this.companyLocalManager.getCompany(companyId);
+    }
+
     protected void performDefaultAuthentication(final Company company,
                                                 final String userId,
                                                 final Date lastModified,
                                                 final HttpServletResponse response,
                                                 final HttpServletRequest request) throws SystemException, PortalException, DotSecurityException, DotDataException {
 
-        final User user = APILocator.getUserAPI().loadUserById(userId);
+        final User user = this.getUserAPI().loadUserById(userId);
 
         if (null != user) {
 
             // the login haven't change since we created the web token
             if (0 == user.getModificationDate().compareTo(lastModified)) {
 
-                LoginFactory.doCookieLogin(PublicEncryptionFactory.encryptString(userId), request, response);
+                this.loginService.
+                        doCookieLogin(this.encryptor.encryptString(userId), request, response);
             }
         }
     }
@@ -177,4 +203,39 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
 
         return req.isSecure();
     } // isHttpSecure.
+
+    public void setJsonWebTokenService(final JsonWebTokenService jsonWebTokenService) {
+        this.jsonWebTokenService = jsonWebTokenService;
+    }
+
+    public void setMarshalUtils(final MarshalUtils marshalUtils) {
+        this.marshalUtils = marshalUtils;
+    }
+
+    public void setUserAPI(final UserAPI userAPI) {
+        this.userAPI = userAPI;
+    }
+
+    private synchronized UserAPI getUserAPI () {
+
+        if (null == this.userAPI) {
+
+            this.userAPI =
+                    APILocator.getUserAPI();
+        }
+
+        return this.userAPI;
+    }
+
+    public void setCompanyLocalManager(final CompanyLocalManager companyLocalManager) {
+        this.companyLocalManager = companyLocalManager;
+    }
+
+    public void setEncryptor(final Encryptor encryptor) {
+        this.encryptor = encryptor;
+    }
+
+    public void setLoginService(final LoginService loginService) {
+        this.loginService = loginService;
+    }
 } // E:O:F:JsonWebTokenInterceptor.
