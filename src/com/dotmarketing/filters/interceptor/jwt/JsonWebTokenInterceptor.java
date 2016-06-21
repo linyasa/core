@@ -78,7 +78,18 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
         if (!this.isLoggedIn(req)) {
 
             if (Config.getBooleanProperty(JSON_WEB_TOKEN_ALLOW_HTTP, false) || this.isHttpSecure(req)) {
-                this.processJwtCookie(res, req);
+
+                try {
+                    
+                    this.processJwtCookie(res, req);
+                } catch (Exception e) {
+
+                    if (Logger.isErrorEnabled(JsonWebTokenInterceptor.class)) {
+
+                        Logger.error(JsonWebTokenInterceptor.class,
+                                e.getMessage(), e);
+                    }
+                }
             }
         }
 
@@ -116,7 +127,7 @@ public class JsonWebTokenInterceptor implements WebInterceptor {
             final long millis = jwtBean.getTtlMillis();
 
             if (this.stillValid (millis)) {
-
+// todo: handle exceptions here
                 this.processSubject(jwtBean, response, request);
             }
         }

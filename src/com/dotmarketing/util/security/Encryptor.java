@@ -1,10 +1,6 @@
 package com.dotmarketing.util.security;
 
-import com.dotmarketing.cms.factories.PublicCompanyFactory;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
-import com.dotmarketing.exception.DotRuntimeException;
-import com.dotmarketing.util.Logger;
-import com.liferay.portal.model.Company;
 import com.liferay.util.EncryptorException;
 
 import java.io.Serializable;

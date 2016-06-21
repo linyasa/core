@@ -42,7 +42,7 @@ public class DotCMSSubjectBean implements Serializable {
         DotCMSSubjectBean that = (DotCMSSubjectBean) o;
 
         if (userId != null ? !userId.equals(that.userId) : that.userId != null) return false;
-        if (lastModified != null ? !lastModified.equals(that.lastModified) : that.lastModified != null) return false;
+        if (lastModified != null ? lastModified.getTime() != that.lastModified.getTime() : that.lastModified != null) return false;
         return companyId != null ? companyId.equals(that.companyId) : that.companyId == null;
 
     }

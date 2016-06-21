@@ -1,5 +1,6 @@
 package com.dotmarketing.cms.login;
 
+import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.cms.login.struts.LoginForm;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.Logger;
@@ -9,9 +10,11 @@ import com.dotmarketing.util.security.Encryptor;
 import com.dotmarketing.util.security.EncryptorFactory;
 import com.liferay.portal.NoSuchUserException;
 import com.liferay.portal.model.User;
+import com.liferay.portal.util.WebKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 
 /**
@@ -113,7 +116,19 @@ public class LoginServiceFactory implements Serializable {
         @Override
         public boolean doCookieLogin(final String encryptedId, final HttpServletRequest request, final HttpServletResponse response) {
 
-            return LoginService.super.doCookieLogin(encryptedId, request, response);
+            final boolean doCookieLogin = LoginService.super.doCookieLogin(encryptedId, request, response);
+
+            if (doCookieLogin) {
+
+                final String decryptedId = PublicEncryptionFactory.decryptString(encryptedId);
+                final HttpSession session = request.getSession(false);
+                if (null != session && null != decryptedId) {
+                    // this is what the PortalRequestProcessor needs to check the login.
+                    session.setAttribute(WebKeys.USER_ID, decryptedId);
+                } //
+            }
+
+            return doCookieLogin;
         }
 
         @Override

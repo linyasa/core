@@ -5,6 +5,8 @@ import com.dotmarketing.util.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -159,6 +161,65 @@ public class MarshalFactory implements Serializable {
             // do not want escaping??? gsonBuilder.disableHtmlEscaping();
             // wants nulls? gsonBuilder.serializeNulls();
 
+            // java.sql.Timestamp
+            this.addTimeStampAdapter(gsonBuilder);
+
+            // java.util.Date
+            this.addDateAdapter(gsonBuilder);
+
+            // java.sql.Date
+            this.addSqlDateAdapter(gsonBuilder);
+
+            // java.sql.Time
+            this.addTimeAdapter(gsonBuilder);
+        }
+
+        private void addTimeAdapter(final GsonBuilder gsonBuilder) {
+
+            gsonBuilder.registerTypeAdapter(java.sql.Time.class, new JsonDeserializer<Time>() {
+
+
+                @Override
+                public Time deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    return new Time(jsonElement.getAsLong());
+                }
+            });
+
+            gsonBuilder.registerTypeAdapter(Time.class, new JsonSerializer<Time>() {
+
+
+                @Override
+                public JsonElement serialize(Time date, Type type, JsonSerializationContext jsonSerializationContext) {
+
+                    return new JsonPrimitive(date.getTime());
+                }
+            });
+        }
+
+        private void addSqlDateAdapter(final GsonBuilder gsonBuilder) {
+
+            gsonBuilder.registerTypeAdapter(java.sql.Date.class, new JsonDeserializer<java.sql.Date>() {
+
+
+                @Override
+                public java.sql.Date deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    return new java.sql.Date(jsonElement.getAsLong());
+                }
+            });
+
+            gsonBuilder.registerTypeAdapter(java.sql.Date.class, new JsonSerializer<java.sql.Date>() {
+
+
+                @Override
+                public JsonElement serialize(java.sql.Date date, Type type, JsonSerializationContext jsonSerializationContext) {
+
+                    return new JsonPrimitive(date.getTime());
+                }
+            });
+        }
+
+        private void addDateAdapter(final GsonBuilder gsonBuilder) {
+
             gsonBuilder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
 
 
@@ -173,6 +234,28 @@ public class MarshalFactory implements Serializable {
 
                 @Override
                 public JsonElement serialize(Date date, Type type, JsonSerializationContext jsonSerializationContext) {
+
+                    return new JsonPrimitive(date.getTime());
+                }
+            });
+        }
+
+        private void addTimeStampAdapter(final GsonBuilder gsonBuilder) {
+
+            gsonBuilder.registerTypeAdapter(java.sql.Timestamp.class, new JsonDeserializer<Timestamp>() {
+
+
+                @Override
+                public Timestamp deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+                    return new Timestamp(jsonElement.getAsLong());
+                }
+            });
+
+            gsonBuilder.registerTypeAdapter(Timestamp.class, new JsonSerializer<Timestamp>() {
+
+
+                @Override
+                public JsonElement serialize(Timestamp date, Type type, JsonSerializationContext jsonSerializationContext) {
 
                     return new JsonPrimitive(date.getTime());
                 }
