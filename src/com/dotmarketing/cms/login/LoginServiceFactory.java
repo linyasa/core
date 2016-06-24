@@ -19,19 +19,23 @@ import java.io.Serializable;
 
 /**
  * Login Service Factory
+ * 
  * @author jsanca
+ * @version 3.7
+ * @since Jun 20, 2016
  */
 public class LoginServiceFactory implements Serializable {
 
-    /**
-     * Used to keep the instance of the {@link LoginService}.
-     * Should be volatile to avoid thread-caching
-     */
+	/**
+	 * Used to keep the instance of the {@link LoginService}. Should be volatile
+	 * to avoid thread-caching
+	 */
     private volatile LoginService loginService = null;
 
-    /**
-     * Get the  login service implementation from the dotmarketing-config.properties
-     */
+	/**
+	 * Get the login service implementation from the
+	 * dotmarketing-config.properties
+	 */
     public static final String LOGIN_SERVICE_IMPLEMENTATION_KEY = "login.service.implementation";
 
     private LoginServiceFactory() {
@@ -42,15 +46,21 @@ public class LoginServiceFactory implements Serializable {
         private static final LoginServiceFactory INSTANCE = new LoginServiceFactory();
     }
 
-    /**
-     * Get the instance.
-     * @return EncryptorFactory
-     */
+	/**
+	 * Get the instance.
+	 * 
+	 * @return EncryptorFactory
+	 */
     public static LoginServiceFactory getInstance() {
 
         return LoginServiceFactory.SingletonHolder.INSTANCE;
     } // getInstance.
 
+    /**
+     * Returns the custom Login Service, or the default implementation.
+     * 
+     * @return The {@link LoginService}.
+     */
     public LoginService getLoginService () {
 
         String loginServiceFactoryClass = null;
@@ -164,4 +174,5 @@ public class LoginServiceFactory implements Serializable {
             return false;
         }
     }
+
 } // E:O:F:LoginServiceFactory.

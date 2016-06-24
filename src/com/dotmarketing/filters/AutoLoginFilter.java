@@ -25,9 +25,13 @@ import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 
 /**
+ * This filter determines whether it is necessary to perform the common
+ * authentication process (i.e, sending the user to the Login page) or if the
+ * user can be authenticated through other mechanisms, such as Cookie
+ * Authentication, JWT, etc.
  * 
  * @author root
- * @version 2.x
+ * @version 2.x, 3.7
  * @since Mar 22, 2012
  *
  */

@@ -1,10 +1,30 @@
 package com.dotmarketing.filters.interceptor.jwt;
 
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
 import com.dotmarketing.business.UserAPI;
 import com.dotmarketing.cms.login.LoginService;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
-import com.dotmarketing.util.json.JSONException;
 import com.dotmarketing.util.jwt.DotCMSSubjectBean;
 import com.dotmarketing.util.jwt.JWTBean;
 import com.dotmarketing.util.jwt.JsonWebTokenFactory;
@@ -15,29 +35,11 @@ import com.dotmarketing.util.security.Encryptor;
 import com.liferay.portal.PortalException;
 import com.liferay.portal.SystemException;
 import com.liferay.portal.ejb.CompanyLocalManager;
-import com.liferay.portal.ejb.CompanyLocalManagerFactory;
 import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.portal.util.CookieKeys;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.util.EncryptorException;
-import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * The goal of this unit test is to try some scenarios for the json web token interceptor.
@@ -324,7 +326,6 @@ public class JsonWebTokenInterceptorTest {
         });
 
         jsonWebTokenInterceptor.setCompanyLocalManager(companyLocalManager);
-        jsonWebTokenInterceptor.setUserAPI(userAPI);
         jsonWebTokenInterceptor.setEncryptor(encryptor);
         jsonWebTokenInterceptor.setLoginService(loginService);
 
@@ -447,7 +448,6 @@ public class JsonWebTokenInterceptorTest {
 
 
         jsonWebTokenInterceptor.setCompanyLocalManager(companyLocalManager);
-        jsonWebTokenInterceptor.setUserAPI(userAPI);
         jsonWebTokenInterceptor.setEncryptor(encryptor);
         jsonWebTokenInterceptor.setLoginService(loginService);
 

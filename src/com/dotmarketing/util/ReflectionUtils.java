@@ -1,27 +1,30 @@
 package com.dotmarketing.util;
 
-
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 /**
- * Encapsulates util methods to perform reflection, such as create a new instance without throwing exception (null in case of error),
- * get the types for an array, soon.
+ * Encapsulates util methods to perform reflection, such as create a new
+ * instance without throwing exception (null in case of error), get the types
+ * for an array, soon.
  *
  * @author jsanca
+ * @version 3.7
+ * @since Jun 8, 2016
  */
 public class ReflectionUtils implements Serializable {
 
-    /**
-     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
-     * This implementation is based on a class name
-     *
-     * Keep in mind you have to cast the object returned.
-     *
-     * @param className {@link String}
-     * @return Object
-     */
+	/**
+	 * Creates a new instance avoiding to throw any exception, null in case it
+	 * can not be create (if an exception happens). This implementation is based
+	 * on a class name
+	 *
+	 * Keep in mind you have to cast the object returned.
+	 *
+	 * @param className
+	 *            - {@link String}
+	 * @return Object
+	 */
     public static final Object newInstance (final String className) {
 
         Object o = null;
@@ -43,12 +46,15 @@ public class ReflectionUtils implements Serializable {
         return o;
     }
 
-    /**
-     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
-     * @param clazz {@link Class}
-     * @param <T>
-     * @return T
-     */
+	/**
+	 * Creates a new instance avoiding to throw any exception, null in case it
+	 * can not be create (if an exception happens).
+	 * 
+	 * @param clazz
+	 *            - {@link Class}
+	 * @param <T>
+	 * @return T
+	 */
     public static final <T> T newInstance (final Class<T> clazz) {
 
         T t = null;
@@ -71,14 +77,16 @@ public class ReflectionUtils implements Serializable {
     } // newInstance.
 
 
-    /**
-     * Creates a new instance avoiding to throw any exception, null in case it can not be create (if an exception happens).
-     * This approach is based on a constructor with many arguments, keep in mind the method can not find a contructor to match
-     * with the arguments, null will be returned.
-     *
-     * @param clazz {@link Class}
-     * @return Object
-     */
+	/**
+	 * Creates a new instance avoiding to throw any exception, null in case it
+	 * can not be create (if an exception happens). This approach is based on a
+	 * constructor with many arguments, keep in mind the method can not find a
+	 * contructor to match with the arguments, null will be returned.
+	 *
+	 * @param clazz
+	 *            - {@link Class}
+	 * @return Object
+	 */
     public static final <T> T newInstance (final Class<T> clazz,
                                            final Object... arguments) {
 
@@ -105,12 +113,14 @@ public class ReflectionUtils implements Serializable {
         return t;
     } // newInstance.
 
-    /**
-     * Get the types of an array, you can pass an array or a comma separated arguments.
-     *
-     * @param array {@link Object}
-     * @return array of Class
-     */
+	/**
+	 * Get the types of an array, you can pass an array or a comma separated
+	 * arguments.
+	 *
+	 * @param array
+	 *            - {@link Object}
+	 * @return array of Class
+	 */
     public static final Class<?> [] getTypes (final Object... array) {
 
         Class<?> [] parameterTypes = null;

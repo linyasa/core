@@ -11,7 +11,10 @@ import java.util.Date;
 
 /**
  * Marshal Factory, provides the default implementation for the MarhalUtils
+ * 
  * @author jsanca
+ * @version 3.7
+ * @since Jun 14, 2016
  */
 public class MarshalFactory implements Serializable {
 

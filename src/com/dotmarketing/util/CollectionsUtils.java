@@ -6,8 +6,11 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * Just encapsulates collection utils methods
+ * Encapsulates collection utils methods
+ * 
  * @author jsanca
+ * @version 3.7
+ * @since Jun 8, 2016
  */
 public class CollectionsUtils implements Serializable {
 
@@ -267,7 +270,5 @@ public class CollectionsUtils implements Serializable {
 
         return new AbstractMap.SimpleEntry<K, V>(key, value);
     } // entry
-
-
 
 } // E:O:F:CollectionsUtils.
