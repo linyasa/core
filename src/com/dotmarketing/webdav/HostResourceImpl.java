@@ -2,6 +2,7 @@ package com.dotmarketing.webdav;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -143,7 +144,11 @@ public class HostResourceImpl extends BasicFolderResourceImpl implements Resourc
 	    User user=(User)HttpManager.request().getAuthorization().getTag();
 		List<Folder> folders = listFolders();
 		List<Resource> frs = new ArrayList<Resource>();
-		dotDavHelper.setLanguage(path);
+		try {
+			dotDavHelper.setLanguage(path);
+		} catch (IOException e) {
+			Logger.error(this, "Something is wrong with the path: " + path, e);
+		}
 		for (Folder folder : folders) {
 			String p = path;
 			if(p.endsWith("/"))

@@ -153,7 +153,11 @@ public class LanguageFolderResourceImpl implements FolderResource, LockingCollec
 						result.add(tr);
 					}
 				}else{
-					dotDavHelper.setLanguage(path);
+					try {
+						dotDavHelper.setLanguage(path);
+					} catch (IOException e) {
+						Logger.error(this, "Something is wrong with the path: " + path, e);
+					}
 					String pathFolder = "/webdav/live/" + dotDavHelper.getLanguage() + "/system/languages/";
 					if(file.isDirectory()){
 						TempFolderResourceImpl tr = new TempFolderResourceImpl(pathFolder + p,file,true);

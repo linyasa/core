@@ -218,7 +218,7 @@ public class DotWebdavHelper {
 		if (uriAux.equals("") || uriAux.equals("/")) {
 			returnValue = true;
 		} else {
-			uriAux = stripMapping(uriAux);
+			uriAux = setLanguage(uriAux);
 			String hostName = getHostname(uriAux);
 			Logger.debug(this, "Method isFolder: the hostname is " + hostName);
 			Host host;
@@ -259,7 +259,7 @@ public class DotWebdavHelper {
 	}
 
 	public boolean isResource(String uri, User user) throws IOException {
-		uri = stripMapping(uri);
+		uri = setLanguage(uri);
 		Logger.debug(this.getClass(), "In the Method isResource");
 		if (uri.endsWith("/")) {
 			return false;
@@ -314,7 +314,7 @@ public class DotWebdavHelper {
 	}
 
 	public IFileAsset loadFile(String url, User user) throws IOException, DotDataException, DotSecurityException{
-		url = stripMapping(url);
+		url = setLanguage(url);
 		String hostName = getHostname(url);
 		url = getPath(url);
 
@@ -351,7 +351,7 @@ public class DotWebdavHelper {
 	}
 
 	public Folder loadFolder(String url,User user) throws IOException{
-		url = stripMapping(url);
+		url = setLanguage(url);
 		String hostName = getHostname(url);
 		url = getPath(url);
 		Host host;
@@ -371,10 +371,11 @@ public class DotWebdavHelper {
 	}
 
 	public java.io.File loadTempFile(String url){
-		try {
-			url = stripMapping(url);
-		} catch (IOException e) {
-		}
+			try {
+				url = setLanguage(url);
+			} catch (IOException e) {
+				Logger.error(this, "Something is wrong with the path: " + url, e);
+			}
 		Logger.debug(this, "Getting temp file from path " + url);
 		java.io.File f = new java.io.File(tempHolderDir.getPath() + url);
 		return f;
@@ -490,11 +491,12 @@ public class DotWebdavHelper {
     }
 
     public String getHostName ( String uri ) {
-		try {
-			return getHostname(stripMapping(uri));
-		} catch (IOException e) {
-			return null;
-		}
+			try {
+				return getHostname(setLanguage(uri));
+			} catch (IOException e) {
+				Logger.error(this, "Something is wrong with the path: " + uri, e);
+				return null;
+			}	
 	}
 
 	public boolean isTempResource(String path){
@@ -505,10 +507,11 @@ public class DotWebdavHelper {
 	}
 
 	public java.io.File createTempFolder(String path){
-		try {
-			path = stripMapping(path);
-		} catch (IOException e) {
-		}
+			try {
+				path = setLanguage(path);
+			} catch (IOException e) {
+				Logger.error(this, "Something is wrong with the path: " + path, e);
+			}
 		if(path.startsWith(tempHolderDir.getPath()))
 			path = path.substring(tempHolderDir.getPath().length(), path.length());
 		if(path.startsWith("/") || path.startsWith("\\")){
@@ -570,7 +573,7 @@ public class DotWebdavHelper {
 		if(fromFileFolder == null || !fromFileFolder.isDirectory()){
 			throw new IOException("The temp source file must be a directory");
 		}
-		destPath = stripMapping(destPath);
+		destPath = setLanguage(destPath);
 		if(destPath.endsWith("/"))
 			destPath = destPath + "/";
 		createFolder(destPath, user);
@@ -585,7 +588,7 @@ public class DotWebdavHelper {
 	}
 
 	public void copyTempFileToStorage(java.io.File fromFile, String destPath,User user,boolean autoPublish) throws Exception{
-		destPath = stripMapping(destPath);
+		destPath = setLanguage(destPath);
 		if(fromFile == null){
 			throw new IOException("The temp source file must exist");
 		}
@@ -601,8 +604,8 @@ public class DotWebdavHelper {
 
 	public void copyFolder(String sourcePath, String destinationPath, User user, boolean autoPublish) throws IOException, DotDataException {
 		try{
-			destinationPath=stripMapping(destinationPath);
-			sourcePath=stripMapping(sourcePath);
+			destinationPath=setLanguage(destinationPath);
+			sourcePath=setLanguage(sourcePath);
 			PermissionAPI perAPI = APILocator.getPermissionAPI();
 			createFolder(destinationPath, user);
 
@@ -681,7 +684,7 @@ public class DotWebdavHelper {
 		try{
 			PermissionAPI perAPI = APILocator.getPermissionAPI();
 			Logger.debug(this.getClass(), "createResource");
-			resourceUri = stripMapping(resourceUri);
+			resourceUri = setLanguage(resourceUri);
 			String hostName = getHostname(resourceUri);
 			String path = getPath(resourceUri);
 			String folderName = getFolderName(path);
@@ -834,7 +837,7 @@ public class DotWebdavHelper {
 	}
 
 	public void setResourceContent(String resourceUri, InputStream content,	String contentType, String characterEncoding, Date modifiedDate, User user, boolean isAutoPub) throws Exception {
-		resourceUri = stripMapping(resourceUri);
+		resourceUri = setLanguage(resourceUri);
 		Logger.debug(this.getClass(), "setResourceContent");
 		String hostName = getHostname(resourceUri);
 		String path = getPath(resourceUri);
@@ -1030,7 +1033,7 @@ public class DotWebdavHelper {
 
 	public Folder createFolder(String folderUri, User user) throws IOException, DotDataException {
 		Folder folder = null;
-		folderUri = stripMapping(folderUri);
+		folderUri = setLanguage(folderUri);
 		PermissionAPI perAPI = APILocator.getPermissionAPI();
 		Logger.debug(this.getClass(), "createFolder");
 		String hostName = getHostname(folderUri);
@@ -1093,8 +1096,8 @@ public class DotWebdavHelper {
 	}
 
 	public void move(String fromPath, String toPath, User user,boolean autoPublish)throws IOException, DotDataException {
-		fromPath = stripMapping(fromPath);
-		toPath = stripMapping(toPath);
+		fromPath = setLanguage(fromPath);
+		toPath = setLanguage(toPath);
 		PermissionAPI perAPI = APILocator.getPermissionAPI();
 
 		String hostName = getHostname(fromPath);
@@ -1292,7 +1295,7 @@ public class DotWebdavHelper {
 	}
 
 	public void removeObject(String uri, User user) throws IOException, DotDataException, DotSecurityException {
-		uri = stripMapping(uri);
+		uri = setLanguage(uri);
 		Logger.debug(this.getClass(), "In the removeObject Method");
 		String hostName = getHostname(uri);
 		String path = getPath(uri);
@@ -1505,14 +1508,21 @@ public class DotWebdavHelper {
 		return defaultLang;
 	}
 	
-	public void setLanguage(String uri){
-		try {
-			stripMapping(uri);
-		} catch (IOException e) {
+	public String setLanguage(String uri) throws IOException{
+		String r = stripMapping(uri);
+		if(!legacyPath){
+			if(StringUtils.isNumeric(r.substring(1, 2))){
+			defaultLang = Long.parseLong(r.substring(1, 2));
+				if(!APILocator.getLanguageAPI().getLanguages().contains(APILocator.getLanguageAPI().getLanguage(defaultLang))){
+					throw new IOException("The language id specified in the path does not exists");
+				}
+				r = r.substring(2);
+			}
 		}
+		return r;
 	}
 
-	private String stripMapping(String uri) throws IOException {
+	private String stripMapping(String uri){
 		String r = uri;
 		if (r.startsWith("/webdav")) {
 			r = r.substring(7, r.length());
@@ -1530,14 +1540,6 @@ public class DotWebdavHelper {
 			}
 			if (r.startsWith("/live")) {
 				r = r.substring(5, r.length());
-			}
-			if(StringUtils.isNumeric(r.substring(1, 2))){
-			defaultLang = Long.parseLong(r.substring(1, 2));
-				if(!APILocator.getLanguageAPI().getLanguages().contains(APILocator.getLanguageAPI().getLanguage(defaultLang))){
-					Logger.error( this, "The language id specified in the path does not exists");
-					throw new IOException("The language id specified in the path does not exists");
-				}
-				r = r.substring(2);
 			}
 		}
 		return r;
@@ -1571,7 +1573,7 @@ public class DotWebdavHelper {
 	private Summary[] getChildrenData(String folderUriAux, User user) throws IOException {
 		PermissionAPI perAPI = APILocator.getPermissionAPI();
 		Logger.debug(this.getClass(), "getChildrenNames");
-		folderUriAux=stripMapping(folderUriAux);
+		folderUriAux=setLanguage(folderUriAux);
 		ArrayList<Summary> returnValue = new ArrayList<Summary>();
 		try {
 			// ### GET THE HOST ###
@@ -1714,7 +1716,7 @@ public class DotWebdavHelper {
 		return returnValue.toArray(new Summary[returnValue.size()]);
 	}
 	private InputStream getResourceContent(String resourceUri, User user) throws Exception {
-		resourceUri=stripMapping(resourceUri);
+		resourceUri=setLanguage(resourceUri);
 		Logger.debug(this.getClass(), "getResourceContent");
 		InputStream returnValue = null;
 		String hostName = getHostname(resourceUri);
