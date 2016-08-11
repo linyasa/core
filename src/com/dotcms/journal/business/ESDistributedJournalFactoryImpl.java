@@ -9,136 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-/**
- * 
- */
-package com.dotmarketing.common.business.journal;
-
-import java.sql.Connection;
-import java.util.List;
-
-import com.dotmarketing.beans.Host;
-import com.dotmarketing.business.FactoryLocator;
-import com.dotmarketing.db.DbConnectionFactory;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.portlets.contentlet.model.Contentlet;
-import com.dotmarketing.portlets.folders.model.Folder;
-import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.UtilMethods;
-
-/**
- * @author Jason Tesser
- * @since 1.6.5c
- *
- */
-public class DistributedJournalAPIImpl<T> implements DistributedJournalAPI<T> {
-
-	private DistributedJournalFactory<T> distFac;
-	
-	public DistributedJournalAPIImpl() {
-		this.distFac = (DistributedJournalFactory<T>)FactoryLocator.getDistributedJournalFactory();
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.dotmarketing.business.DistributedJournalAPI#addCacheEntry(java.lang.String)
-	 */
-	public void addCacheEntry(String key, String group) throws DotDataException {
-		distFac.addCacheEntry(key, group);
-	}
-
-	/* (non-Javadoc)
-	 * @see com.dotmarketing.business.DistributedJournalAPI#findCacheEntriesToRemove()
-	 */
-	public List<String> findCacheEntriesToRemove() throws DotDataException {
-		return distFac.findCacheEntriesToRemove();
-	}
-	
-	public void addStructureReindexEntries(T structureInode) throws DotDataException {
-		distFac.addStructureReindexEntries(structureInode);
-	}
-	
-	public synchronized void addBuildNewIndexEntries() throws DotDataException {
-		distFac.addBuildNewIndexEntries();
-	}
-	
-	public List<IndexJournal<T>> findContentReindexEntriesToReindex() throws DotDataException {
-		return distFac.findContentReindexEntriesToReindex();
-	}
-	
-	public List<IndexJournal<T>> findContentReindexEntriesToReindex(boolean includeFailedRecords) throws DotDataException {
-		return distFac.findContentReindexEntriesToReindex(includeFailedRecords);
-	}
-	
-	public void processJournalEntries() throws DotDataException {
-		distFac.processJournalEntries();
-	}
-	
-	public void deleteReindexEntryForServer(IndexJournal<T> iJournal) throws DotDataException {
-		distFac.deleteReindexEntryForServer(iJournal);
-	}
-
-	public boolean isIndexationEnabled() {
-		return isIndexationEnabled();
-	}
-
-	public void setIndexationEnabled(boolean indexationEnabled) {
-		setIndexationEnabled(indexationEnabled);
-	}
-	
-	public boolean areRecordsLeftToIndex() throws DotDataException {
-		return distFac.areRecordsLeftToIndex();
-	}
-
-	public long recordsLeftToIndexForServer() throws DotDataException {
-	    return recordsLeftToIndexForServer(DbConnectionFactory.getConnection());
-	}
-	
-	public long recordsLeftToIndexForServer(Connection conn) throws DotDataException {
-		return distFac.recordsLeftToIndexForServer(conn);
-	}
-	
-	public void deleteLikeJournalRecords(IndexJournal<T> ijournal) throws DotDataException {
-		distFac.deleteLikeJournalRecords(ijournal);
-	}
-	
-	public String getServerId(){
-		return distFac.getServerId();
-	}
-
-	public void distReindexJournalCleanup(int time, boolean add, boolean includeInodeCheck, DateType type) throws DotDataException {
-		distFac.distReindexJournalCleanup(time, add, includeInodeCheck, type);
-		
-	}
-
-	public void cleanDistReindexJournal() throws DotDataException {
-		distFac.cleanDistReindexJournal();
-	}
-
-	public List<IndexJournal> viewReindexJournalData() throws DotDataException {
-		return distFac.viewReindexJournalData();
-	}
-
-	public void refreshContentUnderHost(Host host) throws DotDataException {
-		distFac.refreshContentUnderHost(host);		
-	}	
-	
-	public void refreshContentUnderFolder(Folder folder) throws DotDataException {
-		distFac.refreshContentUnderFolder(folder);
-	}
-
-	public void refreshContentUnderFolderPath ( String hostId, String folderPath ) throws DotDataException {
-		distFac.refreshContentUnderFolderPath(hostId, folderPath);
-	}
-
-    public void deleteReindexEntryForServer(List<IndexJournal<T>> recordsToDelete) throws DotDataException {
-        distFac.deleteReindexEntryForServer(recordsToDelete);
-    }
-
-	public void resetServerForReindexEntry ( List<IndexJournal<T>> recordsToModify ) throws DotDataException {
-		distFac.resetServerForReindexEntry(recordsToModify);
-	}
-
-}
 
 import oracle.jdbc.OracleTypes;
 
@@ -390,7 +260,9 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
 
     @Override
     protected void deleteReindexEntryForServer(List<IndexJournal<T>> recordsToDelete) throws DotDataException {
+
         DotConnect dc = new DotConnect();
+        
         StringBuilder sql=new StringBuilder().append("DELETE FROM dist_reindex_journal where id in (");
         boolean first=true;
         for(IndexJournal<T> idx : recordsToDelete) {
@@ -414,8 +286,67 @@ public class ESDistributedJournalFactoryImpl<T> extends DistributedJournalFactor
 				Logger.error(ESDistributedJournalFactoryImpl.class,e.getMessage(),e);
 			}
 		}
+
+		deleteReindexEntryByIdentifer(recordsToDelete);
+		deleteReindexEntryByInode(recordsToDelete);
     }
 
+    private void deleteReindexEntryByIdentifer(List<IndexJournal<T>> recordsToDelete) throws DotDataException {
+        DotConnect dc = new DotConnect();
+        
+        StringBuilder sql=new StringBuilder().append("DELETE FROM dist_reindex_journal where ident_to_index in (");
+        boolean first=true;
+        for(IndexJournal<T> idx : recordsToDelete) {
+            if(!first) sql.append(','); else first=false;
+            sql.append("'" + idx.getIdentToIndex() + "'");
+        }
+        sql.append(')');
+
+        dc.setSQL(sql.toString());
+        Connection con = null;
+		try {
+			con = DbConnectionFactory.getDataSource().getConnection();
+			con.setAutoCommit(true);
+			dc.loadResult(con);
+		} catch (SQLException e) {
+			Logger.error(ESDistributedJournalFactoryImpl.class,e.getMessage(),e);
+		}finally{
+			try {
+				con.close();
+			} catch (SQLException e) {
+				Logger.error(ESDistributedJournalFactoryImpl.class,e.getMessage(),e);
+			}
+		}
+    }
+    
+    private void deleteReindexEntryByInode(List<IndexJournal<T>> recordsToDelete) throws DotDataException {
+        DotConnect dc = new DotConnect();
+        
+        StringBuilder sql=new StringBuilder().append("DELETE FROM dist_reindex_journal where inode_to_index in (");
+        boolean first=true;
+        for(IndexJournal<T> idx : recordsToDelete) {
+            if(!first) sql.append(','); else first=false;
+            sql.append("'" + idx.getInodeToIndex()+ "'");
+        }
+        sql.append(')');
+
+        dc.setSQL(sql.toString());
+        Connection con = null;
+		try {
+			con = DbConnectionFactory.getDataSource().getConnection();
+			con.setAutoCommit(true);
+			dc.loadResult(con);
+		} catch (SQLException e) {
+			Logger.error(ESDistributedJournalFactoryImpl.class,e.getMessage(),e);
+		}finally{
+			try {
+				con.close();
+			} catch (SQLException e) {
+				Logger.error(ESDistributedJournalFactoryImpl.class,e.getMessage(),e);
+			}
+		}
+    }
+    
     @Override
     protected void distReindexJournalCleanup(int time, boolean add, boolean includeInodeCheck, DateType type) throws DotDataException {
         StringBuilder reindexJournalCleanupSql = new StringBuilder();
