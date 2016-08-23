@@ -243,9 +243,9 @@ public class UploadMultipleFilesAction extends DotPortletAction {
 				contentlet.setStructureInode(selectedStructureInode);
 				contentlet.setHost(hostId);
 				contentlet.setFolder(folder.getInode());
-				if(UtilMethods.isSet(session.getAttribute(WebKeys.CONTENT_SELECTED_LANGUAGE))){
-					contentlet.setLanguageId(Long.parseLong(session.getAttribute(WebKeys.CONTENT_SELECTED_LANGUAGE).toString()));
-				}
+                if(UtilMethods.isSet(session.getAttribute(WebKeys.CONTENT_SELECTED_LANGUAGE))){
+                    contentlet.setLanguageId(Long.parseLong(session.getAttribute(WebKeys.CONTENT_SELECTED_LANGUAGE).toString()));
+                }
 				String fileName = fileNamesArray[k];
 				String title = getFriendlyName(fileName);
 
@@ -293,7 +293,7 @@ public class UploadMultipleFilesAction extends DotPortletAction {
                         }
 
                         HibernateUtil.commitTransaction();
-						APILocator.getContentletAPI().isInodeIndexed(contentlet.getInode());
+                        APILocator.getContentletAPI().isInodeIndexed(contentlet.getInode());
 
                     }
 
