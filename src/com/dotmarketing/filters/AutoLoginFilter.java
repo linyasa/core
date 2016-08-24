@@ -21,6 +21,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.dotcms.filters.interceptor.AbstractWebInterceptorSupportFilter;
+import com.dotcms.filters.interceptor.WebInterceptor;
+import com.dotcms.filters.interceptor.WebInterceptorDelegate;
 import com.dotmarketing.cms.factories.PublicEncryptionFactory;
 import com.dotmarketing.cms.login.factories.LoginFactory;
 import com.dotmarketing.util.Config;
@@ -28,38 +31,39 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 import com.dotmarketing.util.WebKeys;
 
-public class AutoLoginFilter implements Filter {
+/**
+ * Auto login is useful to do the auto login based on some configuration and preconditions.
+ * DotCMS offers several approaches to do auto login, for instance CAS, JWT, OpenSAML, etc.
+ * @author jsanca
+ */
+public class AutoLoginFilter extends AbstractWebInterceptorSupportFilter {
 
-    public void destroy() {
+    @Override
+    public void init(final FilterConfig config) throws ServletException {
 
-    }
+        this.addDefaultInterceptors (config);
+        super.init(config);
+    } // init.
+
+    // add the previous legacy code to be align with the interceptor approach.
+    private void addDefaultInterceptors(final FilterConfig config) {
+
+        final WebInterceptorDelegate delegate =
+                this.getDelegate(config.getServletContext());
+
+        delegate.add(new CasAutoLoginWebInterceptor());
+        delegate.add(new DefaultAutoLoginWebInterceptor());
+    } // addDefaultInterceptors.
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException,
             ServletException {
-        HttpServletResponse response = (HttpServletResponse) res;
-        HttpServletRequest request = (HttpServletRequest) req;
-		HttpSession session = request.getSession(false);
-		
-		boolean useCasFilter = Config.getBooleanProperty("FRONTEND_CAS_FILTER_ON");
-		
-        if (useCasFilter){
-        	String userID = (String)session.getAttribute("edu.yale.its.tp.cas.client.filter.user");
-        	Logger.debug(AutoLoginFilter.class, "Doing CasAutoLogin Filter for: " + userID);
-            if(UtilMethods.isSet(userID)){                
-            	LoginFactory.doCookieLogin(PublicEncryptionFactory.encryptString(userID), request, response);      	
-            }
+
+        final HttpServletResponse response = (HttpServletResponse) res;
+        final HttpServletRequest request   = (HttpServletRequest) req;
+
+        if (this.runInterceptors(request, response)) {
+
+            chain.doFilter(req, response);
         }
-        else{
-	        String encryptedId = UtilMethods.getCookieValue(request.getCookies(), WebKeys.CMS_USER_ID_COOKIE);
-	 
-	        if (((session != null && session.getAttribute(WebKeys.CMS_USER) == null) || session == null)&& 
-	        		UtilMethods.isSet(encryptedId)) {
-	            Logger.debug(AutoLoginFilter.class, "Doing AutoLogin for " + encryptedId);
-	            LoginFactory.doCookieLogin(encryptedId, request, response);
-	        }
-	    }
-        chain.doFilter(req, response);
-    }
-    public void init(FilterConfig config) throws ServletException {
-    }
-}
+    } // doFilter.
+} // E:O:F:AutoLoginFilter.
