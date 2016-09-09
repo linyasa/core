@@ -416,7 +416,7 @@
 
 		var userEmail;
 		if(emailChanged){
-			var pattern=/^([a-zA-Z0-9_.-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/;
+			var pattern=/^([a-zA-Z0-9_.'-])+@([a-zA-Z0-9_.-])+\.([a-zA-Z])+([a-zA-Z])+/;
 			userEmail = dijit.byId('emailAddress').attr('value');
 			if(!pattern.test(userEmail)){
 				alert(invalidEmail);

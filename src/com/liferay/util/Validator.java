@@ -226,7 +226,7 @@ public class Validator {
 				(!isDigit(name[i])) &&
 				(name[i] != '.') &&
 				(name[i] != '-') &&
-				(name[i] != '+') &&
+				(name[i] != '\'') &&
 				(name[i] != '_')) {
 
 				return false;
