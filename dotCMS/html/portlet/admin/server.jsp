@@ -1,3 +1,4 @@
+<%@ page import="com.dotmarketing.loggers.Log4jUtil" %>
 <%
 /**
  * Copyright (c) 2000-2005 Liferay, LLC. All rights reserved.
@@ -233,13 +234,14 @@
 					<%
 					Map currentLoggerNames = new TreeMap();
 
-					Enumeration enu = LogManager.getCurrentLoggers();
+						Collection<Logger> loggers = Log4jUtil.getLoggers();
 
-					while (enu.hasMoreElements()) {
-						Logger logger = (Logger)enu.nextElement();
+						if ( null != loggers ) {
+							for ( Logger logger : loggers ) {
+								currentLoggerNames.put(logger.getName(), logger);
+							}
+						}
 
-						currentLoggerNames.put(logger.getName(), logger);
-					}
 					%>
 
 					<table border="0" cellpadding="4" cellspacing="0" width="100%">
@@ -343,7 +345,7 @@
 
 					PropertiesUtil.copyProperties(System.getProperties(), systemProps);
 
-					enu = systemProps.propertyNames();
+					Enumeration enu = systemProps.propertyNames();
 
 					while (enu.hasMoreElements()) {
 						String name = (String)enu.nextElement();

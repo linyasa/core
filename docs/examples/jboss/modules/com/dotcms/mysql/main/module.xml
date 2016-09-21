@@ -29,7 +29,7 @@
     </properties>
 
     <resources>
-        <resource-root path="mysql-connector-java-5.1.23-bin.jar"/>
+        <resource-root path="mysql-connector-java-5.1.37-bin.jar"/>
         <!-- Insert resources here -->
     </resources>
     <dependencies>
