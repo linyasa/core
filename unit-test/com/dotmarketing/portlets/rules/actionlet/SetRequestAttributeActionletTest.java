@@ -4,16 +4,16 @@ import com.dotcms.repackage.com.google.common.collect.ImmutableList;
 import com.dotcms.repackage.com.google.common.collect.ImmutableMap;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.model.RuleAction;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 
-@RunWith(DataProviderRunner.class)
+
 public class SetRequestAttributeActionletTest {
 
     @Test
@@ -36,25 +36,16 @@ public class SetRequestAttributeActionletTest {
         assertThat(actionlet.getId(), is("SetRequestAttributeActionlet"));
     }
 
-    /**
-     * Define some test cases for validating the URL. JUnit will run each of these cases as a separate test.
-     * This is a great way to test a large number of allowed inputs... and also helps makes your test count look amazing.
-     */
-    @DataProvider
-    public static Object[][] cases() {
-
-        return new TestCase[][]{
-            {new TestCase("Null key is not valid", null, "anything", false)},
-            {new TestCase("An empty string for key is invalid", "", "anything", false)},
-            {new TestCase("A single character key is valid", "a", "anything", true)},
-            {new TestCase("A null value is valid", "foo", null, true)},
-            {new TestCase("An empty string value is valid", "foo", "", true)},
-        };
+    @TestFactory
+    Stream<DynamicTest> testValidateParametersFactory() {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testValidateParameters(datum)));
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testValidateParameters(TestCase theCase) throws Exception {
+    private void testValidateParameters(TestCase theCase) throws Exception {
         SetRequestAttributeActionlet actionlet = new SetRequestAttributeActionlet();
         List<ParameterModel> list = ImmutableList.of(
             new ParameterModel(REQUEST_KEY, theCase.key),
@@ -91,7 +82,7 @@ public class SetRequestAttributeActionletTest {
         Mockito.verify(request).setAttribute(keyValue, "");
     }
 
-    public static class TestCase {
+    private class TestCase {
 
         String msg;
         String key;
@@ -109,6 +100,20 @@ public class SetRequestAttributeActionletTest {
         public String toString() {
             return msg;
         }
+    }
+
+    /**
+     * Define some test getCases for validating the URL. JUnit will run each of these getCases as a separate test.
+     * This is a great way to test a large number of allowed inputs... and also helps makes your test count look amazing.
+     */
+    private List<TestCase> getCases() {
+        List<TestCase> cases = new ArrayList<>();
+        cases.add(new TestCase("Null key is not valid", null, "anything", false));
+        cases.add(new TestCase("An empty string for key is invalid", "", "anything", false));
+        cases.add(new TestCase("A single character key is valid", "a", "anything", true));
+        cases.add(new TestCase("A null value is valid", "foo", null, true));
+        cases.add(new TestCase("An empty string value is valid", "foo", "", true));
+        return cases;
     }
 
 }

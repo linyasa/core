@@ -2,7 +2,6 @@ package com.dotmarketing.portlets.rules.conditionlet;
 
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
-import com.dotcms.unittest.TestUtil;
 import com.dotcms.visitor.business.VisitorAPI;
 import com.dotcms.visitor.domain.Visitor;
 import com.dotmarketing.business.UserAPI;
@@ -15,16 +14,15 @@ import com.dotmarketing.portlets.rules.exception.ComparisonNotSupportedException
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
 import com.liferay.portal.model.User;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,14 +34,13 @@ import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS_NOT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class PersonaConditionletTest {
 
-    @DataProvider
-    public static Object[][] cases() throws Exception {
+    private List<TestCase> getCases() throws Exception {
         try {
             List<TestCase> data = Lists.newArrayList();
 
@@ -87,16 +84,23 @@ public class PersonaConditionletTest {
                     .shouldBeFalse()
             );
 
-            return TestUtil.toCaseArray(data);
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -105,36 +109,36 @@ public class PersonaConditionletTest {
         return conditionlet.evaluate(aCase.request, aCase.response, conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testEvaluatesToFalseWhenArgumentsAreEmptyOrMissing() throws Exception {
         TestCase test = new TestCase();
         PersonaConditionlet conditionlet = new PersonaConditionlet(test.personaAPI, test.userAPI, test.visitorAPI);
-        conditionlet.instanceFrom(null);
+        assertThrows(IllegalStateException.class, () -> conditionlet.instanceFrom(null));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonIsNull() throws Exception {
         TestCase aCase = new TestCase().withComparison(null);
         PersonaConditionlet conditionlet = new PersonaConditionlet(aCase.personaAPI, aCase.userAPI, aCase.visitorAPI);
-        conditionlet.instanceFrom(aCase.params);
+        assertThrows(IllegalStateException.class, () -> conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonNotSet() throws Exception {
         TestCase test = new TestCase();
         PersonaConditionlet conditionlet = new PersonaConditionlet(test.personaAPI, test.userAPI, test.visitorAPI);
-        conditionlet.instanceFrom(Maps.newHashMap());
+        assertThrows(IllegalStateException.class, () -> conditionlet.instanceFrom(Maps.newHashMap()));
     }
 
-    @Test(expected = ComparisonNotSupportedException.class)
+    @Test
     public void testUnsupportedComparisonThrowsException() throws Exception {
         TestCase aCase = new TestCase();
         Persona any = new Persona(new Contentlet());
         aCase.withComparison(EXISTS).withCurrentPersona(any).withInputPersona(any);
-        runCase(aCase);
+        assertThrows(ComparisonNotSupportedException.class, () -> runCase(aCase));
     }
 
-    public static class TestCase {
+    private class TestCase {
 
         private final User user = new User("000000");
         private final HttpServletRequest request = mock(HttpServletRequest.class);

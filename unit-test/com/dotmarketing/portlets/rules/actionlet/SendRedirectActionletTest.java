@@ -2,18 +2,17 @@ package com.dotmarketing.portlets.rules.actionlet;
 
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.model.RuleAction;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,7 +22,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 
-@RunWith(DataProviderRunner.class)
+
 public class SendRedirectActionletTest {
 
     private static final String URL_KEY = "URL";
@@ -36,9 +35,7 @@ public class SendRedirectActionletTest {
         assertThat(actionlet.getId(), is("SendRedirectActionlet"));
     }
 
-    @Test
-    @UseDataProvider("urlCases")
-    public void testValidateParameters(SimpleUrlCase theCase) throws Exception {
+    private void testValidateParameters(SimpleUrlCase theCase) throws Exception {
         SendRedirectActionlet actionlet = new SendRedirectActionlet();
         ParameterModel param = new ParameterModel(URL_KEY, theCase.url);
         List<ParameterModel> list = new ArrayList<>();
@@ -55,6 +52,15 @@ public class SendRedirectActionletTest {
             exception.printStackTrace();
         }
         assertThat(theCase.msg, exception, theCase.valid ? nullValue() : notNullValue());
+    }
+
+    @TestFactory
+    Stream<DynamicTest> testValidateParametersFactory() {
+        List<SimpleUrlCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testValidateParameters(datum)));
     }
 
     @Test
@@ -76,23 +82,21 @@ public class SendRedirectActionletTest {
     }
 
     /**
-     * Define some test cases for validating the URL. JUnit will run each of these cases as a separate test.
+     * Define some test getCases for validating the URL. JUnit will run each of these getCases as a separate test.
      * This is a great way to test a large number of allowed inputs... and also helps makes your test count look amazing.
      */
-    @DataProvider
-    public static Object[][] urlCases() {
+    private List<SimpleUrlCase> getCases() {
 
-        return new SimpleUrlCase[][]{
-            {new SimpleUrlCase("Absolute url is valid", "https://www.google.com", true)},
-            {new SimpleUrlCase("URL Relative to root is valid", "/some/path", true)},
-            {new SimpleUrlCase("Relative URL using ../ notation is valid", "../../foo", true)},
-//            {new SimpleUrlCase("Empty string is not valid", "", false)},
-            {new SimpleUrlCase("'.' is not valid", ".", false)},
-            {new SimpleUrlCase("Trailing \\ is not valid", "https://www.google.com\\", false)},
-        };
+        List<SimpleUrlCase> cases = new ArrayList<>();
+        cases.add(new SimpleUrlCase("Absolute url is valid", "https://www.google.com", true));
+        cases.add(new SimpleUrlCase("URL Relative to root is valid", "/some/path", true));
+        cases.add(new SimpleUrlCase("Relative URL using ../ notation is valid", "../../foo", true));
+        cases.add(new SimpleUrlCase("'.' is not valid", ".", false));
+        cases.add(new SimpleUrlCase("Trailing \\ is not valid", "https://www.google.com\\", false));
+        return cases;
     }
 
-    public static class SimpleUrlCase {
+    private class SimpleUrlCase {
 
         String msg;
         String url;

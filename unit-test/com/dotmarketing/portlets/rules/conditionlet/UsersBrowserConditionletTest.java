@@ -4,8 +4,8 @@ import com.dotmarketing.portlets.rules.model.ParameterModel;
 
 import eu.bitwalker.useragentutils.Browser;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class UsersBrowserConditionletTest {
     private UsersBrowserConditionlet conditionlet = new UsersBrowserConditionlet();
     private Collection<String> browsers;
     
-    @Before
+    @BeforeEach
     public void before () {
         // Mock the request
         request = Mockito.mock(HttpServletRequest.class);

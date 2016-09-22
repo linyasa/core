@@ -3,23 +3,21 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
 import com.dotcms.repackage.com.maxmind.geoip2.exception.GeoIp2Exception;
-import com.dotcms.unittest.TestUtil;
 import com.dotcms.util.GeoIp2CityDbUtil;
 import com.dotmarketing.portlets.rules.exception.ComparisonNotSupportedException;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import org.elasticsearch.common.joda.time.LocalDateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,77 +31,24 @@ import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.GR
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.LESS_THAN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class DateTimeConditionletTest {
 
     private static final String MOCK_IP_ADDRESS = "10.0.0.1";
 
-    @DataProvider
-    public static Object[][] cases() throws Exception {
-        try {
-            List<TestCase> data = Lists.newArrayList();
-
-
-            /* GREATER THAN */
-            data.add(new TestCase("If 2016-01-01T00:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
-                    .withComparison(GREATER_THAN)
-                    .withRequestIpAddress(MOCK_IP_ADDRESS)
-                    .withDateTime1("2016-01-01T00:00")
-                    .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
-                    .shouldBeTrue()
-            );
-
-            /* GREATER THAN */
-            data.add(new TestCase("If 2016-01-01T01:00 set and visitor's datetime is 2016-01-01T00:00 , evaluate to false.")
-                    .withComparison(GREATER_THAN)
-                    .withRequestIpAddress(MOCK_IP_ADDRESS)
-                    .withDateTime1("2016-01-01T01:00")
-                    .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T00:00")
-                    .shouldBeFalse()
-            );
-
-            /* LESS THAN */
-            data.add(new TestCase("If 2016-01-01T01:00 set and visitor's datetime is 2016-01-01T00:00 , evaluate to true.")
-                    .withComparison(LESS_THAN)
-                    .withRequestIpAddress(MOCK_IP_ADDRESS)
-                    .withDateTime1("2016-01-01T01:00")
-                    .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T00:00")
-                    .shouldBeTrue()
-            );
-
-            /* LESS THAN */
-            data.add(new TestCase("If 2016-01-01T00:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
-                    .withComparison(LESS_THAN)
-                    .withRequestIpAddress(MOCK_IP_ADDRESS)
-                    .withDateTime1("2016-01-01T00:00")
-                    .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
-                    .shouldBeFalse()
-            );
-
-            /* BETWEEN */
-            data.add(new TestCase("If 2016-01-01T00:00, 2016-01-01T02:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
-                    .withComparison(BETWEEN)
-                    .withRequestIpAddress(MOCK_IP_ADDRESS)
-                    .withDateTime1("2016-01-01T00:00")
-                    .withDateTime2("2016-01-01T02:00")
-                    .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
-                    .shouldBeTrue()
-            );
-
-
-            return TestUtil.toCaseArray(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -111,34 +56,93 @@ public class DateTimeConditionletTest {
         return aCase.conditionlet.evaluate(aCase.request, aCase.response, aCase.conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testEvaluatesToFalseWhenArgumentsAreEmptyOrMissing() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(null);
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(null));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonIsNull() throws Exception {
         TestCase aCase = new TestCase("Empty parameter list should throw IAE.").withComparison(null);
-        new TestCase("").conditionlet.instanceFrom(aCase.params);
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonNotSet() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(Maps.newHashMap());
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(Maps.newHashMap()));
     }
 
 
-    @Test(expected = ComparisonNotSupportedException.class)
+    @Test
     public void testUnsupportedComparisonThrowsException() throws Exception {
         TestCase aCase = new TestCase("Exists: Unsupported comparison should throw.")
                 .withComparison(EXISTS)
                 .withDateTime1("2016-01-01T00:00")
                 .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T00:00")
                 .shouldBeFalse();
-        runCase(aCase);
+        assertThrows(ComparisonNotSupportedException.class, () -> runCase(aCase));
     }
 
-    private static class TestCase {
+    private List<TestCase> getCases() throws Exception {
+        try {
+            List<TestCase> data = Lists.newArrayList();
+
+
+            /* GREATER THAN */
+            data.add(new TestCase("If 2016-01-01T00:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
+                .withComparison(GREATER_THAN)
+                .withRequestIpAddress(MOCK_IP_ADDRESS)
+                .withDateTime1("2016-01-01T00:00")
+                .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
+                .shouldBeTrue()
+            );
+
+            /* GREATER THAN */
+            data.add(new TestCase("If 2016-01-01T01:00 set and visitor's datetime is 2016-01-01T00:00 , evaluate to false.")
+                .withComparison(GREATER_THAN)
+                .withRequestIpAddress(MOCK_IP_ADDRESS)
+                .withDateTime1("2016-01-01T01:00")
+                .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T00:00")
+                .shouldBeFalse()
+            );
+
+            /* LESS THAN */
+            data.add(new TestCase("If 2016-01-01T01:00 set and visitor's datetime is 2016-01-01T00:00 , evaluate to true.")
+                .withComparison(LESS_THAN)
+                .withRequestIpAddress(MOCK_IP_ADDRESS)
+                .withDateTime1("2016-01-01T01:00")
+                .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T00:00")
+                .shouldBeTrue()
+            );
+
+            /* LESS THAN */
+            data.add(new TestCase("If 2016-01-01T00:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
+                .withComparison(LESS_THAN)
+                .withRequestIpAddress(MOCK_IP_ADDRESS)
+                .withDateTime1("2016-01-01T00:00")
+                .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
+                .shouldBeFalse()
+            );
+
+            /* BETWEEN */
+            data.add(new TestCase("If 2016-01-01T00:00, 2016-01-01T02:00 set and visitor's datetime is 2016-01-01T01:00 , evaluate to true.")
+                .withComparison(BETWEEN)
+                .withRequestIpAddress(MOCK_IP_ADDRESS)
+                .withDateTime1("2016-01-01T00:00")
+                .withDateTime2("2016-01-01T02:00")
+                .withMockVisitorsDateTime(MOCK_IP_ADDRESS, "2016-01-01T01:00")
+                .shouldBeTrue()
+            );
+
+
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    private class TestCase {
 
         public final DateTimeConditionlet conditionlet;
         public final GeoIp2CityDbUtil geoIp2Util = mock(GeoIp2CityDbUtil.class);

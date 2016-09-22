@@ -1,16 +1,13 @@
 package com.dotmarketing.portlets.rules.util;
 
 import com.dotcms.repackage.com.google.common.collect.Lists;
-import com.dotcms.unittest.TestUtil;
 import com.dotmarketing.portlets.rules.model.LogicalOperator;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.dotmarketing.portlets.rules.model.LogicalOperator.AND;
 import static com.dotmarketing.portlets.rules.model.LogicalOperator.OR;
@@ -18,11 +15,10 @@ import static com.dotmarketing.portlets.rules.util.LogicalStatement.BooleanCondi
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@RunWith(DataProviderRunner.class)
+
 public class LogicalStatementTest {
 
-    @DataProvider
-    public static Object[][] cases() {
+    private List<TestCase> getCases() {
 
         List<TestCase> data = Lists.newArrayList();
 
@@ -182,12 +178,19 @@ public class LogicalStatementTest {
                      .shouldBeTrue()
         );
 
-        return TestUtil.toCaseArray(data);
+        return data;
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -195,7 +198,7 @@ public class LogicalStatementTest {
         return aCase.statement.evaluate();
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         private final LogicalStatement statement = new LogicalStatement();
         private final String testDescription;

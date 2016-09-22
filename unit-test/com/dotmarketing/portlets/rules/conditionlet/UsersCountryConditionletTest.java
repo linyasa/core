@@ -3,22 +3,20 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
 import com.dotcms.repackage.com.maxmind.geoip2.exception.GeoIp2Exception;
-import com.dotcms.unittest.TestUtil;
 import com.dotcms.util.GeoIp2CityDbUtil;
 import com.dotmarketing.portlets.rules.exception.ComparisonNotSupportedException;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,21 +28,20 @@ import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS_NOT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class UsersCountryConditionletTest {
 
     private static final String MOCK_IP_ADDRESS = "10.0.0.1";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
     }
 
-    @DataProvider
-    public static Object[][] cases() throws Exception {
+    private List<TestCase> getCases() throws Exception {
         try {
             List<TestCase> data = Lists.newArrayList();
 
@@ -101,16 +98,23 @@ public class UsersCountryConditionletTest {
 
 
 
-            return TestUtil.toCaseArray(data);
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -118,20 +122,20 @@ public class UsersCountryConditionletTest {
         return aCase.conditionlet.evaluate(aCase.request, aCase.response, aCase.conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testEvaluatesToFalseWhenArgumentsAreEmptyOrMissing() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(null);
+        assertThrows(NullPointerException.class, () -> new TestCase("").conditionlet.instanceFrom(null));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testCannotValidateWhenComparisonIsNull() throws Exception {
         TestCase aCase = new TestCase("Empty parameter list should throw NPE.").withComparison(null);
-        new TestCase("").conditionlet.instanceFrom(aCase.params);
+        assertThrows(NullPointerException.class, () -> new TestCase("").conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testCannotValidateWhenComparisonNotSet() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(Maps.newHashMap());
+        assertThrows(NullPointerException.class, () -> new TestCase("").conditionlet.instanceFrom(Maps.newHashMap()));
     }
 
     @Test
@@ -145,7 +149,7 @@ public class UsersCountryConditionletTest {
         assertThat(aCase.testDescription, runCase(aCase), is(false));
     }
 
-    @Test(expected = ComparisonNotSupportedException.class)
+    @Test
     public void testUnsupportedComparisonThrowsException() throws Exception {
         TestCase aCase = new TestCase("Exists: Unsupported comparison should throw.")
             .withComparison(EXISTS)
@@ -153,10 +157,10 @@ public class UsersCountryConditionletTest {
             .withRequestIpAddress(MOCK_IP_ADDRESS)
             .withMockIpToIsoCode(MOCK_IP_ADDRESS, "GB")
             .shouldBeFalse();
-        runCase(aCase);
+        assertThrows(ComparisonNotSupportedException.class, () -> runCase(aCase));
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         public final UsersCountryConditionlet conditionlet;
         public final GeoIp2CityDbUtil geoIp2Util = mock(GeoIp2CityDbUtil.class);

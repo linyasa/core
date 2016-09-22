@@ -3,22 +3,20 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.repackage.com.google.common.collect.ImmutableMultimap;
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
-import com.dotcms.unittest.TestUtil;
 import com.dotmarketing.portlets.rules.exception.ComparisonNotSupportedException;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import eu.bitwalker.useragentutils.DeviceType;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,10 +28,10 @@ import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS
 import static eu.bitwalker.useragentutils.DeviceType.COMPUTER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class UsersPlatformConditionletTest {
 
     static ImmutableMultimap<DeviceType, String> DEVICE_TYPE_TO_AGENT_STRINGS = new ImmutableMultimap.Builder<DeviceType, String>()
@@ -93,13 +91,12 @@ public class UsersPlatformConditionletTest {
         )
         .build();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
     }
 
-    @DataProvider
-    public static Object[][] cases() throws Exception {
+    private List<TestCase> getCases() throws Exception {
         try {
             List<TestCase> data = Lists.newArrayList();
 
@@ -124,16 +121,23 @@ public class UsersPlatformConditionletTest {
                 }
             }
 
-            return TestUtil.toCaseArray(data);
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -146,32 +150,32 @@ public class UsersPlatformConditionletTest {
 
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testEvaluatesToFalseWhenArgumentsAreEmptyOrMissing() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(null);
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(null));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonIsNull() throws Exception {
         TestCase aCase = new TestCase("Empty parameter list should throw NPE.").withComparison(null);
-        new TestCase("").conditionlet.instanceFrom(aCase.params);
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(aCase.params));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testCannotValidateWhenComparisonNotSet() throws Exception {
-        new TestCase("").conditionlet.instanceFrom(Maps.newHashMap());
+        assertThrows(IllegalStateException.class, () -> new TestCase("").conditionlet.instanceFrom(Maps.newHashMap()));
     }
 
-    @Test(expected = ComparisonNotSupportedException.class)
+    @Test
     public void testUnsupportedComparisonThrowsException() throws Exception {
         TestCase aCase = new TestCase("Exists: Unsupported comparison should throw.")
             .withComparison(EXISTS)
             .withPlatform(COMPUTER)
             .shouldBeFalse();
-        runCase(aCase);
+        assertThrows(ComparisonNotSupportedException.class, () -> runCase(aCase));
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         public final UsersPlatformConditionlet conditionlet;
         private final HttpServletRequest request;

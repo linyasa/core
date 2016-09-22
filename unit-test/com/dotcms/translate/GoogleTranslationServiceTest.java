@@ -1,5 +1,6 @@
 package com.dotcms.translate;
 
+import com.dotcms.UnitTestBase;
 import com.dotmarketing.business.ApiProvider;
 import com.dotmarketing.business.UserAPI;
 import com.dotmarketing.exception.DotDataException;
@@ -14,7 +15,7 @@ import com.dotmarketing.util.json.JSONObject;
 import com.dotmarketing.viewtools.JSONTool;
 import com.liferay.portal.model.User;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.BufferedReader;
@@ -33,16 +34,17 @@ import static com.dotcms.translate.TranslateTestUtil.english;
 import static com.dotcms.translate.TranslateTestUtil.french;
 import static com.dotcms.translate.TranslateTestUtil.getEnglishContent;
 import static com.dotcms.translate.TranslateTestUtil.spanish;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-public class GoogleTranslationServiceTest {
+public class GoogleTranslationServiceTest extends UnitTestBase {
     private User testUser = new User();
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void translateContent_NullContent() throws TranslationException {
-        new GoogleTranslationService("key", new JSONTool(), new ApiProvider())
-            .translateContent(null, new Language(), null, testUser);
+        assertThrows(NullPointerException.class, () -> new GoogleTranslationService("key", new JSONTool(), new ApiProvider())
+            .translateContent(null, new Language(), null, testUser));
     }
 
     @Test
@@ -137,18 +139,18 @@ public class GoogleTranslationServiceTest {
         assertEquals(frenchVersion.getStringProperty(TEXT_AREA_VN), "French 3");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void translateContent_nullFields() throws TranslationException, DotDataException, DotSecurityException {
         ApiProvider apiProvider = Mockito.mock(ApiProvider.class);
         TranslationService service = Mockito.spy(new GoogleTranslationService("key", null, apiProvider));
-        service.translateContent(new Contentlet(), spanish, null, testUser);
+        assertThrows(NullPointerException.class, () -> service.translateContent(new Contentlet(), spanish, null, testUser));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void translateContent_emtpyFields() throws TranslationException, DotDataException, DotSecurityException {
         ApiProvider apiProvider = Mockito.mock(ApiProvider.class);
         TranslationService service = Mockito.spy(new GoogleTranslationService("", null, apiProvider));
-        service.translateContent(new Contentlet(), spanish, new ArrayList<>(), testUser);
+        assertThrows(IllegalArgumentException.class, () -> service.translateContent(new Contentlet(), spanish, new ArrayList<>(), testUser));
     }
 
     @Test
@@ -201,7 +203,7 @@ public class GoogleTranslationServiceTest {
         assertEquals(translated, "Esta es una prueba en Inglés");
     }
 
-    @Test(expected = TranslationException.class)
+    @Test
     public void testTranslateString_BadJSON() throws Exception {
         JSONObject jsonObject = new JSONObject("{invalid:invalid}");
 
@@ -209,13 +211,13 @@ public class GoogleTranslationServiceTest {
         when(jsonTool.fetch(Mockito.anyString())).thenReturn(jsonObject);
 
         GoogleTranslationService service = new GoogleTranslationService("key", null, new ApiProvider());
-        service.translateString("whatever", english, spanish);
+        assertThrows(TranslationException.class, () -> service.translateString("whatever", english, spanish));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testTranslateString_SameLanguage() throws Exception {
         GoogleTranslationService service = new GoogleTranslationService("", null, null);
-        service.translateString("whatever", english, english);
+        assertThrows(IllegalArgumentException.class, () -> service.translateString("whatever", english, english));
     }
 
     private static String read(InputStream input) throws IOException {

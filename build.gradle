@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M2'
+    }
+}
+
 configurations {
     compile
     antLibs
@@ -9,8 +18,15 @@ configurations {
     ext.felixFolder = "dotCMS/WEB-INF/felix/bundle"
     ext.testLibsFolder = "libs/test"
 }
+
+apply plugin: 'java'
+project.tasks.remove(jar)
+project.tasks.remove(javadoc)
+
 //Import and apply the dependencies from the dependencies scripts
 apply from: "$rootDir/dependencies.gradle"
+
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 configurations.all({
     // dynamic: e.g. 'version: 2.0+'
@@ -22,6 +38,7 @@ configurations.all({
 repositories {
     maven { url "http://repo.dotcms.com/artifactory/libs-release" }
     maven { url "http://repo.dotcms.com/artifactory/libs-snapshot-local" }
+    mavenCentral()
 }
 
 //Syncing the dotCMS/WEB-INF/lib folder

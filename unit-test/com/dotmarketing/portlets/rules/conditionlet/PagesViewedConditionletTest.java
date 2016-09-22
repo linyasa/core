@@ -2,19 +2,16 @@ package com.dotmarketing.portlets.rules.conditionlet;
 
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
-import com.dotcms.unittest.TestUtil;
 import com.dotmarketing.beans.Clickstream;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,17 +32,9 @@ import static org.mockito.Mockito.when;
 /**
  * Created by freddyrodriguez on 10/3/16.
  */
-@RunWith(DataProviderRunner.class)
 public class PagesViewedConditionletTest {
 
-    private HttpServletRequest request;
-    private HttpServletResponse response;
-    private HttpSession httpSessionMock;
-    private PagesViewedConditionlet conditionlet = new PagesViewedConditionlet();
-
-
-    @DataProvider
-    public static Object[][] cases() throws Exception {
+    private List<TestCase> getCases() throws Exception {
         try {
             List<TestCase> data = Lists.newArrayList();
 
@@ -142,16 +131,23 @@ public class PagesViewedConditionletTest {
 
 
 
-            return TestUtil.toCaseArray(data);
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.toString(), runCase(aCase), is(aCase.expect));
     }
 
@@ -159,7 +155,7 @@ public class PagesViewedConditionletTest {
         return aCase.conditionlet.evaluate(aCase.request, aCase.response, aCase.conditionlet.instanceFrom(aCase.params));
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         public final PagesViewedConditionlet conditionlet;
         public final Clickstream clickstream = mock(Clickstream.class);
@@ -173,9 +169,6 @@ public class PagesViewedConditionletTest {
         private int actualVisitsCount;
         private Comparison comparison;
 
-        public TestCase() {
-            this("");
-        }
         public TestCase(String description) {
             conditionlet = new PagesViewedConditionlet();
             when(request.getSession(true)).thenReturn(session);

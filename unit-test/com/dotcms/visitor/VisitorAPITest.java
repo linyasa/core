@@ -1,30 +1,32 @@
 package com.dotcms.visitor;
 
+import com.dotcms.UnitTestBase;
 import com.dotcms.visitor.domain.Visitor;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.web.LanguageWebAPI;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.util.WebKeys;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class VisitorAPITest {
+public class VisitorAPITest extends UnitTestBase{
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetVisitor_WhenNullRequest_ThrowsException() {
-        APILocator.getVisitorAPI().getVisitor(null);
+        assertThrows(IllegalArgumentException.class, () -> APILocator.getVisitorAPI().getVisitor(null));
     }
 
     @Test

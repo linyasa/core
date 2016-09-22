@@ -1,16 +1,13 @@
 package com.dotmarketing.portlets.rules.model;
 
 import com.dotcms.repackage.com.google.common.collect.Lists;
-import com.dotcms.unittest.TestUtil;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,11 +17,9 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class RuleTest {
 
-    @DataProvider
-    public static Object[][] cases() {
+    private List<TestCase> getCases() {
         try {
 
             List<TestCase> data = Lists.newArrayList();
@@ -251,17 +246,23 @@ public class RuleTest {
                          .shouldBeFalse()
             );
 
-            return TestUtil.toCaseArray(data);
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
     }
 
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -270,7 +271,7 @@ public class RuleTest {
         return rule.evaluateConditions(aCase.request, aCase.response, aCase.groups);
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         private final HttpServletRequest request;
         private final HttpServletResponse response;

@@ -6,8 +6,8 @@ import com.dotcms.rest.exception.InternalServerException;
 import com.dotcms.rest.exception.NotFoundException;
 
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,52 +16,55 @@ import java.util.TreeMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 public class I18NResourceTest {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test
     public void testCheckHasResultThrowsExceptionWhenNoResult() throws Exception {
         I18NResource rsrc = new I18NResource();
-        rsrc.checkHasResult(new I18NResource.RestResourceLookup("en", "foo"), Optional.empty(), new HashMap<>());
+        assertThrows(NotFoundException.class, () ->
+            rsrc.checkHasResult(new I18NResource.RestResourceLookup("en", "foo"), Optional.empty(), new HashMap<>()));
     }
 
-    @Test()
+    @Test
     public void testCheckHasResultDoesNotThrowForSingleResult() throws Exception {
         I18NResource rsrc = new I18NResource();
         rsrc.checkHasResult(new I18NResource.RestResourceLookup("en", "foo"), Optional.of("Fake Result"), new HashMap<>());
     }
 
-    @Test()
+    @Test
     public void testCheckHasResultDoesNotThrowForMultipleResults() throws Exception {
         I18NResource rsrc = new I18NResource();
         rsrc.checkHasResult(new I18NResource.RestResourceLookup("en", "foo"), Optional.<String>empty(), Maps.newHashMap("a", "b", "c", "d"));
     }
 
-    @Test()
+    @Test
     public void testCheckHasResultDoesNotThrowForSingleAndMultipleResults() throws Exception {
         I18NResource rsrc = new I18NResource();
         rsrc.checkHasResult(new I18NResource.RestResourceLookup("en", "foo"), Optional.of("Fake Result"), Maps.newHashMap("a", "b", "c", "d"));
     }
 
-    @Test(expected = InternalServerException.class)
+    @Test
     public void testMessageToJsonDoesNotAllowNullRoot() throws Exception {
         I18NResource rsrc = new I18NResource();
         String[] pathKeys = {"foo"};
         String value = "Hello";
-        rsrc.messageToJson(null, pathKeys, value);
+        assertThrows(InternalServerException.class, () -> rsrc.messageToJson(null, pathKeys, value));
     }
 
-    @Test(expected = InternalServerException.class)
+    @Test
     public void testMessageToJsonDoesNotAllowEmptyPathKeys() throws Exception {
         JSONObject root = new JSONObject();
         I18NResource rsrc = new I18NResource();
         String[] pathKeys = {};
         String value = "Hello";
-        rsrc.messageToJson(root, pathKeys, value);
+        assertThrows(InternalServerException.class, () -> rsrc.messageToJson(root, pathKeys, value));
     }
 
     @Test

@@ -19,8 +19,8 @@ import com.dotmarketing.portlets.workflows.model.WorkflowActionFailureException;
 import com.dotmarketing.portlets.workflows.model.WorkflowProcessor;
 import com.liferay.portal.model.User;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +32,7 @@ import java.util.Map;
 import static com.dotcms.translate.TranslateTestUtil.getEnglishContent;
 import static com.dotcms.translate.TranslateTestUtil.getFieldsForContent;
 import static com.dotcms.translate.TranslateTestUtil.getTranslateToAsList;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.doNothing;
@@ -43,18 +44,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+
 public class TranslationActionletTest {
 
     private Contentlet spanishTranslatedContent = mock(Contentlet.class);
     private Contentlet frenchTranslatedContent = mock(Contentlet.class);
 
-    @Before
+    @BeforeEach
     public void mockContents() {
         spanishTranslatedContent = mock(Contentlet.class);
         frenchTranslatedContent = mock(Contentlet.class);
     }
 
-    @Test(expected = WorkflowActionFailureException.class)
+    @Test
     public void testExecuteAction_UnpersistedContent() throws Exception {
         User systemUser = new User("systemUser");
         Contentlet unpersisted = new Contentlet();
@@ -74,7 +76,7 @@ public class TranslationActionletTest {
         when(processor.getUser()).thenReturn(systemUser);
 
         TranslationActionlet actionlet = new TranslationActionlet(apiProvider, null, null);
-        actionlet.executeAction(processor, getParams());
+        assertThrows(WorkflowActionFailureException.class, () -> actionlet.executeAction(processor, getParams()));
     }
 
     @Test

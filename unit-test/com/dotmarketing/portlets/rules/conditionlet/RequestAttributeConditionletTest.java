@@ -2,19 +2,16 @@ package com.dotmarketing.portlets.rules.conditionlet;
 
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.com.google.common.collect.Maps;
-import com.dotcms.unittest.TestUtil;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.parameter.comparison.Comparison;
-import com.tngtech.java.junit.dataprovider.DataProvider;
-import com.tngtech.java.junit.dataprovider.DataProviderRunner;
-import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,17 +24,15 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(DataProviderRunner.class)
 public class RequestAttributeConditionletTest {
 	private RequestAttributeConditionlet conditionlet;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         conditionlet = new RequestAttributeConditionlet();
     }
 
-    @DataProvider
-    public static Object[][] cases() {
+    private List<TestCase> getCases() {
         List<TestCase> data = Lists.newArrayList();
 
         data.add(new TestCase("Comparison 'Exists' should eval true for session attribute value == '' and user value == ''.")
@@ -188,12 +183,19 @@ public class RequestAttributeConditionletTest {
                      .shouldBeTrue()
         );
 
-        return TestUtil.toCaseArray(data);
+        return data;
     }
 
-    @Test
-    @UseDataProvider("cases")
-    public void testComparisons(TestCase aCase) throws Exception {
+    @TestFactory
+    public Stream<DynamicTest> testComparisonsFactory() throws Exception {
+        List<TestCase> testData = getCases();
+        return testData.stream()
+            .map(datum -> DynamicTest.dynamicTest(
+                "Testing " + datum,
+                () -> testComparisons(datum)));
+    }
+
+    private void testComparisons(TestCase aCase) throws Exception {
         assertThat(aCase.testDescription, runCase(aCase), is(aCase.expect));
     }
 
@@ -201,7 +203,7 @@ public class RequestAttributeConditionletTest {
         return conditionlet.evaluate(aCase.request, aCase.response, conditionlet.instanceFrom(aCase.params));
     }
 
-    private static class TestCase {
+    private class TestCase {
 
         private final HttpServletRequest request;
         private final HttpServletResponse response;

@@ -4,15 +4,16 @@ import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.fixtask.tasks.FixTask00090RecreateMissingFoldersInParentPath.LiteFolder;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.doNothing;
@@ -26,14 +27,14 @@ public class FixTask00090RecreateMissingFoldersInParentPathTest {
     private FixTask00090RecreateMissingFoldersInParentPath fixTask;
     private static final String aHostId = "host-id";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         fixTask = new FixTask00090RecreateMissingFoldersInParentPath();
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void getFoldersFromParentPath_ShouldThrowNPE_WhenNullParentPath() {
-        fixTask.getFoldersFromParentPath(null, aHostId);
+        assertThrows(NullPointerException.class, () -> fixTask.getFoldersFromParentPath(null, aHostId));
     }
 
     @Test
@@ -66,9 +67,9 @@ public class FixTask00090RecreateMissingFoldersInParentPathTest {
         assertEquals(folder2.name, "level2");
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void recreateMissingFoldersInParentPath_ShouldThrowNPE_WhenNullParentPath() {
-        fixTask.getFoldersFromParentPath(null, aHostId);
+        assertThrows(NullPointerException.class, () -> fixTask.getFoldersFromParentPath(null, aHostId));
     }
 
     @Test
