@@ -1,18 +1,16 @@
 package com.dotmarketing.business;
 
-import com.dotcms.repackage.org.apache.hadoop.util.hash.Hash;
 import com.dotmarketing.exception.DotDataException;
 import com.liferay.portal.model.User;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Nollymar Longa on 8/8/16.

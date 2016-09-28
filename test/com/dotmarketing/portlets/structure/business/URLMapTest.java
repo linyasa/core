@@ -1,8 +1,5 @@
 package com.dotmarketing.portlets.structure.business;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,10 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.dotcms.TestBase;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
@@ -45,6 +38,13 @@ import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.Logger;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public class URLMapTest extends TestBase  {
 
 	private Folder testFolder;
@@ -57,7 +57,7 @@ public class URLMapTest extends TestBase  {
 	final String salt=Long.toString(System.currentTimeMillis());
 
 
-	@Before
+	@BeforeEach
 	public void createAssets() throws Exception {
 		try {
 
@@ -335,7 +335,7 @@ public class URLMapTest extends TestBase  {
 		    URL urlS = new URL("http://"+serverName+":"+serverPort+"/newstest"+salt+"/el-precio-del-gas/");
 		    urlS.openStream();
 		    
-		    Assert.fail(); // the previus line should throw an exception
+		    //fail(null); // the previus line should throw an exception
 		}
 		catch(FileNotFoundException ex) {
 		    // fine
@@ -346,7 +346,7 @@ public class URLMapTest extends TestBase  {
 		assertTrue(IOUtils.toString(urlS.openStream()).contains("el-precio-del-gas"));
 	}
 
-	@After
+	@AfterEach
 	public void deleteAssets() throws Exception {
         try{
         	HibernateUtil.startTransaction();

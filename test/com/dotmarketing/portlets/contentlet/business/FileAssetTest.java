@@ -2,9 +2,6 @@ package com.dotmarketing.portlets.contentlet.business;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.datagen.FileAssetDataGen;
@@ -23,12 +20,18 @@ import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.Config;
 import com.liferay.util.FileUtil;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class FileAssetTest extends ContentletBaseTest {
 	
 	Client client;
 	WebTarget webTarget;
 	
-    @Before
+    @BeforeEach
     public void before() throws Exception{
         LicenseTestUtil.getLicense();
 
@@ -54,19 +57,20 @@ public class FileAssetTest extends ContentletBaseTest {
   	  
   	  	//Request by Resource Link (SpeedyAssetServlet)
   	  	Response response = webTarget.path(result.getTitle()).queryParam("language_id", result.getLanguageId()).request().get();
-      	Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
+      	assertEquals(HttpStatus.SC_OK, response.getStatus());
   	  	
       	//Request by Identifier (BinaryExporterServlet)
       	Response responseI = webTarget.path("contentAsset/raw-data/"+result.getIdentifier()+"/fileAsset").queryParam("language_id", result.getLanguageId()).request().get();
-      	Assert.assertEquals(HttpStatus.SC_OK, responseI.getStatus());
+      	assertEquals(HttpStatus.SC_OK, responseI.getStatus());
       	
       	fileAssetDataGen.remove(fileInSpanish);
 	}
 	
 	/*
 	 * Test Disabled because is failing sporadically in all DB's
-	 * 
+	 */
 	@Test
+	@Disabled
 	public void fileAssetNonExistingLanguageDefaultFilesTrue()throws DotSecurityException, DotDataException, IOException{
 		Config.setProperty("DEFAULT_FILE_TO_DEFAULT_LANGUAGE", true);
   	  	int english = 1;
@@ -83,15 +87,15 @@ public class FileAssetTest extends ContentletBaseTest {
   	  
   	  	//Request by Resource Link (SpeedyAssetServlet)
   	  	Response response = webTarget.path(result.getTitle()).queryParam("language_id", spanish).request().get();
-      	Assert.assertEquals(HttpStatus.SC_OK, response.getStatus());
+      	assertEquals(HttpStatus.SC_OK, response.getStatus());
   	  	
       	//Request by Identifier (BinaryExporterServlet)
       	Response responseI = webTarget.path("contentAsset/raw-data/"+result.getIdentifier()+"/fileAsset").queryParam("language_id", spanish).request().get();
-      	Assert.assertEquals(HttpStatus.SC_OK, responseI.getStatus());
+      	assertEquals(HttpStatus.SC_OK, responseI.getStatus());
   	   
       	fileAssetDataGen.remove(fileInEnglish);
 	}
-	*/
+
 	
 	@Test
 	public void fileAssetNonExistingLanguageDefaultFilesFalse()throws DotSecurityException, DotDataException, IOException{
@@ -109,11 +113,11 @@ public class FileAssetTest extends ContentletBaseTest {
   	  
   	  	//Request by Resource Link (SpeedyAssetServlet)
   	  	Response response = webTarget.path(result.getTitle()).queryParam("language_id", spanish).request().get();
-  	  	Assert.assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+  	  	assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
   	  	
       	//Request by Identifier (BinaryExporterServlet)
       	Response responseI = webTarget.path("contentAsset/raw-data/"+result.getIdentifier()+"/fileAsset").queryParam("language_id", spanish).request().get();
-      	Assert.assertEquals(HttpStatus.SC_NOT_FOUND, responseI.getStatus());
+      	assertEquals(HttpStatus.SC_NOT_FOUND, responseI.getStatus());
   	  	 
   	  	fileAssetDataGen.remove(fileInEnglish);
 	}

@@ -1,16 +1,12 @@
 package com.dotcms.util.marshal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.dotcms.api.system.event.Payload;
 import com.dotcms.api.system.event.SystemEvent;
@@ -25,6 +21,10 @@ import com.dotcms.notifications.bean.NotificationType;
 import com.dotcms.util.CollectionsUtils;
 import com.dotmarketing.util.json.JSONException;
 import com.dotmarketing.util.json.JSONObject;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * MarshalUtils

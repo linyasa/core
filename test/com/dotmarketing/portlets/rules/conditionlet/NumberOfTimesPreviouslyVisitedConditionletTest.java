@@ -3,10 +3,10 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.LicenseTestUtil;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.util.CookieUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.servlet.http.Cookie;
@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by freddyrodriguez on 10/3/16.
@@ -28,12 +30,12 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
     private HttpSession httpSessionMock;
     private NumberOfTimesPreviouslyVisitedConditionlet conditionlet = new NumberOfTimesPreviouslyVisitedConditionlet();
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void before () {
         // Mock the request
         request = Mockito.mock(HttpServletRequest.class);
@@ -61,7 +63,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         NumberOfTimesPreviouslyVisitedConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -70,7 +72,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
     }
 
     @Test
@@ -83,7 +85,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         NumberOfTimesPreviouslyVisitedConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -92,7 +94,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -101,7 +103,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
     }
 
     @Test
@@ -114,7 +116,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         NumberOfTimesPreviouslyVisitedConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -123,7 +125,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -132,7 +134,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
     }
 
 
@@ -146,7 +148,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         NumberOfTimesPreviouslyVisitedConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -155,7 +157,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -164,7 +166,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
     }
 
     @Test
@@ -177,7 +179,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         NumberOfTimesPreviouslyVisitedConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -186,7 +188,7 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -195,6 +197,6 @@ public class NumberOfTimesPreviouslyVisitedConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
 
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
     }
 }

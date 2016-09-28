@@ -8,9 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -21,9 +18,14 @@ import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class CSSPreProcessServletTest {
 	
-	@Before
+	@BeforeEach
     public void prepare() throws Exception {
         LicenseTestUtil.getLicense();
     }
@@ -55,6 +57,6 @@ public class CSSPreProcessServletTest {
         HttpServletRequest req = ServletTestRunner.localRequest.get();
         String uri = "http://" + req.getServerName() + ":" + req.getServerPort() + 
                 "/DOTLESS/" + folder.getName() + "/hello.txt";
-        Assert.assertEquals("hello there!", IOUtils.toString(new URL(uri).openStream()));
+        assertEquals("hello there!", IOUtils.toString(new URL(uri).openStream()));
     }
 }

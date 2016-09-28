@@ -1,17 +1,12 @@
 package com.dotmarketing.tag.business;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.Date;
 import java.util.List;
 
 import com.dotcms.TestBase;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.UserProxy;
 import com.dotmarketing.business.APILocator;
@@ -31,6 +26,12 @@ import com.dotmarketing.tag.model.Tag;
 import com.dotmarketing.tag.model.TagInode;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test the functionality of TagAPI class
@@ -63,7 +64,7 @@ public class TagAPITest extends TestBase {
 	private static String WIKI_STORY_VARNAME="story";
 	private static String  WIKI_TAG_VARNAME="tag";
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepare () throws DotSecurityException, DotDataException {
 		//Setting the test user
 		systemUser = userAPI.getSystemUser();

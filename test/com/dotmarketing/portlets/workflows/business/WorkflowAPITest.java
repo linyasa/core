@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.dotcms.TestBase;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.APILocator;
@@ -32,6 +30,10 @@ import com.dotmarketing.portlets.workflows.model.WorkflowStep;
 import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This class test the workflow API issues
@@ -66,7 +68,7 @@ public class WorkflowAPITest extends TestBase{
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		WorkflowAPI wapi = APILocator.getWorkflowAPI();
 		WorkflowScheme ws = wapi.findSchemeByName(schemeName);
-		Assert.assertTrue(UtilMethods.isSet(ws));
+		assertTrue(UtilMethods.isSet(ws));
 
 		/*
 		 * Create scheme step1
@@ -75,7 +77,7 @@ public class WorkflowAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowStep> steps = wapi.findSteps(ws);
-		Assert.assertTrue(steps.size()==1);
+		assertTrue(steps.size()==1);
 		WorkflowStep step1 = steps.get(0);
 
 		/*
@@ -85,7 +87,7 @@ public class WorkflowAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		steps = wapi.findSteps(ws);
-		Assert.assertTrue(steps.size()==2);
+		assertTrue(steps.size()==2);
 		WorkflowStep step2 = steps.get(1);
 
 		/*
@@ -97,7 +99,7 @@ public class WorkflowAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowAction> actions1= wapi.findActions(step1, systemUser);
-		Assert.assertTrue(actions1.size()==1);
+		assertTrue(actions1.size()==1);
 		WorkflowAction action1 = actions1.get(0);
 
 		/*
@@ -110,7 +112,7 @@ public class WorkflowAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowAction> actions2= wapi.findActions(step2, systemUser);
-		Assert.assertTrue(actions2.size()==1);
+		assertTrue(actions2.size()==1);
 		WorkflowAction action2 = actions2.get(0);
 
 		/*
@@ -183,7 +185,7 @@ public class WorkflowAPITest extends TestBase{
 		wapi.fireWorkflowNoCheckin(contentlet1, systemUser);
 
 		WorkflowStep  currentStep = wapi.findStepByContentlet(contentlet1);
-		Assert.assertTrue(currentStep.getId().equals(step2.getId()));
+		assertTrue(currentStep.getId().equals(step2.getId()));
 
 		/*
 		 * Validate that step2 could not be deleted
@@ -196,7 +198,7 @@ public class WorkflowAPITest extends TestBase{
 			 * </br> <b> Step : 'Publish' is being referenced by </b> </br></br> Step : 'Edit' ->  Action : 'Edit' </br></br>
 			 */
 		}
-		Assert.assertTrue(UtilMethods.isSet(wapi.findStep(step2.getId())));
+		assertTrue(UtilMethods.isSet(wapi.findStep(step2.getId())));
 		/*
 		 * Validate correct deletion of step1
 		 */
@@ -206,8 +208,8 @@ public class WorkflowAPITest extends TestBase{
 		 * Validate that the step 1 was deleted from the scheme
 		 */
 		steps = wapi.findSteps(ws);
-		Assert.assertTrue(steps.size()==1);
-		Assert.assertTrue(steps.get(0).getId().equals(step2.getId()));
+		assertTrue(steps.size()==1);
+		assertTrue(steps.get(0).getId().equals(step2.getId()));
 
 		/*
 		 * Validate that step2 could not be deleted
@@ -221,14 +223,14 @@ public class WorkflowAPITest extends TestBase{
 			 */
 		}
 		currentStep = wapi.findStepByContentlet(contentlet1);
-		Assert.assertTrue(currentStep.getId().equals(step2.getId()));
+		assertTrue(currentStep.getId().equals(step2.getId()));
 		
 		/*
 		 * Validate that step2 is not deleted
 		 */
 		steps = wapi.findSteps(ws);
-		Assert.assertTrue(steps.size()==1);
-		Assert.assertTrue(steps.get(0).getId().equals(step2.getId()));
+		assertTrue(steps.size()==1);
+		assertTrue(steps.get(0).getId().equals(step2.getId()));
 		
 		/*
 		 * Clean test

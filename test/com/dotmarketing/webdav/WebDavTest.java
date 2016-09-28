@@ -1,8 +1,5 @@
 package com.dotmarketing.webdav;
 
-
-import static org.junit.Assert.assertEquals;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
@@ -14,12 +11,12 @@ import javax.servlet.http.HttpServletRequest;
 import com.dotcms.TestBase;
 import com.dotcms.enterprise.PasswordFactoryProxy;
 import com.dotcms.repackage.com.ibm.icu.util.Calendar;
-import junit.framework.Assert;
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -39,9 +36,13 @@ import com.ettrema.httpclient.InternalServerError;
 import com.ettrema.httpclient.Resource;
 import com.liferay.portal.model.User;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class WebDavTest extends TestBase {
 	
-	@Before
+	@BeforeEach
 	public void before () {
 		Config.setProperty("WEBDAV_LEGACY_PATHING", true);
 	}
@@ -134,12 +135,12 @@ public class WebDavTest extends TestBase {
         file = APILocator.getFileAPI().getWorkingFileById(file.getIdentifier(), user, false);
         
         // the file should have the new content
-        Assert.assertEquals(newContent, IOUtils.toString(new FileReader(APILocator.getFileAPI().getAssetIOFile(file))));
+        assertEquals(newContent, IOUtils.toString(new FileReader(APILocator.getFileAPI().getAssetIOFile(file))));
         
         // testing that webdav returns the same
         ByteArrayOutputStream out=new ByteArrayOutputStream();
         wtFile.download(out, null);
-        Assert.assertEquals(newContent,new String(out.toByteArray()));
+        assertEquals(newContent,new String(out.toByteArray()));
 	}
 	
 	/**
@@ -182,8 +183,8 @@ public class WebDavTest extends TestBase {
         ByteArrayOutputStream out1=new ByteArrayOutputStream(),out2=new ByteArrayOutputStream();
         f1.download(out1, null);
         f2.download(out2, null);
-        Assert.assertEquals("this is a test text", out1.toString());
-        Assert.assertEquals("this is a test text", out2.toString());
+        assertEquals("this is a test text", out1.toString());
+        assertEquals("this is a test text", out2.toString());
         
         f1.delete();
         f2.delete();
@@ -226,12 +227,12 @@ public class WebDavTest extends TestBase {
         
         for(Resource rr: demo.children()) {
             if(rr instanceof File) {
-                Assert.assertNotSame(filename, ((File)rr).name);
+                assertNotSame(filename, ((File)rr).name);
             }
         }
         
         ContentletVersionInfo vi = APILocator.getVersionableAPI().getContentletVersionInfo(file.getIdentifier(), 1);
-        Assert.assertTrue(vi.isDeleted());
+        assertTrue(vi.isDeleted());
 	}
 	
 	/**
@@ -287,7 +288,7 @@ public class WebDavTest extends TestBase {
         	File uploaded = hh.uploadFile(tmp);
         } catch (Exception e){
         	//This is expected: User does not have permission to publish contentlets
-        	Assert.assertTrue(e instanceof InternalServerError);
+        	assertTrue(e instanceof InternalServerError);
         }
 
 	}
@@ -331,7 +332,7 @@ public class WebDavTest extends TestBase {
         File f2=(File)demo.child(renamefilename);
         ByteArrayOutputStream out=new ByteArrayOutputStream();
         f2.download(out, null);
-        Assert.assertEquals("this is a test text", out.toString());
+        assertEquals("this is a test text", out.toString());
         f2.delete();
 	}
 }

@@ -9,8 +9,8 @@ import com.dotmarketing.servlets.SpeedyAssetServlet;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.velocity.ClientVelocityServlet;
 import com.dotmarketing.velocity.VelocityServlet;
-import org.junit.Assert;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.servlet.*;
@@ -21,6 +21,9 @@ import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class CMSFilterUnitTest {
 
@@ -93,9 +96,9 @@ public class CMSFilterUnitTest {
 			HttpServletRequest request = getMockRequest("demo.dotcms.com", "/testLink1");
 			cmsFilter.doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /about-us/"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 
 			
 			
@@ -104,9 +107,9 @@ public class CMSFilterUnitTest {
 			response = new MockResponseWrapper(Mockito.mock(HttpServletResponse.class));
 			cmsFilter.doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /about-us"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 
 			
 			
@@ -115,9 +118,9 @@ public class CMSFilterUnitTest {
 			response = new MockResponseWrapper(Mockito.mock(HttpServletResponse.class));
 			cmsFilter.doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 301, got;" + response.getStatus());
-			Assert.assertEquals(301, response.getStatus());
+			assertEquals(301, response.getStatus());
 			Logger.info(this.getClass(), "looking for http://demo.dotcms.com/about-us"+CMSFilter.CMS_INDEX_PAGE+", got;" + response.getRedirectLocation());
-			Assert.assertEquals("http://demo.dotcms.com/about-us/"+CMSFilter.CMS_INDEX_PAGE, response.getRedirectLocation());
+			assertEquals("http://demo.dotcms.com/about-us/"+CMSFilter.CMS_INDEX_PAGE, response.getRedirectLocation());
 
 			
 			
@@ -127,9 +130,9 @@ public class CMSFilterUnitTest {
 			cmsFilter.doFilter(request, response, chain);
 			
 			Logger.info(this.getClass(), "looking for 301, got;" + response.getStatus());
-			Assert.assertEquals(301, response.getStatus());
+			assertEquals(301, response.getStatus());
 			Logger.info(this.getClass(), "looking for http://demo.dotcms.com/about-us"+CMSFilter.CMS_INDEX_PAGE+", got;" + response.getRedirectLocation());
-			Assert.assertEquals("http://demo.dotcms.com/about-us/"+CMSFilter.CMS_INDEX_PAGE, response.getRedirectLocation());
+			assertEquals("http://demo.dotcms.com/about-us/"+CMSFilter.CMS_INDEX_PAGE, response.getRedirectLocation());
 			
 			
 			Logger.info(this.getClass(), "/testLink5 should forward to /products/"+CMSFilter.CMS_INDEX_PAGE);
@@ -137,27 +140,14 @@ public class CMSFilterUnitTest {
 			cmsFilter.doFilter(request, response, chain);
 			response = new MockResponseWrapper(Mockito.mock(HttpServletResponse.class));
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /products/"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/products/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			
-		
-		
-			
-			
+			assertEquals("/products/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 
-
-
-			
-			
-			
-			
-		
-		
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage());
 
 		} finally {
 			// cleanup
@@ -213,9 +203,9 @@ public class CMSFilterUnitTest {
 			response = new MockResponseWrapper(Mockito.mock(HttpServletResponse.class));
 			cmsFilter.doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /about-us/"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 			HibernateUtil.delete(cmsHomePage);
 			VirtualLinksCache.removePathFromCache(cmsHomePage.getUrl());
 
@@ -237,9 +227,9 @@ public class CMSFilterUnitTest {
 			response = new MockResponseWrapper(Mockito.mock(HttpServletResponse.class));
 			cmsFilter.doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /about-us"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/about-us/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 
 			HibernateUtil.delete(cmsHomePage);
 			VirtualLinksCache.removePathFromCache(cmsHomePage.getUrl());
@@ -249,7 +239,7 @@ public class CMSFilterUnitTest {
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			Assert.fail();
+			fail(e.getMessage());
 
 		} finally {
 
@@ -329,11 +319,11 @@ public class CMSFilterUnitTest {
 		try {
 			new CMSFilter().doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 			Logger.info(this.getClass(), "looking for /application/login"+CMSFilter.CMS_INDEX_PAGE+", got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/application/login/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/application/login/"+CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 		} catch (ServletException e) {
-			Assert.fail();
+			fail(e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -360,11 +350,11 @@ public class CMSFilterUnitTest {
 		try {
 			new CMSFilter().doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 
 
 		} catch (ServletException e) {
-			Assert.fail();
+			fail(e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -388,11 +378,11 @@ public class CMSFilterUnitTest {
 		try {
 			new CMSFilter().doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for 401, got;" + response.getStatus());
-			Assert.assertEquals(401, response.getStatus());
+			assertEquals(401, response.getStatus());
 
 
 		} catch (ServletException e) {
-			Assert.fail();
+			fail(e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -413,10 +403,10 @@ public class CMSFilterUnitTest {
 		try {
 			new CMSFilter().doFilter(request, response, chain);
 			
-			Assert.assertEquals("/home/", ((MockResponseWrapper) response).getRedirectLocation());
-			Assert.assertEquals(301, response.getStatus());
+			assertEquals("/home/", ((MockResponseWrapper) response).getRedirectLocation());
+			assertEquals(301, response.getStatus());
 		} catch (ServletException e) {
-			Assert.fail();
+			fail(e.getMessage());
 		}
 		
 		
@@ -426,11 +416,11 @@ public class CMSFilterUnitTest {
 		try {
 			new CMSFilter().doFilter(request, response, chain);
 			Logger.info(this.getClass(), "looking for /home/" +CMSFilter.CMS_INDEX_PAGE+" , got;" + request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
-			Assert.assertEquals("/home/" + CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
+			assertEquals("/home/" + CMSFilter.CMS_INDEX_PAGE, request.getAttribute(CMSFilter.CMS_FILTER_URI_OVERRIDE));
 			Logger.info(this.getClass(), "looking for 200, got;" + response.getStatus());
-			Assert.assertEquals(200, response.getStatus());
+			assertEquals(200, response.getStatus());
 		} catch (ServletException e) {
-			Assert.fail();
+			fail(e.getMessage());
 		}
 		
 

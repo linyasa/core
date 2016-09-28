@@ -1,15 +1,7 @@
 package com.dotcms.csspreproc;
 
-import java.io.File;
-import java.net.URL;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -22,11 +14,22 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.net.URL;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class LessCompilerTest {
 
     protected String baseURL=null;
     
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
         HttpServletRequest req=ServletTestRunner.localRequest.get();
         baseURL = "http://"+req.getServerName()+":"+req.getServerPort();
@@ -73,7 +76,7 @@ public class LessCompilerTest {
         String response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
         tt1 = System.currentTimeMillis() - tt1;
         
-        Assert.assertEquals(expectedOutput.trim(), response.trim());
+        assertEquals(expectedOutput.trim(), response.trim());
         
         // now it should take less time as its in cache now
         for(int x=0; x<10; x++) {
@@ -81,7 +84,7 @@ public class LessCompilerTest {
             response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
             ttx = System.currentTimeMillis() - ttx;
             
-            Assert.assertTrue(ttx < (tt1/10));
+            assertTrue(ttx < (tt1/10));
         }
         
         // now lets modify a bit one of the imported files and check if the resulting file reflects the change 
@@ -97,7 +100,7 @@ public class LessCompilerTest {
         APILocator.getContentletAPI().publish(asset, sysuser, false);
         APILocator.getContentletAPI().isInodeIndexed(asset.getInode(),true);
         
-        Assert.assertEquals(expectedOutput.replace("blue", "green").trim(), IOUtils.toString(cssURL.openStream(),"UTF-8").trim());
+        assertEquals(expectedOutput.replace("blue", "green").trim(), IOUtils.toString(cssURL.openStream(),"UTF-8").trim());
         
         
     }
@@ -160,7 +163,7 @@ public class LessCompilerTest {
         URL cssURL = new URL(baseURL + "/DOTLESS/" + runId + "/a/b/c/file5.css");
         String response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
         
-        Assert.assertEquals("someclass{width:30}", response.trim());
+        assertEquals("someclass{width:30}", response.trim());
         
     }
     

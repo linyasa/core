@@ -7,9 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -22,11 +19,19 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class SassCompilerTest {
     
     protected String baseURL=null;
     
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
         HttpServletRequest req=ServletTestRunner.localRequest.get();
         baseURL = "http://"+req.getServerName()+":"+req.getServerPort();
@@ -75,7 +80,7 @@ public class SassCompilerTest {
         String response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
         tt1 = System.currentTimeMillis() - tt1;
         
-        Assert.assertEquals(expectedOutput.trim(), response.substring(0,response.lastIndexOf("}")+1).trim());
+        assertEquals(expectedOutput.trim(), response.substring(0,response.lastIndexOf("}")+1).trim());
         
         // now it should take less time as its in cache now
         for(int x=0; x<10; x++) {
@@ -83,7 +88,7 @@ public class SassCompilerTest {
             response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
             ttx = System.currentTimeMillis() - ttx;
             
-            Assert.assertTrue(ttx < (tt1/10));
+            assertTrue(ttx < (tt1/10));
         }
         
         // now lets modify a bit one of the imported files and check if the resulting file reflects the change 
@@ -100,21 +105,21 @@ public class SassCompilerTest {
         APILocator.getContentletAPI().isInodeIndexed(asset.getInode(),true);
         
         response = IOUtils.toString(cssURL.openStream(),"UTF-8");
-        Assert.assertEquals(expectedOutput.replace("blue", "green").trim(), response.substring(0,response.lastIndexOf("}")+1).trim());
+        assertEquals(expectedOutput.replace("blue", "green").trim(), response.substring(0,response.lastIndexOf("}")+1).trim());
         
         
         // check every asset is in cache
         CachedCSS cc = CacheLocator.getCSSCache().get(demo.getIdentifier(), folder.getPath()+"_layout.scss", true, systemUser);
-        Assert.assertNotNull(cc);
+        assertNotNull(cc);
         cc = CacheLocator.getCSSCache().get(demo.getIdentifier(), folder.getPath()+"_styles.scss", true, systemUser);
-        Assert.assertNotNull(cc);
+        assertNotNull(cc);
         cc = CacheLocator.getCSSCache().get(demo.getIdentifier(), folder.getPath()+"screen.scss", true, systemUser);
-        Assert.assertNotNull(cc);
+        assertNotNull(cc);
         
         // if we unpublish _styles.scss we expect the cache entry to be removed
         APILocator.getContentletAPI().unpublish(asset, sysuser, false);
         cc = CacheLocator.getCSSCache().get(demo.getIdentifier(), folder.getPath()+"_styles.scss", true, systemUser);
-        Assert.assertNull(cc);
+        assertNull(cc);
         
         // now with an archive. it should be wiped too
         asset = APILocator.getContentletAPI().search(
@@ -122,7 +127,7 @@ public class SassCompilerTest {
                 1, 0, "", sysuser, false).get(0);
         APILocator.getContentletAPI().archive(asset, sysuser, false);
         cc = CacheLocator.getCSSCache().get(demo.getIdentifier(), folder.getPath()+"_layout.scss", true, systemUser);
-        Assert.assertNull(cc);
+        assertNull(cc);
     }
     
 
@@ -184,7 +189,7 @@ public class SassCompilerTest {
         
         URL cssURL = new URL(baseURL + "/DOTSASS/" + runId + "/a/b/c/file5.css");
         String response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
-        Assert.assertEquals("someclass{width:30}", response.substring(0,response.lastIndexOf("}")+1).trim());
+        assertEquals("someclass{width:30}", response.substring(0,response.lastIndexOf("}")+1).trim());
         
     }
     
@@ -214,7 +219,7 @@ public class SassCompilerTest {
         URL cssURL = new URL(baseURL + "/DOTSASS/" + runId + "/a/b/c/fabc.css");
         String response =  IOUtils.toString(cssURL.openStream(),"UTF-8");
         
-        Assert.assertEquals(".a{color:green}.ab{color:black}.abc{color:white}", response.substring(0,response.lastIndexOf("}")+1).trim());
+        assertEquals(".a{color:green}.ab{color:black}.abc{color:white}", response.substring(0,response.lastIndexOf("}")+1).trim());
     }
     
     protected Contentlet newFile(File file, Folder f, Host host) throws Exception {

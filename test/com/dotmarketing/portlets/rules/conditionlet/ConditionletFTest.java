@@ -1,25 +1,18 @@
 package com.dotmarketing.portlets.rules.conditionlet;
 
 import com.dotcms.LicenseTestUtil;
-import com.dotcms.visitor.domain.Visitor;
 import com.dotmarketing.portlets.rules.model.Condition;
 import com.dotmarketing.portlets.rules.model.Rule;
 import com.dotmarketing.servlets.test.ServletTestRunner;
-import com.dotmarketing.util.WebKeys;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.util.Random;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.util.Random;
-
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.EQUAL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * Created by freddyrodriguez on 10/3/16.
@@ -32,12 +25,12 @@ public abstract class  ConditionletFTest {
     protected ConditionDataGen conditionDataGen = new ConditionDataGen();
     protected ConditionletTestUtil conditionletTestUtil = new ConditionletTestUtil();
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void init () {
         request = ServletTestRunner.localRequest.get();
 
@@ -48,7 +41,7 @@ public abstract class  ConditionletFTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown () throws Exception {
         conditionletTestUtil.clear();
     }

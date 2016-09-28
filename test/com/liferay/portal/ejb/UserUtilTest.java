@@ -13,14 +13,15 @@ import com.liferay.portal.model.Company;
 import com.liferay.portal.model.User;
 import com.liferay.util.dao.hibernate.OrderByComparator;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Nollymar Longa on 8/5/16.
@@ -31,7 +32,7 @@ public class UserUtilTest {
     private static UserAPI userAPI;
     private static RoleAPI roleAPI;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare() throws DotDataException {
 
         //Setting the test user
@@ -107,7 +108,7 @@ public class UserUtilTest {
         userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testFindByC_UMarkDeleted()
         throws DotSecurityException, DotDataException, SystemException, NoSuchUserException {
         String companyId;
@@ -123,7 +124,7 @@ public class UserUtilTest {
 
         UserPool.remove(userName);
         try {
-            UserUtil.findByC_U(companyId, userName);
+            assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_U(companyId, userName));
         } finally {
             userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
         }
@@ -273,7 +274,7 @@ public class UserUtilTest {
         userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testFindByC_EAMarkDeleted()
         throws DotSecurityException, DotDataException, SystemException, NoSuchUserException {
         String companyId;
@@ -288,7 +289,7 @@ public class UserUtilTest {
         user = UserTestUtil.getUser(userName, true, true);
 
         try {
-            UserUtil.findByC_EA(companyId, user.getEmailAddress());
+            assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_EA(companyId, user.getEmailAddress()));
         } finally {
             userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
         }
@@ -313,7 +314,7 @@ public class UserUtilTest {
         userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testRemoveByCompanyId()
         throws DotSecurityException, DotDataException, SystemException, NoSuchUserException, NoSuchCompanyException {
         String id;
@@ -340,7 +341,7 @@ public class UserUtilTest {
         UserUtil.removeByCompanyId(company.getCompanyId());
 
         PublicCompanyFactory.remove(company.getCompanyId());
-        UserUtil.findByC_EA(userName, user.getEmailAddress());
+        assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_EA(userName, user.getEmailAddress()));
 
     }
 
@@ -377,7 +378,7 @@ public class UserUtilTest {
 
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testRemoveByC_U() throws DotSecurityException, DotDataException, SystemException, NoSuchUserException {
         String companyId;
         String id;
@@ -393,7 +394,7 @@ public class UserUtilTest {
 
         UserUtil.removeByC_U(companyId, userName);
 
-        UserUtil.findByC_EA(userName, user.getEmailAddress());
+        assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_EA(userName, user.getEmailAddress()));
 
     }
 
@@ -419,7 +420,7 @@ public class UserUtilTest {
         userAPI.delete(user, userAPI.getDefaultUser(), userAPI.getSystemUser(), false);
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testRemoveByC_P() throws DotSecurityException, DotDataException, SystemException, NoSuchUserException {
         String companyId;
         String id;
@@ -437,7 +438,7 @@ public class UserUtilTest {
 
         UserUtil.removeByC_P(companyId, userName);
 
-        UserUtil.findByC_EA(userName, user.getEmailAddress());
+        assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_EA(userName, user.getEmailAddress()));
 
     }
 
@@ -466,7 +467,7 @@ public class UserUtilTest {
 
     }
 
-    @Test(expected = NoSuchUserException.class)
+    @Test
     public void testRemoveByC_EA() throws DotSecurityException, DotDataException, SystemException, NoSuchUserException {
         String companyId;
         String id;
@@ -482,7 +483,7 @@ public class UserUtilTest {
 
         UserUtil.removeByC_EA(companyId, user.getEmailAddress());
 
-        UserUtil.findByC_EA(userName, user.getEmailAddress());
+        assertThrows(NoSuchUserException.class, () -> UserUtil.findByC_EA(userName, user.getEmailAddress()));
 
     }
 

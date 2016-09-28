@@ -3,10 +3,12 @@ package com.dotcms.rest.api.v1.system.i18n;
 import com.dotcms.repackage.javax.ws.rs.client.Client;
 import com.dotcms.repackage.javax.ws.rs.client.ClientBuilder;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
-import junit.framework.Assert;
 import com.dotcms.repackage.org.glassfish.jersey.jackson.JacksonFeature;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import com.dotcms.rest.api.FunctionalTestConfig;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoff M. Granum
@@ -29,9 +31,8 @@ public class I8NResourceFTest {
             .request(MediaType.APPLICATION_JSON_TYPE)
             .get(String.class);
 
-        Assert.assertNotNull(resp);
-        Assert.assertTrue("Response contains '\"Optional[Your comment has been saved]\"'",
-                          resp.contains("Optional[Your comment has been saved]"));
+        assertNotNull(resp);
+        assertTrue(resp.contains("Optional[Your comment has been saved]"), "Response contains '\"Optional[Your comment has been saved]\"'");
     }
 }
  

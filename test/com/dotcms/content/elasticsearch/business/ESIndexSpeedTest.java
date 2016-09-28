@@ -1,20 +1,20 @@
 package com.dotcms.content.elasticsearch.business;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.dotcms.TestBase;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.portlets.contentlet.business.ContentletAPI;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 public class ESIndexSpeedTest extends TestBase {
 	
 	private static final ContentletAPI contAPI = APILocator.getContentletAPI();
 	private static User user=null;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void before() throws DotDataException {
 		user=APILocator.getUserAPI().getAnonymousUser();
 	}

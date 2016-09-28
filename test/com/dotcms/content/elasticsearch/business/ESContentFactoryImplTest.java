@@ -1,17 +1,19 @@
 package com.dotcms.content.elasticsearch.business;
 
-import com.dotcms.repackage.org.apache.fop.fo.flow.Float;
-import org.junit.Assert;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.common.db.DotConnect;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 
 public class ESContentFactoryImplTest {
     
@@ -28,13 +30,13 @@ public class ESContentFactoryImplTest {
         
         List<Contentlet> contentlets = instance.findContentlets(inodes);
         
-        Assert.assertEquals(inodes.size(), contentlets.size());
+        assertEquals(inodes.size(), contentlets.size());
         
         Set<String> inodesSet=new HashSet<String>(inodes);
         for(Contentlet cc : contentlets) {
-            Assert.assertTrue(inodesSet.remove(cc.getInode()));
+            assertTrue(inodesSet.remove(cc.getInode()));
         }
-        Assert.assertEquals(0, inodesSet.size());
+        assertEquals(0, inodesSet.size());
     }
 
     @Test
@@ -48,7 +50,7 @@ public class ESContentFactoryImplTest {
             systemHost.setHost(null);
             instance.save(systemHost);
 
-            Assert.fail("Saving a contentlet without language must throw an exception.");
+            fail("Saving a contentlet without language must throw an exception.");
         } catch (Exception e) {
         }
 
@@ -62,7 +64,7 @@ public class ESContentFactoryImplTest {
             systemHost.setLanguageId(9999);
             instance.save(systemHost);
 
-            Assert.fail("Saving a contentlet with unexisting language must throw an exception.");
+            fail("Saving a contentlet with unexisting language must throw an exception.");
         } catch (Exception e) {
         }
     }

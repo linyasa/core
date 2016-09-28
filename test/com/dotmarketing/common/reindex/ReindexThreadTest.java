@@ -8,14 +8,15 @@ import com.dotmarketing.common.business.journal.DistributedJournalAPI;
 import com.dotmarketing.util.BaseMessageResources;
 import com.dotmarketing.util.Config;
 import com.liferay.portal.model.User;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletContext;
 import java.util.Locale;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -26,7 +27,7 @@ public class ReindexThreadTest extends BaseMessageResources {
 
     private boolean testGenerateNotification = false;
 
-    @Test()
+    @Test
     public void testGenerateNotification() throws Exception {
 
         final NotificationAPI notificationAPI = mock(NotificationAPI.class);

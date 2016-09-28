@@ -7,14 +7,16 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test if the edit job in the sitesearch generates duplicate jobs.
@@ -26,7 +28,7 @@ public class SiteSearchAjaxActionTest {
 
 	protected String baseURL=null;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws Exception {
 		HttpServletRequest req=ServletTestRunner.localRequest.get();
 		baseURL = "http://"+req.getServerName()+":"+req.getServerPort()+"/DotAjaxDirector/com.dotmarketing.sitesearch.ajax.SiteSearchAjaxAction/cmd/scheduleJob/u/admin@dotcms.com/p/admin";
@@ -46,7 +48,7 @@ public class SiteSearchAjaxActionTest {
 		/**
 		 * Validate if the job was created
 		 */
-		Assert.assertTrue(currentAmountOfJobs > initialAmountOfJobs);
+		assertTrue(currentAmountOfJobs > initialAmountOfJobs);
 
 		/*
 		 * Editing exiting sitesearch job	
@@ -61,16 +63,16 @@ public class SiteSearchAjaxActionTest {
 		/*
 		 * Validate if the job was edited 
 		 */
-		Assert.assertTrue(currentAmountOfJobs == newAmountOfJobs);
+		assertTrue(currentAmountOfJobs == newAmountOfJobs);
 		Map<String, Object> props = APILocator.getSiteSearchAPI().getTask(taskName).getProperties();
-		Assert.assertTrue(newCronExpression.equals(UtilMethods.webifyString((String) props.get("CRON_EXPRESSION"))));
+		assertTrue(newCronExpression.equals(UtilMethods.webifyString((String) props.get("CRON_EXPRESSION"))));
 
 		/*
 		 * Removing the sitesearch test job and validate the removal
 		 */
 		APILocator.getSiteSearchAPI().deleteTask(taskName);
 		newAmountOfJobs = APILocator.getSiteSearchAPI().getTasks().size();
-		Assert.assertTrue(initialAmountOfJobs == newAmountOfJobs);
+		assertTrue(initialAmountOfJobs == newAmountOfJobs);
 	}
 
 }

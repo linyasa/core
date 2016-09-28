@@ -1,9 +1,10 @@
 package com.dotcms;
 
+import com.dotcms.repackage.net.sf.hibernate.HibernateException;
 import com.dotmarketing.db.HibernateUtil;
 import com.dotmarketing.exception.DotHibernateException;
-import com.dotcms.repackage.net.sf.hibernate.HibernateException;
-import org.junit.After;
+
+import org.junit.jupiter.api.AfterEach;
 
 import java.sql.SQLException;
 
@@ -12,14 +13,14 @@ import java.sql.SQLException;
  * Date: 3/6/12
  * Time: 4:36 PM
  * <p/>
- * Annotations that can be use: {@link org.junit.BeforeClass @BeforeClass}, {@link org.junit.Before @Before},
- * {@link org.junit.Test @Test}, {@link org.junit.AfterClass @AfterClass},
- * {@link org.junit.After @After}, {@link org.junit.Ignore @Ignore}
- * <br>For managing the assertions use the static class {@link org.junit.Assert Assert}
+ * Annotations that can be use: {@link org.junit.jupiter.api.BeforeAll @BeforeAll}, {@link org.junit.jupiter.api.BeforeEach @BeforeEach},
+ * {@link org.junit.jupiter.api.Test @Test}, {@link org.junit.jupiter.api.AfterAll @AfterAll},
+ * {@link org.junit.jupiter.api.AfterEach @AfterEach}, {@link org.junit.jupiter.api.Disabled @Disabled}
+ * <br>For managing the assertions use the static class {@link org.junit.jupiter.api.Assertions @Assertions}
  */
 public abstract class TestBase {
 
-    @After
+    @AfterEach
     public void after () throws SQLException, DotHibernateException, HibernateException {
 
         //Closing the session

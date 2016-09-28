@@ -5,8 +5,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -20,6 +18,10 @@ import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
@@ -99,7 +101,7 @@ public class ContentletAjaxTest {
 		 * Validate that there are two contentlets associated to the same identifier wit different languages
 		 */
 		List<Contentlet> contList = APILocator.getContentletAPI().getSiblings(ident);
-		Assert.assertTrue(contList.size()==2);
+		assertTrue(contList.size()==2);
 
 		/*
 		 * Get english version
@@ -114,9 +116,9 @@ public class ContentletAjaxTest {
 		List<String> categories = new ArrayList<String>();
 		List<Object> results=new ContentletAjax().searchContentletsByUser(structure.getInode(), fieldsValues, categories, false, false, false, false,1, "modDate Desc", 10,systemUser, null, null, null);
 		Map<String,Object> result = (Map<String,Object>)results.get(0);
-		Assert.assertTrue((Long)result.get("total")==1);
+		assertTrue((Long)result.get("total")==1);
 		result = (Map<String,Object>)results.get(3);
-		Assert.assertTrue(Long.parseLong(String.valueOf(result.get("languageId")))==defaultLang.getId());
+		assertTrue(Long.parseLong(String.valueOf(result.get("languageId")))==defaultLang.getId());
 
 		/*
 		 * Get italian version
@@ -131,9 +133,9 @@ public class ContentletAjaxTest {
 
 		results=new ContentletAjax().searchContentletsByUser(structure.getInode(), fieldsValues, categories, false, false, false, false,1, "modDate Desc", 10,systemUser, null, null, null);
 		result = (Map<String,Object>)results.get(0);
-		Assert.assertTrue((Long)result.get("total")==1);
+		assertTrue((Long)result.get("total")==1);
 		result = (Map<String,Object>)results.get(3);
-		Assert.assertTrue(Long.parseLong(String.valueOf(result.get("languageId")))==lan.getId());
+		assertTrue(Long.parseLong(String.valueOf(result.get("languageId")))==lan.getId());
 	}
 
 }

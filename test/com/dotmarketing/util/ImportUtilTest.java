@@ -1,10 +1,8 @@
 package com.dotmarketing.util;
 
 import com.dotcms.TestBase;
-import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotcms.repackage.com.csvreader.CsvReader;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.common.model.ContentletSearch;
@@ -19,13 +17,22 @@ import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.liferay.portal.model.User;
 
-import java.io.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jonathan Gamba
@@ -37,7 +44,7 @@ public class ImportUtilTest extends TestBase {
     private static Host defaultHost;
     private static Language defaultLanguage;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws DotDataException, DotSecurityException {
         user = APILocator.getUserAPI().getSystemUser();
         defaultHost = APILocator.getHostAPI().findDefaultHost( user, false );

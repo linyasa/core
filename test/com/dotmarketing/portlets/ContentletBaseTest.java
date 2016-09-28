@@ -52,8 +52,8 @@ import com.dotmarketing.util.UUIDGenerator;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 
 import java.net.URL;
@@ -71,7 +71,7 @@ import java.util.Random;
  * Date: 3/19/12
  * Time: 11:36 AM
  */
-@PowerMockIgnore("javax.management.*")
+//@PowerMockIgnore("javax.management.*")
 public class ContentletBaseTest extends TestBase {
 
     protected static ContentletAPI contentletAPI;
@@ -107,10 +107,10 @@ public class ContentletBaseTest extends TestBase {
             "<p>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer " +
             "tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a.</p>";
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
-        TestingJndiDatasource.init();
-        ConfigTestHelper._setupFakeTestingContext();
+        //TestingJndiDatasource.init();
+        //ConfigTestHelper._setupFakeTestingContext();
 
         //Setting the test user
         user = APILocator.getUserAPI().getSystemUser();
@@ -201,7 +201,7 @@ public class ContentletBaseTest extends TestBase {
         contentlets.add( newContentlet );
     }
 
-    @AfterClass
+    @AfterAll
     public static void afterClass () throws Exception {
 
         //Delete html pages

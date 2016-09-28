@@ -7,9 +7,9 @@
 //import java.nio.charset.StandardCharsets;
 //import java.util.Base64;
 //import javax.servlet.http.HttpServletRequest;
-//import org.junit.Before;
-//import org.junit.Ignore;
-//import org.junit.Test;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Disabled;
+//import org.junit.jupiter.api.Test;
 //
 //import static com.dotcms.repackage.org.hamcrest.CoreMatchers.is;
 //import static org.junit.Assert.assertThat;
@@ -21,7 +21,7 @@
 //    private ApiProvider apiProvider;
 //    private HttpServletRequest request;
 //
-//    @Before
+//    @BeforeEach
 //    public void setUp() throws Exception {
 //        request = mockTheRequest();
 //        apiProvider = mockTheApi();
@@ -64,7 +64,7 @@
 //        return "Basic " + Base64.getEncoder().encodeToString(s.getBytes(StandardCharsets.US_ASCII));
 //    }
 //
-//    @Ignore("Oh noes! Passwords with colons are invalid.")
+//    @Disabled("Oh noes! Passwords with colons are invalid.")
 //    @Test
 //    public void testBasicAuthAllowsColon() throws Exception {
 //        AuthenticationProvider auth = new AuthenticationProvider(apiProvider);

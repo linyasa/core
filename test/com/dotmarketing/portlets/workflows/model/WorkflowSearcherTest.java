@@ -3,9 +3,9 @@ package com.dotmarketing.portlets.workflows.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-
 import com.dotmarketing.business.APILocator;
+
+import org.junit.jupiter.api.Test;
 
 public class WorkflowSearcherTest {
     

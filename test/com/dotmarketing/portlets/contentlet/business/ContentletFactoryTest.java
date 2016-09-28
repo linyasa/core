@@ -4,11 +4,15 @@ import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.portlets.ContentletBaseTest;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Jonathan Gamba.
@@ -26,7 +30,7 @@ public class ContentletFactoryTest extends ContentletBaseTest {
      *
      * @see ContentletFactory
      */
-    @Test ( expected = DotDataException.class )
+    @Test/*( expected = DotDataException.class )*/
     public void findAllCurrent () throws DotDataException, DotSecurityException {
 
         //Getting all contentlets live/working contentlets

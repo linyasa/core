@@ -3,29 +3,28 @@ package com.dotmarketing.portlets.rules.actionlet;
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.com.google.common.collect.Lists;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.After;
 import com.dotmarketing.portlets.rules.ApiRequest;
 import com.dotmarketing.portlets.rules.ParameterDataGen;
 import com.dotmarketing.portlets.rules.RuleDataGen;
-import com.dotmarketing.portlets.rules.conditionlet.ConditionDataGen;
-import com.dotmarketing.portlets.rules.conditionlet.ConditionGroupDataGen;
-import com.dotmarketing.portlets.rules.model.Condition;
-import com.dotmarketing.portlets.rules.model.ConditionGroup;
 import com.dotmarketing.portlets.rules.model.Rule;
 import com.dotmarketing.portlets.rules.model.RuleAction;
 import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.Logger;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * jUnit test used to verify the results of calling the actionlets provided
@@ -45,7 +44,7 @@ public class SetResponseHeaderActionletFTest extends TestBase {
     public SetResponseHeaderActionletFTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
@@ -114,7 +113,7 @@ public class SetResponseHeaderActionletFTest extends TestBase {
     }
 
     private Rule createRandomSetResponseHeaderRule(String randomKey, String value) {
-        assertNull("Test key should not be present on the session already: ", request.getSession().getAttribute(randomKey));
+        assertNull(request.getSession().getAttribute(randomKey), "Test key should not be present on the session already: ");
 
         ruleDataGen =
             new RuleDataGen(Rule.FireOn.EVERY_REQUEST).name(String.format("SetResponseHeaderActionletFTest - fireOnEveryRequest %s", random.nextInt()));
@@ -132,7 +131,7 @@ public class SetResponseHeaderActionletFTest extends TestBase {
         return rule;
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         for (Rule rule : rulesToRemove) {
             ruleDataGen.remove(rule);

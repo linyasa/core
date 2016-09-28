@@ -7,14 +7,14 @@ import com.dotcms.rest.RestUtilTest;
 import com.dotmarketing.quartz.job.DeleteFieldJobHelper;
 import com.dotmarketing.util.BaseMessageResources;
 import com.dotmarketing.util.Config;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletContext;
 import java.util.Locale;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**

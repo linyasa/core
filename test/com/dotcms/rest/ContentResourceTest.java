@@ -1,12 +1,5 @@
 package com.dotcms.rest;
 
-import java.io.ByteArrayInputStream;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.javax.ws.rs.client.Client;
@@ -14,20 +7,14 @@ import com.dotcms.repackage.javax.ws.rs.client.ClientBuilder;
 import com.dotcms.repackage.javax.ws.rs.client.Entity;
 import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
-
 import com.dotcms.repackage.javax.ws.rs.core.Response;
-
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
 import com.dotcms.repackage.org.codehaus.jettison.json.JSONObject;
 import com.dotcms.repackage.org.glassfish.jersey.internal.util.Base64;
-import com.dotcms.repackage.org.glassfish.jersey.jackson.JacksonFeature;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.BodyPart;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPart;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.business.APILocator;
@@ -60,6 +47,28 @@ import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 import com.liferay.util.FileUtil;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class ContentResourceTest extends TestBase {
     Client client;
@@ -67,7 +76,7 @@ public class ContentResourceTest extends TestBase {
     String authheader="Authorization";
     String authvalue="Basic "+new String(Base64.encode("admin@dotcms.com:admin".getBytes()));
     
-    @Before
+    @BeforeEach
     public void before() throws Exception{
         LicenseTestUtil.getLicense();
 
@@ -95,19 +104,19 @@ public class ContentResourceTest extends TestBase {
                 .put("contentHost", demoId).toString(), MediaType.APPLICATION_JSON_TYPE));
 
 
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
+        assertEquals(200, response.getStatus());
+        assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
         String location=response.getLocation().toString();
         String inode=location.substring(location.lastIndexOf("/")+1);
         Contentlet cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
-        Assert.assertEquals(demoId, cont.getHost());
-        Assert.assertEquals(st.getInode(), cont.getStructureInode());
-        Assert.assertEquals(1,cont.getLanguageId());
-        Assert.assertEquals("Test content from ContentResourceTest",cont.getStringProperty("title"));
-        Assert.assertEquals("this is an example text",cont.getStringProperty("body"));
-        Assert.assertTrue(cont.isLive());
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertEquals(demoId, cont.getHost());
+        assertEquals(st.getInode(), cont.getStructureInode());
+        assertEquals(1,cont.getLanguageId());
+        assertEquals("Test content from ContentResourceTest",cont.getStringProperty("title"));
+        assertEquals("this is an example text",cont.getStringProperty("body"));
+        assertTrue(cont.isLive());
         
         // testing other host_or_folder formats: folderId
         Folder folder=APILocator.getFolderAPI().findFolderByPath("/home", demo, sysuser, false);
@@ -122,8 +131,8 @@ public class ContentResourceTest extends TestBase {
         location=response.getLocation().toString();
         inode=location.substring(location.lastIndexOf("/")+1);
         cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertEquals(folder.getInode(), cont.getFolder());
-        Assert.assertTrue(cont.isLive());
+        assertEquals(folder.getInode(), cont.getFolder());
+        assertTrue(cont.isLive());
         
         // testing other host_or_folder formats: hostname
         response=webTarget.path("/publish/1").request()
@@ -137,8 +146,8 @@ public class ContentResourceTest extends TestBase {
         location=response.getLocation().toString();
         inode=location.substring(location.lastIndexOf("/")+1);
         cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertEquals(demoId, cont.getHost());
-        Assert.assertTrue(cont.isLive());
+        assertEquals(demoId, cont.getHost());
+        assertTrue(cont.isLive());
         
         // testing other host_or_folder formats: hostname:path
         response=webTarget.path("/justsave/1").request()
@@ -152,8 +161,8 @@ public class ContentResourceTest extends TestBase {
         location=response.getLocation().toString();
         inode=location.substring(location.lastIndexOf("/")+1);
         cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertEquals(folder.getInode(), cont.getFolder());
-        Assert.assertFalse(cont.isLive());
+        assertEquals(folder.getInode(), cont.getFolder());
+        assertFalse(cont.isLive());
         
         
         // testing XML
@@ -166,19 +175,19 @@ public class ContentResourceTest extends TestBase {
                             "<body>this is an example text XML</body>"+
                             "<contentHost>"+demoId+"</contentHost>"+
                             "</content>", MediaType.APPLICATION_XML_TYPE));
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
+        assertEquals(200, response.getStatus());
+        assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
         location=response.getLocation().toString();
         inode=location.substring(location.lastIndexOf("/")+1);
         cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
-        Assert.assertEquals(demoId, cont.getHost());
-        Assert.assertEquals(st.getInode(), cont.getStructureInode());
-        Assert.assertEquals(1,cont.getLanguageId());
-        Assert.assertEquals("Test content from ContentResourceTest XML",cont.getStringProperty("title"));
-        Assert.assertEquals("this is an example text XML",cont.getStringProperty("body"));
-        Assert.assertTrue(cont.isLive());
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertEquals(demoId, cont.getHost());
+        assertEquals(st.getInode(), cont.getStructureInode());
+        assertEquals(1,cont.getLanguageId());
+        assertEquals("Test content from ContentResourceTest XML",cont.getStringProperty("title"));
+        assertEquals("this is an example text XML",cont.getStringProperty("body"));
+        assertTrue(cont.isLive());
         
         // testing form-urlencoded
         String title="Test content from ContentResourceTest FORM "+UUIDGenerator.generateUuid();
@@ -190,21 +199,21 @@ public class ContentResourceTest extends TestBase {
                      "title="+URLEncoder.encode(title, "UTF-8")+"&"+
                      "body="+URLEncoder.encode(body, "UTF-8")+"&"+
                      "contentHost="+demoId, MediaType.APPLICATION_FORM_URLENCODED_TYPE));
-        Assert.assertEquals(200, response.getStatus());
-        Assert.assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
+        assertEquals(200, response.getStatus());
+        assertTrue(response.getLocation().toString().contains("/api/content/inode/"));
         location=response.getLocation().toString();
         inode=location.substring(location.lastIndexOf("/")+1);
-        Assert.assertEquals(inode, response.getHeaders().getFirst("inode")); // validate consistency of inode header
+        assertEquals(inode, response.getHeaders().getFirst("inode")); // validate consistency of inode header
         cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
-        Assert.assertEquals(cont.getIdentifier(), response.getHeaders().getFirst("identifier")); // consistency of identifier header
-        Assert.assertEquals(demoId, cont.getHost());
-        Assert.assertEquals(st.getInode(), cont.getStructureInode());
-        Assert.assertEquals(1,cont.getLanguageId());
-        Assert.assertEquals(title,cont.getStringProperty("title"));
-        Assert.assertEquals(body,cont.getStringProperty("body"));
-        Assert.assertTrue(cont.isLive());
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertEquals(cont.getIdentifier(), response.getHeaders().getFirst("identifier")); // consistency of identifier header
+        assertEquals(demoId, cont.getHost());
+        assertEquals(st.getInode(), cont.getStructureInode());
+        assertEquals(1,cont.getLanguageId());
+        assertEquals(title,cont.getStringProperty("title"));
+        assertEquals(body,cont.getStringProperty("body"));
+        assertTrue(cont.isLive());
 
         
     }
@@ -232,15 +241,15 @@ public class ContentResourceTest extends TestBase {
                                     "newfile" + salt + ".txt",
                                     MediaType.APPLICATION_OCTET_STREAM_TYPE)), MediaType.MULTIPART_FORM_DATA_TYPE));
 
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         Contentlet cont=APILocator.getContentletAPI().find((String) response.getHeaders().getFirst("inode"),sysuser,false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
-        Assert.assertTrue(response.getLocation().toString().endsWith("/api/content/inode/"+cont.getInode()));
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertTrue(response.getLocation().toString().endsWith("/api/content/inode/"+cont.getInode()));
         FileAsset file=APILocator.getFileAssetAPI().fromContentlet(cont);
-        Assert.assertEquals("/resources/newfile"+salt+".txt",file.getURI());
-        Assert.assertEquals("demo.dotcms.com", APILocator.getHostAPI().find(file.getHost(), sysuser, false).getHostname());
-        Assert.assertEquals("this is the salt "+salt, IOUtils.toString(file.getFileInputStream()));
+        assertEquals("/resources/newfile"+salt+".txt",file.getURI());
+        assertEquals("demo.dotcms.com", APILocator.getHostAPI().find(file.getHost(), sysuser, false).getHostname());
+        assertEquals("this is the salt "+salt, IOUtils.toString(file.getFileInputStream()));
     }
     
     @SuppressWarnings("unchecked")
@@ -264,36 +273,36 @@ public class ContentResourceTest extends TestBase {
                                 .put("topic", "investing,banking")
                                 .put("tags", "junit,integration tests,jenkins")
                                 .put("contentHost", "demo.dotcms.com:/home").toString(), MediaType.APPLICATION_JSON_TYPE));
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         String inode=(String)response.getHeaders().getFirst("inode");
         Contentlet cont=APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
         
         /////////////////////////
         // checking categories //
         /////////////////////////
         
         List<Category> cats=APILocator.getCategoryAPI().getParents(cont, sysuser, false);
-        Assert.assertNotNull(cats);
-        Assert.assertEquals(2,cats.size());
+        assertNotNull(cats);
+        assertEquals(2,cats.size());
         
         Set<String> expectedIds=new HashSet<String>();
         expectedIds.add("investing"); expectedIds.add("banking");
         expectedIds.remove(cats.get(0).getCategoryVelocityVarName());
         expectedIds.remove(cats.get(1).getCategoryVelocityVarName());
-        Assert.assertEquals(0, expectedIds.size());
+        assertEquals(0, expectedIds.size());
         
         ///////////////////
         // checking tags //
         ///////////////////
         
         List<Tag> tags=APILocator.getTagAPI().getTagsByInode(cont.getInode());
-        Assert.assertNotNull(tags);
-        Assert.assertEquals(3, tags.size());
+        assertNotNull(tags);
+        assertEquals(3, tags.size());
         Set<String> expectedTags=new HashSet<String>(Arrays.asList("junit,integration tests,jenkins".split(",")));
         for(Tag tt : tags) {
-            Assert.assertTrue(expectedTags.remove(tt.getTagName()));
+            assertTrue(expectedTags.remove(tt.getTagName()));
         }
         
     }
@@ -453,14 +462,14 @@ public class ContentResourceTest extends TestBase {
                     .put("languageId", 1)
                     .put(field.getVelocityVarName(), "test title "+salt)
                     .toString(), MediaType.APPLICATION_JSON_TYPE));
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         
         Contentlet cont = APILocator.getContentletAPI().find((String)response.getHeaders().getFirst("inode"), sysuser, false);
-        Assert.assertNotNull(cont);
-        Assert.assertTrue(InodeUtils.isSet(cont.getIdentifier()));
+        assertNotNull(cont);
+        assertTrue(InodeUtils.isSet(cont.getIdentifier()));
         
         // must be in the first step
-        Assert.assertEquals(step1.getId(), APILocator.getWorkflowAPI().findStepByContentlet(cont).getId());
+        assertEquals(step1.getId(), APILocator.getWorkflowAPI().findStepByContentlet(cont).getId());
         
         boolean assigned=false;
         
@@ -469,11 +478,11 @@ public class ContentResourceTest extends TestBase {
         for(WorkflowTask task : APILocator.getWorkflowAPI().searchTasks(new WorkflowSearcher(map, sysuser))) {
             if(task.getWebasset().equals(cont.getIdentifier())) {
                 assigned=true;
-                Assert.assertEquals("please do this for me",task.getDescription());
+                assertEquals("please do this for me",task.getDescription());
                 break;
             }
         }
-        Assert.assertTrue(assigned);
+        assertTrue(assigned);
         
     }
     
@@ -534,12 +543,12 @@ public class ContentResourceTest extends TestBase {
                     .put(image.getVelocityVarName(), "//demo.dotcms.com/rest/"+salt+"/imgimg.jpg")
                     .put(title.getVelocityVarName(), "a simple title")
                     .toString(), MediaType.APPLICATION_JSON_TYPE));
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         
         String inode=(String)response.getHeaders().getFirst("inode");
         Contentlet cont = APILocator.getContentletAPI().find(inode, sysuser, false);
-        Assert.assertEquals(filea.getIdentifier(),cont.getStringProperty(file.getVelocityVarName()));
-        Assert.assertEquals(imga.getIdentifier(),cont.getStringProperty(image.getVelocityVarName()));
+        assertEquals(filea.getIdentifier(),cont.getStringProperty(file.getVelocityVarName()));
+        assertEquals(imga.getIdentifier(),cont.getStringProperty(image.getVelocityVarName()));
     }
     
     @Test
@@ -589,7 +598,7 @@ public class ContentResourceTest extends TestBase {
                         .put(title1.getVelocityVarName(), "a simple title")
                         .put(rel.getRelationTypeValue(), "+structureName:" + st2.getVelocityVarName())
                         .toString(), MediaType.APPLICATION_JSON_TYPE));
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         
         Thread.sleep(2000); // wait for relation fields update
         
@@ -597,13 +606,13 @@ public class ContentResourceTest extends TestBase {
         Contentlet cc=APILocator.getContentletAPI().find(inode, sysuser, false);
         
         List<Contentlet> relatedContent = APILocator.getContentletAPI().getRelatedContent(cc, rel, sysuser, false);
-        Assert.assertEquals(2, relatedContent.size());
+        assertEquals(2, relatedContent.size());
         
         Set<String> inodes=new HashSet<String>();
         inodes.add(c1.getInode()); inodes.add(c2.getInode());
         inodes.remove(relatedContent.get(0).getInode());
         inodes.remove(relatedContent.get(1).getInode());
-        Assert.assertEquals(0, inodes.size());
+        assertEquals(0, inodes.size());
             
     }
     
@@ -620,7 +629,7 @@ public class ContentResourceTest extends TestBase {
                         .put("title", "testing newVersion")
                         .put("body", "just testing")
                         .toString(), MediaType.APPLICATION_JSON_TYPE));
-        Assert.assertEquals(200, response.getStatus());
+        assertEquals(200, response.getStatus());
         
         String inode=(String)response.getHeaders().getFirst("inode");
         
@@ -640,19 +649,19 @@ public class ContentResourceTest extends TestBase {
         String inode2=(String)response.getHeaders().getFirst("inode");
         String identifier2=(String)response.getHeaders().getFirst("identifier");
         
-        Assert.assertEquals(identifier, identifier2);
-        Assert.assertNotSame(inode, inode2);
+        assertEquals(identifier, identifier2);
+        assertNotSame(inode, inode2);
         
         Contentlet c1=APILocator.getContentletAPI().find(inode, sysuser, false);
         Contentlet c2=APILocator.getContentletAPI().find(inode2, sysuser, false);
         
         Contentlet working=APILocator.getContentletAPI().findContentletByIdentifier(identifier, false, 1, sysuser, false);
         
-        Assert.assertEquals("testing newVersion 2", c2.getStringProperty("title"));
-        Assert.assertEquals("just testing 2", c2.getStringProperty("body"));
-        Assert.assertEquals(c1.getIdentifier(), c2.getIdentifier());
+        assertEquals("testing newVersion 2", c2.getStringProperty("title"));
+        assertEquals("just testing 2", c2.getStringProperty("body"));
+        assertEquals(c1.getIdentifier(), c2.getIdentifier());
         
-        Assert.assertEquals(working.getInode(), c2.getInode());
+        assertEquals(working.getInode(), c2.getInode());
     }
 }
 

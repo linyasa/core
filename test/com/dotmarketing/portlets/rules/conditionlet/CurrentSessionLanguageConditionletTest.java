@@ -2,12 +2,11 @@ package com.dotmarketing.portlets.rules.conditionlet;
 
 import com.dotcms.LicenseTestUtil;
 import com.dotmarketing.business.web.LanguageWebAPI;
-import com.dotmarketing.portlets.languagesmanager.business.LanguageAPI;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import com.dotmarketing.portlets.rules.exception.ComparisonNotSupportedException;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
@@ -20,6 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jonathan Gamba
@@ -33,12 +35,12 @@ public class CurrentSessionLanguageConditionletTest {
     private LanguageWebAPI languageAPI;
     private CurrentSessionLanguageConditionlet conditionlet;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void before () {
         // Mock the request
         request = Mockito.mock(HttpServletRequest.class);
@@ -68,7 +70,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
         // Correct, the language in session is equals to the selected language
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //++++++++++++++++++++++++++++++
         //Wrong case
@@ -79,7 +81,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
         // Correct, the language in session is equals to the selected language
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //++++++++++++++++++++++++++++++
         //Wrong case
@@ -90,7 +92,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
         // Correct, the language in session is equals to the selected language
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //++++++++++++++++++++++++++++++
         //Wrong case
@@ -101,7 +103,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
         // Incorrect, the language in session is not equals to the selected language
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
 
         //++++++++++++++++++++++++++++++
         //Test case
@@ -112,7 +114,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
         // Correct, the language in session is equals to the selected language
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
     }
 
     @Test
@@ -131,7 +133,7 @@ public class CurrentSessionLanguageConditionletTest {
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
         // Correct, the language in session is not equals to the selected language
-        Assert.assertTrue(conditionlet.evaluate(request, response, instance));
+        assertTrue(conditionlet.evaluate(request, response, instance));
 
         //++++++++++++++++++++++++++++++
         //Wrong case
@@ -142,10 +144,10 @@ public class CurrentSessionLanguageConditionletTest {
 
         instance = conditionlet.instanceFrom(parameters);
         // Incorrect, the language in session is not equals to the selected language
-        Assert.assertFalse(conditionlet.evaluate(request, response, instance));
+        assertFalse(conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testExistComparison () {
 
         //Mock the request language id
@@ -160,10 +162,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testStartsWithComparison () {
 
         //Mock the request language id
@@ -178,10 +180,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testEndsWithComparison () {
 
         //Mock the request language id
@@ -196,10 +198,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testContainsComparison () {
 
         //Mock the request language id
@@ -214,10 +216,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testRegexComparison () {
 
         //Mock the request language id
@@ -232,10 +234,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testBetweenComparison () {
 
         //Mock the request language id
@@ -250,10 +252,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testEqualComparison () {
 
         //Mock the request language id
@@ -268,10 +270,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testLessThanComparison () {
 
         //Mock the request language id
@@ -286,10 +288,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testGreaterThanComparison () {
 
         //Mock the request language id
@@ -304,10 +306,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testLessThanOrEqualComparison () {
 
         //Mock the request language id
@@ -322,10 +324,10 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
-    @Test ( expected = ComparisonNotSupportedException.class )
+    @Test
     public void testGreaterThanOrEqualComparison () {
 
         //Mock the request language id
@@ -340,7 +342,7 @@ public class CurrentSessionLanguageConditionletTest {
                 new ParameterModel(CurrentSessionLanguageConditionlet.LANGUAGE_KEY, "en"));
 
         CurrentSessionLanguageConditionlet.Instance instance = conditionlet.instanceFrom(parameters);
-        conditionlet.evaluate(request, response, instance);
+        assertThrows(ComparisonNotSupportedException.class, () -> conditionlet.evaluate(request, response, instance));
     }
 
 }

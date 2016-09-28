@@ -19,8 +19,9 @@ import com.dotmarketing.portlets.templates.model.Template;
 import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileNotFoundException;
@@ -30,8 +31,9 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Oscar Arrieta on 2/24/16.
@@ -43,7 +45,7 @@ public class RulesUnderPageAssetsFTest extends TestBase {
     private HttpServletRequest request;
     private final String indexUrl;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }

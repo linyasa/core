@@ -1,30 +1,7 @@
 package com.dotmarketing.portlets.rules.conditionlet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.CONTAINS;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.ENDS_WITH;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS_NOT;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.REGEX;
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.STARTS_WITH;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
-import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.repackage.com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.portlets.rules.ParameterDataGen;
 import com.dotmarketing.portlets.rules.RuleDataGen;
 import com.dotmarketing.portlets.rules.actionlet.RuleActionDataGen;
@@ -34,6 +11,29 @@ import com.dotmarketing.portlets.rules.model.ConditionGroup;
 import com.dotmarketing.portlets.rules.model.Rule;
 import com.dotmarketing.portlets.rules.model.RuleAction;
 import com.dotmarketing.servlets.test.ServletTestRunner;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.List;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.CONTAINS;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.ENDS_WITH;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS_NOT;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.REGEX;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.STARTS_WITH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class VisitorsCurrentUrlConditionletFTest {
 
@@ -45,12 +45,12 @@ public class VisitorsCurrentUrlConditionletFTest {
 
     private List<Rule> rulesToRemove = Lists.newArrayList();
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         request = ServletTestRunner.localRequest.get();
         HttpSession session = request.getSession(false);
@@ -59,7 +59,7 @@ public class VisitorsCurrentUrlConditionletFTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         for (Rule rule : rulesToRemove) {
             ruleDataGen.remove(rule);
@@ -311,8 +311,9 @@ public class VisitorsCurrentUrlConditionletFTest {
      * @return
      */
     private Rule createRandomSetResponseHeaderRule(Condition condition, String randomKey, String value) {
-        assertNull("Test key should not be present on the session already: ",
-                request.getSession().getAttribute(randomKey));
+
+        assertNull(request.getSession().getAttribute(randomKey),
+            "Test key should not be present on the session already: ");
 
         ruleDataGen = new RuleDataGen(Rule.FireOn.EVERY_REQUEST).name(String.format(
                 "SetResponseHeaderActionletFTest - fireOnEveryRequest %s", random.nextInt()));

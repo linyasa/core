@@ -1,10 +1,5 @@
 package com.dotcms.content.elasticsearch.business;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,9 +16,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.internal.InternalSearchHits;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.MultiTree;
@@ -54,6 +50,11 @@ import com.dotmarketing.util.UUIDGenerator;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Jonathan Gamba
  *         Date: 4/18/13
@@ -66,7 +67,7 @@ public class ESContentletIndexAPITest extends TestBase {
 
     private static Language defaultLanguage;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws DotSecurityException, DotDataException {
 
         HostAPI hostAPI = APILocator.getHostAPI();
@@ -199,7 +200,7 @@ public class ESContentletIndexAPITest extends TestBase {
      * @see ESContentletIndexAPI
      */
     @Test
-    @Ignore
+    @Disabled
     public void activateDeactivateIndex () throws Exception {
 
         ContentletIndexAPI indexAPI = APILocator.getContentletIndexAPI();

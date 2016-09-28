@@ -3,18 +3,17 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.LicenseTestUtil;
 import com.dotmarketing.portlets.rules.model.Condition;
 import com.dotmarketing.portlets.rules.model.Rule;
-import com.dotmarketing.servlets.test.ServletTestRunner;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
-import javax.servlet.http.HttpSession;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.net.URLConnection;
 
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by freddyrodriguez on 10/3/16.
@@ -23,17 +22,17 @@ public class NumberOfTimesPreviouslyVisitedConditionletFTest extends Conditionle
 
     private UsersSiteVisitsUtilTest usersSiteVisitsUtilTest;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void innerInit () {
         usersSiteVisitsUtilTest = new UsersSiteVisitsUtilTest(request);
     }
 
-    @Before
+    @BeforeEach
     public void cleanCookies(){
         usersSiteVisitsUtilTest.clean();
     }

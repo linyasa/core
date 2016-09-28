@@ -3,9 +3,9 @@ package com.dotcms.rest.api.v1.configuration;
 import static com.dotmarketing.util.WebKeys.DOTCMS_WEBSOCKET_BASEURL;
 import static com.dotmarketing.util.WebKeys.DOTCMS_WEBSOCKET_ENDPOINTS;
 import static com.dotmarketing.util.WebKeys.DOTCMS_WEBSOCKET_PROTOCOL;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.rest.ResponseEntityView;
 import com.dotcms.rest.api.v1.system.ConfigurationResource;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for validating the information returned by the

@@ -5,15 +5,14 @@ import java.io.FileReader;
 import java.io.ObjectOutputStream;
 
 import org.apache.velocity.app.VelocityEngine;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.VelocityUtil;
 
 public class SimpleNodeTest {
-    
-    
+
     @Test
     public void serializeTest() throws Exception {
         CacheLocator.getCacheAdministrator().flushAlLocalOnly();

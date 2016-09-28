@@ -1,9 +1,6 @@
 package com.dotmarketing.portlets.rules.business;
 
 import com.dotcms.LicenseTestUtil;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.business.CacheLocator;
 import com.dotmarketing.business.FactoryLocator;
 import com.dotmarketing.portlets.rules.ParameterDataGen;
@@ -16,10 +13,17 @@ import com.dotmarketing.portlets.rules.model.ConditionGroup;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
 import com.dotmarketing.portlets.rules.model.Rule;
 
-import java.util.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class RulesCacheFTest {
 
@@ -31,7 +35,7 @@ public class RulesCacheFTest {
     private ParameterDataGen parameterDataGen = new ParameterDataGen();
     private List<Rule> rulesToRemove = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
@@ -266,7 +270,7 @@ public class RulesCacheFTest {
         cache.addRulesByParentFireOn(ruleSet, rule.getParent(), fireOn);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         for (Rule rule : rulesToRemove) {
             ruleDataGen.remove(rule);

@@ -1,17 +1,10 @@
 package com.dotmarketing.portlets.categories.business;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import com.dotcms.TestBase;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -30,6 +23,14 @@ import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * Created by Jonathan Gamba
  * Date: 4/8/13
@@ -39,7 +40,7 @@ public class CategoryAPITest extends TestBase {
     private static User user;
     private static Host defaultHost;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws DotSecurityException, DotDataException {
 
         HostAPI hostAPI = APILocator.getHostAPI();

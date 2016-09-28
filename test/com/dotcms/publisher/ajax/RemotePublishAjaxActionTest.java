@@ -1,22 +1,5 @@
 package com.dotcms.publisher.ajax;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.publisher.bundle.bean.Bundle;
@@ -34,17 +17,13 @@ import com.dotcms.publishing.PublisherConfig;
 import com.dotcms.repackage.javax.ws.rs.client.Client;
 import com.dotcms.repackage.javax.ws.rs.client.ClientBuilder;
 import com.dotcms.repackage.javax.ws.rs.client.Entity;
-import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
+import com.dotcms.repackage.javax.ws.rs.core.MediaType;
 import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.repackage.org.apache.commons.httpclient.HttpStatus;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import com.dotcms.repackage.javax.ws.rs.core.MediaType;
-import junit.framework.Assert;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.MultiPartFeature;
 import com.dotcms.repackage.org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotcms.rest.RestClientBuilder;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
@@ -78,6 +57,26 @@ import com.dotmarketing.util.json.JSONException;
 import com.dotmarketing.util.json.JSONObject;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Jonathan Gamba
  *         Date: 3/17/14
@@ -87,7 +86,7 @@ public class RemotePublishAjaxActionTest extends TestBase {
 	private static User user;
 	private static User adminUser;
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepare () throws DotDataException, DotSecurityException, Exception {
 		user = APILocator.getUserAPI().getSystemUser();
 		adminUser = APILocator.getUserAPI().loadByUserByEmail( "admin@dotcms.com", user, false );
@@ -578,9 +577,9 @@ public class RemotePublishAjaxActionTest extends TestBase {
         }
 		
 	
-		Assert.assertEquals(0,MultiTreeFactory.getMultiTree(workinghtmlPageAsset.getInode()).size());
-		Assert.assertEquals(0,MultiTreeFactory.getMultiTree(workinghtmlPageAsset2.getInode()).size());
-		Assert.assertEquals(0,MultiTreeFactory.getMultiTreeByChild(contentlet.getIdentifier()).size());
+		assertEquals(0,MultiTreeFactory.getMultiTree(workinghtmlPageAsset.getInode()).size());
+		assertEquals(0,MultiTreeFactory.getMultiTree(workinghtmlPageAsset2.getInode()).size());
+		assertEquals(0,MultiTreeFactory.getMultiTreeByChild(contentlet.getIdentifier()).size());
 
 		folder = APILocator.getFolderAPI().findFolderByPath(folderPath, host, systemUser, false);
 		assertTrue(!UtilMethods.isSet(folder.getInode()));

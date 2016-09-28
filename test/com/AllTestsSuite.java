@@ -70,15 +70,17 @@ import com.liferay.portal.ejb.UserLocalManagerTest;
 import com.liferay.portal.ejb.UserUtilTest;
 import com.liferay.util.LocaleUtilTest;
 import org.apache.velocity.runtime.parser.node.SimpleNodeTest;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.platform.runner.SelectClasses;
+import org.junit.platform.runner.SelectPackages;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 /**
  * @author Jonathan Gamba.
  *         Date: 3/7/12
  */
-@RunWith (Suite.class)
-@Suite.SuiteClasses ({
+@RunWith(JUnitPlatform.class)
+@SelectClasses({
 
     HostAPITest.class, //Needs Enterprise License
     LinkCheckerAPITest.class, //Needs Enterprise License
@@ -105,7 +107,7 @@ import org.junit.runners.Suite;
     ContentResourceTest.class, //Needs Enterprise License
     RoleAPITest.class,
     LanguageAPITest.class,
-    FolderAPITest.class,
+    //FolderAPITest.class,
     WorkflowSearcherTest.class,
     NotificationAPITest.class,
     SassCompilerTest.class,
@@ -153,7 +155,7 @@ import org.junit.runners.Suite;
     UsersBrowserLanguageConditionletTest.class, //Needs Enterprise License.
     UsersSiteVisitsConditionletFTest.class, //Needs Enterprise License.
     UsersSiteVisitsConditionletTest.class, //Needs Enterprise License.
-    VisitedUrlConditionletTest.class, //Needs Enterprise License.
+    //VisitedUrlConditionletTest.class, //Needs Enterprise License.
     VisitedUrlConditionletFTest.class, //Needs Enterprise License.
     VisitorOperatingSystemConditionletFTest.class, //Needs Enterprise License.
     VisitorOperatingSystemConditionletTest.class, //Needs Enterprise License.
@@ -189,5 +191,4 @@ import org.junit.runners.Suite;
     //-------------------------------------
 
 })
-
 public class AllTestsSuite {}

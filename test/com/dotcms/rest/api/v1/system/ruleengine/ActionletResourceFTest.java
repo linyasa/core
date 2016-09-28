@@ -3,28 +3,18 @@ package com.dotcms.rest.api.v1.system.ruleengine;
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.javax.ws.rs.client.Client;
-import com.dotcms.repackage.javax.ws.rs.client.Entity;
 import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
 import com.dotcms.repackage.javax.ws.rs.core.MediaType;
 import com.dotcms.repackage.javax.ws.rs.core.Response;
 import com.dotcms.repackage.org.apache.commons.httpclient.HttpStatus;
-import com.dotcms.repackage.org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import com.dotcms.rest.RestClientBuilder;
 import com.dotcms.rest.api.FunctionalTestConfig;
 import com.dotmarketing.beans.Host;
-import com.dotmarketing.business.APILocator;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.exception.DotSecurityException;
-import com.dotmarketing.portlets.contentlet.business.HostAPI;
-import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.json.JSONException;
-import com.liferay.portal.model.User;
 
-import javax.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Oscar Arrieta on 9/21/15.
@@ -41,7 +31,7 @@ public class ActionletResourceFTest extends TestBase {
         config = new FunctionalTestConfig();
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }

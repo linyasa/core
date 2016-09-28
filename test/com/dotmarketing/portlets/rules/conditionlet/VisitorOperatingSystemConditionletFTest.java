@@ -6,8 +6,8 @@ import eu.bitwalker.useragentutils.OperatingSystem;
 import com.dotmarketing.portlets.rules.model.Condition;
 import com.dotmarketing.portlets.rules.model.Rule;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URLConnection;
@@ -15,8 +15,8 @@ import java.net.URLConnection;
 
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS;
 import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.IS_NOT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class VisitorOperatingSystemConditionletFTest extends ConditionletFTest{
@@ -35,7 +35,7 @@ public class VisitorOperatingSystemConditionletFTest extends ConditionletFTest{
         return apiRequest.makeRequest(url, userAgentHeaderValue);
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }

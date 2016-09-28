@@ -1,6 +1,5 @@
 package com.liferay.portal.ejb;
 
-import com.dotcms.TestBase;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
@@ -10,7 +9,10 @@ import com.liferay.portal.UserFirstNameException;
 import com.liferay.portal.UserLastNameException;
 import com.liferay.portal.model.User;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 /**
  * Tests for user management operations (create, validate, delete)
@@ -43,7 +45,7 @@ public class UserLocalManagerTest {
         }
     }
 
-    @Test(expected = UserFirstNameException.class)
+    @Test
     public void testInvalidFirstName() throws DotDataException, SystemException, PortalException, DotSecurityException {
         String firstName;
         String lastName;
@@ -57,15 +59,13 @@ public class UserLocalManagerTest {
 
         UserLocalManager userManager = new UserLocalManagerImpl();
         try {
-            userManager.validate(user.getUserId(), firstName, lastName, email, null);
-        } catch (SystemException | PortalException e) {
-            throw e;
+            assertThrows(UserFirstNameException.class, () -> userManager.validate(user.getUserId(), firstName, lastName, email, null));
         } finally {
             userManager.deleteUser(user.getUserId());
         }
     }
 
-    @Test(expected = UserLastNameException.class)
+    @Test
     public void testInvalidLastName() throws DotDataException, SystemException, PortalException, DotSecurityException {
         String firstName;
         String lastName;
@@ -79,9 +79,7 @@ public class UserLocalManagerTest {
 
         UserLocalManager userManager = new UserLocalManagerImpl();
         try {
-            userManager.validate(user.getUserId(), firstName, lastName, email, null);
-        } catch (SystemException | PortalException e) {
-            throw e;
+            assertThrows(UserLastNameException.class, () -> userManager.validate(user.getUserId(), firstName, lastName, email, null));
         } finally {
             userManager.deleteUser(user.getUserId());
         }

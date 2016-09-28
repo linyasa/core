@@ -3,9 +3,6 @@ package com.dotmarketing.portlets.rules.actionlet;
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.com.google.common.collect.Lists;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.exception.DotDataException;
@@ -16,14 +13,19 @@ import com.dotmarketing.portlets.rules.model.*;
 import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+
 
 /**
  * jUnit test used to verify the results of calling the actionlets provided
@@ -50,7 +52,7 @@ public class SetSessionAttributeActionletFTest extends TestBase {
         ruleId = "";
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
@@ -267,7 +269,7 @@ public class SetSessionAttributeActionletFTest extends TestBase {
         rulesAPI.saveRuleAction(action, user, false);
     }
 
-    @After
+    @AfterEach
     public void deleteRule() throws DotDataException, DotSecurityException {
         if (ruleId != null) {
             APILocator.getRulesAPI().deleteRule(

@@ -10,13 +10,18 @@ import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.SimpleStructureURLMap;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.util.UtilMethods;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Jonathan Gamba.
@@ -249,7 +254,7 @@ public class StructureFactoryTest extends ContentletBaseTest {
      *
      * @see StructureFactory
      */
-    @Ignore ( "Not Ready to Run, need to ask about how the relation is between a WorkflowScheme and Structures." )
+    @Disabled( "Not Ready to Run, need to ask about how the relation is between a WorkflowScheme and Structures." )
     @Test
     public void getStructuresByWFScheme () throws DotDataException {
 
@@ -571,7 +576,7 @@ public class StructureFactoryTest extends ContentletBaseTest {
      *
      * @see StructureFactory
      */
-    @Ignore ( "Testing this method is quite difficult, and we actually don't use it, don't test it for now..." )
+    @Disabled ( "Testing this method is quite difficult, and we actually don't use it, don't test it for now..." )
     @Test
     public void createDefaultStructure () throws DotDataException {
 

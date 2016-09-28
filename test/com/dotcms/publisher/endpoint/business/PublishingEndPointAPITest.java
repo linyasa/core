@@ -3,18 +3,21 @@
  */
 package com.dotcms.publisher.endpoint.business;
 
-import java.util.*;
-
-import com.dotmarketing.db.HibernateUtil;
-import com.dotmarketing.exception.*;
-import com.dotmarketing.business.*;
 import com.dotcms.TestBase;
-import com.dotcms.publisher.endpoint.bean.*;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-import org.junit.Test;
+import com.dotcms.publisher.endpoint.bean.PublishingEndPoint;
+import com.dotmarketing.business.APILocator;
+import com.dotmarketing.db.HibernateUtil;
+import com.dotmarketing.exception.DotDataException;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author brent griffin
@@ -51,7 +54,7 @@ public class PublishingEndPointAPITest extends TestBase{
 		assertTrue(searchedForEndPoint.isSending() == foundEndPoint.isSending());
 	}
 	
-	@BeforeClass
+	@BeforeAll
 	public static void init() {
 		api = APILocator.getPublisherEndPointAPI();
 		_endPoints.add(createPublishingEndPoint("01", "G01", "Alpha", "192.168.1.1", "81", "https", true, "AuthKey01", false));
@@ -65,7 +68,7 @@ public class PublishingEndPointAPITest extends TestBase{
 		_endPoints.add(createPublishingEndPoint("09", "G02", "Iota", "192.168.1.9", "89", "https", false, "AuthKey09", true));
 	}
 	
-	@AfterClass
+	@AfterAll
 	public static void cleanup() throws Exception {
 		_endPoints.clear();		
 		for(PublishingEndPoint pep : api.getAllEndPoints()) {

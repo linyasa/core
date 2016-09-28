@@ -1,17 +1,16 @@
 package com.dotcms.publisher.endpoint.business;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.dotcms.repackage.org.jgroups.util.Util.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PublishingEndPointFactoryImplTest {
 
     private PublishingEndPointFactoryImpl publishingEndPointFactory;
 
-    @Before
+    @BeforeEach
     public void setup() {
         publishingEndPointFactory = new PublishingEndPointFactoryImpl();
     }

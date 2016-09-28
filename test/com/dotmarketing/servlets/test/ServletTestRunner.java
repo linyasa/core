@@ -1,15 +1,24 @@
 package com.dotmarketing.servlets.test;
 
+import com.AllTestsSuite;
 import com.dotcms.repackage.com.google.common.base.Strings;
+import com.dotcms.repackage.groovy.util.AllTestSuite;
 import com.dotmarketing.listeners.TestTextRingingListener;
 import com.dotmarketing.listeners.TestXmlRingingListener;
 import com.dotmarketing.util.Config;
 import com.dotmarketing.util.ConfigUtils;
+import com.liferay.portal.ejb.UserUtilTest;
 import com.liferay.util.FileUtil;
 
 import com.dotcms.repackage.org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 
@@ -19,6 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+
+import static org.junit.platform.engine.discovery.ClassFilter.includeClassNamePattern;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
 
 /**
  * Created by Jonathan Gamba.
@@ -153,9 +166,10 @@ public class ServletTestRunner extends HttpServlet {
      */
     private void plainTextReport ( HttpServletResponse response, String className, String methodName ) throws ServletException, IOException {
 
+        Class clazz;
         response.setContentType( "text/plain" );
 
-        //Running the given junit test class
+        /*//Running the given junit test class
         JUnitCore jUnitCore = new JUnitCore();
         //Adding a listener for the running test
         TestTextRingingListener testRingingListener = new TestTextRingingListener();
@@ -170,12 +184,38 @@ public class ServletTestRunner extends HttpServlet {
             }
         } catch ( ClassNotFoundException e ) {
             throw new ServletException( e );
+        }*/
+
+
+        try {
+            clazz = Class.forName( className );
+
+        } catch ( ClassNotFoundException e ) {
+            throw new ServletException( e );
         }
 
-        //Setting the response
-        response.setStatus( testRingingListener.getStatusCode() );
-        Logger.info( testRingingListener.toString() );
-        response.getWriter().print( testRingingListener.toString() );
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+            .selectors(
+                sele
+                //selectPackage("com.example.mytests"),
+                //select(AllTestsSuite.TESTS)
+            )
+
+            //.filters(includeClassNamePattern(".*Test"))
+            .build();
+
+        Launcher launcher = LauncherFactory.create();
+
+        SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        launcher.registerTestExecutionListeners(listener);
+
+        launcher.execute(request);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        listener.getSummary().printTo(response.getWriter());
+        //Logger.info( testRingingListener.toString());
+        listener.getSummary().printFailuresTo(response.getWriter());
+        //response.getWriter().print( testRingingListener.toString() );
     }
 
 }

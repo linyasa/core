@@ -3,16 +3,21 @@ package com.dotmarketing.portlets.rules.conditionlet;
 import com.dotcms.LicenseTestUtil;
 import com.dotmarketing.portlets.rules.model.Condition;
 import com.dotmarketing.portlets.rules.model.Rule;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URLConnection;
 
-import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.EQUAL;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.GREATER_THAN;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.GREATER_THAN_OR_EQUAL;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.LESS_THAN;
+import static com.dotmarketing.portlets.rules.parameter.comparison.Comparison.LESS_THAN_OR_EQUAL;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by freddyrodriguez on 10/3/16.
@@ -21,17 +26,17 @@ public class UsersSiteVisitsConditionletFTest extends ConditionletFTest{
 
     private UsersSiteVisitsUtilTest usersSiteVisitsUtilTest;
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare () throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-    @Before
+    @BeforeEach
     public void innerInit () {
         usersSiteVisitsUtilTest = new UsersSiteVisitsUtilTest(request);
     }
 
-    @Before
+    @BeforeEach
     public void cleanCookies(){
         usersSiteVisitsUtilTest.clean();
     }
@@ -54,10 +59,10 @@ public class UsersSiteVisitsConditionletFTest extends ConditionletFTest{
 
 
         URLConnection conn = usersSiteVisitsUtilTest.makeRequest("about-us/index");
-        assertNull("Specified response header should be NOT present in the Response.", conn.getHeaderField(randomKey));
+        assertNull(conn.getHeaderField(randomKey), "Specified response header should be NOT present in the Response.");
 
         conn = usersSiteVisitsUtilTest.makeRequest("about-us/index");
-        assertNull("Specified response header should be NOT present in the Response.", conn.getHeaderField(randomKey));
+        assertNull(conn.getHeaderField(randomKey), "Specified response header should be NOT present in the Response.");
 
         conn = usersSiteVisitsUtilTest.makeNewSessionRequest("about-us/index");
         assertEquals("Specified response header should be present in the Response.", value, conn.getHeaderField(randomKey));

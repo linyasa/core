@@ -1,14 +1,6 @@
 package com.dotmarketing.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import junit.framework.Assert;
 import com.dotcms.repackage.net.sf.hibernate.Session;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Inode;
@@ -19,19 +11,29 @@ import com.dotmarketing.portlets.containers.model.Container;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class HibernateUtilTest {
     
     static User user;
     static Host host;
     
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception {
         user = APILocator.getUserAPI().getSystemUser();
         host = APILocator.getHostAPI().findDefaultHost(user, false);
     }
     
-    @After
-    @Before
+    @AfterEach
+    @BeforeEach
     public void prep() throws Exception {
     	Session session = HibernateUtil.getSession();
     	if (session != null) {
@@ -74,7 +76,7 @@ public class HibernateUtilTest {
         
         container = (Container)HibernateUtil.load(Container.class, cInode);
         
-        Assert.assertEquals(title,container.getTitle());
+        assertEquals(title,container.getTitle());
     }
     
     /**
@@ -126,12 +128,12 @@ public class HibernateUtilTest {
         hh.setQuery("from "+Container.class.getName()+" c where c.inode=?");
         hh.setParam(cInode2);
         Container cc = (Container)hh.load();
-        Assert.assertEquals(title2, cc.getTitle());
+        assertEquals(title2, cc.getTitle());
         
         // lets see if in the db it remains the same
         DotConnect dc = new DotConnect();
         dc.setSQL("select title from " + Inode.Type.CONTAINERS.getTableName() + " where inode=?");
         dc.addParam(cInode);
-        Assert.assertEquals(title, dc.loadObjectResults().get(0).get("title"));
+        assertEquals(title, dc.loadObjectResults().get(0).get("title"));
     }
 }

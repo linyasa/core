@@ -31,9 +31,9 @@ import com.liferay.portal.SystemException;
 import com.liferay.portal.ejb.UserTestUtil;
 import com.liferay.portal.model.User;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -42,9 +42,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This class tests the creation, copy, update, verification and setting of
@@ -62,7 +62,7 @@ public class PermissionAPITest extends TestBase {
     private static Template tt;
     private static DwrAuthenticationUtil dwrAuthentication = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void createTestHost() throws Exception {
         perm=APILocator.getPermissionAPI();
         sysuser=APILocator.getUserAPI().getSystemUser();
@@ -91,7 +91,7 @@ public class PermissionAPITest extends TestBase {
 		dwrAuthentication.setupWebContext(null, sessionAttrs);
     }
 
-    @AfterClass
+    @AfterAll
     public static void deleteTestHost() throws DotContentletStateException, DotDataException, DotSecurityException {
         try{
         	HibernateUtil.startTransaction();

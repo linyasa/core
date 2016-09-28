@@ -12,8 +12,8 @@ import javax.naming.spi.NamingManager;
  * Running this in your junit tests will set dotCMS up for you:
  * <pre>
  * {@code
- * &#64;BeforeClass
- * public static void setUpBeforeClass() throws Exception {
+ * &#64;BeforeAll
+ * public static void setUpBeforeAll() throws Exception {
  *     TestingJndiDatasource.init();
  *     ConfigTestHelper._setupFakeTestingContext();
  * }

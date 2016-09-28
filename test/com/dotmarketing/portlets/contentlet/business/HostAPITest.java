@@ -1,14 +1,6 @@
 package com.dotmarketing.portlets.contentlet.business;
 
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.dotcms.LicenseTestUtil;
-import org.junit.*;
-
-import org.quartz.SimpleTrigger;
-
 import com.dotcms.enterprise.HostAssetsJobProxy;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
@@ -18,6 +10,21 @@ import com.dotmarketing.quartz.SimpleScheduledTask;
 import com.dotmarketing.quartz.job.HostCopyOptions;
 import com.dotmarketing.util.Logger;
 import com.liferay.portal.model.User;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.quartz.SimpleTrigger;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * This class will test operations related with interacting with hosts: Deleting
@@ -29,12 +36,12 @@ import com.liferay.portal.model.User;
  */
 public class HostAPITest {
 	
-	@Before
+	@BeforeEach
     public void prepare() throws Exception {
         LicenseTestUtil.getLicense();
     }
 
-	@Ignore("Temporarily ignore this test method")
+	@Disabled("Temporarily ignore this test method")
     @Test
     public void testDeleteHost() throws Exception {
         User user=APILocator.getUserAPI().getSystemUser();
@@ -84,11 +91,11 @@ public class HostAPITest {
         }
         
         if (QuartzUtils.getTaskProgress(task.getJobName(), task.getJobGroup()) < 0) {
-        	Assert.fail("testDeleteHost The host copy task did not start");
+        	fail("testDeleteHost The host copy task did not start");
         }
         
         if(milliseconds >= maxMilliseconds){
-        	Assert.fail("testDeleteHost is stuck waiting for QuartzUtils.scheduleTask");
+        	fail("testDeleteHost is stuck waiting for QuartzUtils.scheduleTask");
         }
         
         Thread.sleep(600); // wait a bit for the index
@@ -113,12 +120,11 @@ public class HostAPITest {
         }
         
         host = APILocator.getHostAPI().find(hostIdent, user, false);
-        
-        Assert.assertNull(host);
+        assertNull(host);
         
         host = APILocator.getHostAPI().findByName(hostName, user, false);
         
-        Assert.assertNull(host);
+        assertNull(host);
     }
     
     @Test
@@ -156,8 +162,8 @@ public class HostAPITest {
         /*
          * Validate if the previous default host. Is live and not default
          */
-        Assert.assertTrue(hdef.isLive());
-        Assert.assertFalse(hdef.isDefault());
+        assertTrue(hdef.isLive());
+        assertFalse(hdef.isDefault());
         
         /*
          * get Back to default the previous host
@@ -174,11 +180,11 @@ public class HostAPITest {
         /*
          * Validate if the new host is not default anymore and if its live
          */
-        Assert.assertFalse(host.isDefault());
-        Assert.assertTrue(host.isLive());
+        assertFalse(host.isDefault());
+        assertTrue(host.isLive());
         
-        Assert.assertTrue(hdef.isLive());
-        Assert.assertTrue(hdef.isDefault());
+        assertTrue(hdef.isLive());
+        assertTrue(hdef.isDefault());
         
         /*
          * Delete the new test host
@@ -198,6 +204,6 @@ public class HostAPITest {
          * Validate if the current Original default host is the current default one
          */
         host = APILocator.getHostAPI().findDefaultHost(user, false);
-        Assert.assertEquals(hdef.getIdentifier(), host.getIdentifier());
+        assertEquals(hdef.getIdentifier(), host.getIdentifier());
     }
 }

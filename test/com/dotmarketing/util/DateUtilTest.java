@@ -1,6 +1,7 @@
 package com.dotmarketing.util;
 
 import com.dotcms.rest.RestUtilTest;
+
 import org.junit.Test;
 
 import javax.servlet.ServletContext;
@@ -10,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

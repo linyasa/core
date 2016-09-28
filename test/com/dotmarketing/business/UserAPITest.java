@@ -48,9 +48,8 @@ import com.liferay.portal.SystemException;
 import com.liferay.portal.ejb.UserTestUtil;
 import com.liferay.portal.model.User;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
@@ -63,10 +62,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * 
@@ -78,7 +78,7 @@ public class UserAPITest extends TestBase{
 	private static User systemUser;
 	private static DwrAuthenticationUtil dwrAuthentication = null;
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepare () throws Exception {
 
 		LicenseTestUtil.getLicense();
@@ -247,7 +247,7 @@ public class UserAPITest extends TestBase{
 		URL testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		WorkflowScheme ws = workflowAPI.findSchemeByName(schemeName);
-		Assert.assertTrue(UtilMethods.isSet(ws));
+		assertTrue(UtilMethods.isSet(ws));
 
 		/**
 		 * Create scheme step1
@@ -256,7 +256,7 @@ public class UserAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowStep> steps = workflowAPI.findSteps(ws);
-		Assert.assertTrue(steps.size()==1);
+		assertTrue(steps.size()==1);
 		WorkflowStep step1 = steps.get(0);
 
 		/**
@@ -266,7 +266,7 @@ public class UserAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		steps = workflowAPI.findSteps(ws);
-		Assert.assertTrue(steps.size()==2);
+		assertTrue(steps.size()==2);
 		WorkflowStep step2 = steps.get(1);
 
 		/**
@@ -278,7 +278,7 @@ public class UserAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowAction> actions1= workflowAPI.findActions(step1, systemUser);
-		Assert.assertTrue(actions1.size()==1);
+		assertTrue(actions1.size()==1);
 		WorkflowAction action1 = actions1.get(0);
 
 		/**
@@ -291,7 +291,7 @@ public class UserAPITest extends TestBase{
 		testUrl = new URL(baseURL);
 		IOUtils.toString(testUrl.openStream(),"UTF-8");
 		List<WorkflowAction> actions2= workflowAPI.findActions(step2, systemUser);
-		Assert.assertTrue(actions2.size()==1);
+		assertTrue(actions2.size()==1);
 		WorkflowAction action2 = actions2.get(0);
 
 		/**
@@ -545,16 +545,14 @@ public class UserAPITest extends TestBase{
 	 * as in other restrictions an exception is returned
 	 * @throws DotDataException
 	 */
-	@Test(expected=DotDataException.class)
+	@Test
 	public void deleteAnonymous() throws DotDataException, DotSecurityException {
 
 		UserAPI userAPI = APILocator.getUserAPI();
-		User systemUser = null;
-		User anonymousUser = null;
+		final User systemUser = userAPI.getSystemUser();
+		final User anonymousUser = userAPI.getAnonymousUser();
 
-		systemUser = userAPI.getSystemUser();
-		anonymousUser = userAPI.getAnonymousUser();
-		userAPI.delete(anonymousUser, systemUser, false);
+		assertThrows(DotDataException.class, () -> userAPI.delete(anonymousUser, systemUser, false));
 	}
 
 	@Test

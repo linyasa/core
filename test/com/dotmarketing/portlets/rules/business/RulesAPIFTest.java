@@ -1,10 +1,26 @@
 package com.dotmarketing.portlets.rules.business;
 
 import com.dotcms.LicenseTestUtil;
+import com.dotcms.TestBase;
 import com.dotcms.enterprise.rules.RulesAPI;
+import com.dotmarketing.beans.Host;
+import com.dotmarketing.business.APILocator;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.exception.DotSecurityException;
+import com.dotmarketing.portlets.contentlet.business.HostAPI;
+import com.dotmarketing.portlets.rules.actionlet.CountRulesActionlet;
 import com.dotmarketing.portlets.rules.actionlet.ThrowErrorActionlet;
 import com.dotmarketing.portlets.rules.conditionlet.ThrowErrorConditionlet;
 import com.dotmarketing.portlets.rules.model.ParameterModel;
+import com.dotmarketing.portlets.rules.model.Rule;
+import com.dotmarketing.portlets.rules.model.RuleAction;
+import com.dotmarketing.servlets.test.ServletTestRunner;
+import com.liferay.portal.model.User;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -17,23 +33,8 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.dotcms.TestBase;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import com.dotmarketing.beans.Host;
-import com.dotmarketing.business.APILocator;
-import com.dotmarketing.exception.DotDataException;
-import com.dotmarketing.exception.DotSecurityException;
-import com.dotmarketing.portlets.contentlet.business.HostAPI;
-import com.dotmarketing.portlets.rules.actionlet.CountRulesActionlet;
-import com.dotmarketing.portlets.rules.model.Rule;
-import com.dotmarketing.portlets.rules.model.RuleAction;
-import com.dotmarketing.servlets.test.ServletTestRunner;
-import com.liferay.portal.model.User;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RulesAPIFTest extends TestBase {
 
@@ -51,7 +52,7 @@ public class RulesAPIFTest extends TestBase {
         ruleId = "";
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepare () throws Exception {
 		LicenseTestUtil.getLicense();
 	}
@@ -225,7 +226,7 @@ public class RulesAPIFTest extends TestBase {
 			// shouldn't throw error
 			rulesAPI.addConditionlet(ThrowErrorConditionlet.class);
 		}catch(Exception e){
-			Assert.assertTrue( false );
+			assertTrue( false );
 		}
 	}
 
@@ -237,11 +238,11 @@ public class RulesAPIFTest extends TestBase {
 			// shouldn't throw error
 			rulesAPI.addRuleActionlet(ThrowErrorActionlet.class);
 		}catch(Exception e){
-			Assert.assertTrue( false );
+			assertTrue( false );
 		}
 	}
 
-	@After
+	@AfterEach
     public void deleteRule() throws DotDataException, DotSecurityException {
         if (ruleId != null) {
             APILocator.getRulesAPI().deleteRule(

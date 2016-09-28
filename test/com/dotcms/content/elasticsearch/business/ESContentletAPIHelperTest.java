@@ -7,14 +7,15 @@ import com.dotcms.rest.RestUtilTest;
 import com.dotmarketing.business.DotStateException;
 import com.dotmarketing.util.BaseMessageResources;
 import com.dotmarketing.util.Config;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.servlet.ServletContext;
 import java.util.Locale;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -25,7 +26,7 @@ public class ESContentletAPIHelperTest extends BaseMessageResources {
 
     private boolean testGenerateNotificationStartDeleting = false;
 
-    @Test(expected = DotStateException.class)
+    @Test
     public void testGenerateNotificationStartDeleting() throws Exception {
 
         final ESContentletAPIHelper esContentletAPIHelper =
@@ -57,9 +58,9 @@ public class ESContentletAPIHelperTest extends BaseMessageResources {
                 locale
         );
 
-        esContentletAPIHelper.generateNotificationCanNotDelete
+        assertThrows(DotStateException.class, () -> esContentletAPIHelper.generateNotificationCanNotDelete
                 (notificationAPI, locale,
-                        "admin@dotcms.com", "iFieldNode1");
+                        "admin@dotcms.com", "iFieldNode1"));
 
 
         assertTrue(this.testGenerateNotificationStartDeleting);

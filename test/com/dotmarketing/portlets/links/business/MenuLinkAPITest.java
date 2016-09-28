@@ -1,8 +1,9 @@
 package com.dotmarketing.portlets.links.business;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.dotcms.TestBase;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
@@ -19,7 +20,8 @@ import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UUIDGenerator;
 import com.liferay.portal.model.User;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MenuLinkAPITest extends TestBase {
     static PermissionAPI pAPI = APILocator.getPermissionAPI();
@@ -31,7 +33,7 @@ public class MenuLinkAPITest extends TestBase {
     static Host host=null;
     static User user=null;
     
-    @BeforeClass
+    @BeforeAll
     public static void prepare() throws Exception {
         user = uAPI.getSystemUser();
         host = new Host();
@@ -50,7 +52,7 @@ public class MenuLinkAPITest extends TestBase {
         pAPI.permissionIndividually(hAPI.findSystemHost(),host, user, false);
     }
     
-    @AfterClass
+    @AfterAll
     public static void cleanup() throws Exception {
         try{
         	HibernateUtil.startTransaction();

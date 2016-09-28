@@ -1,17 +1,8 @@
 package com.dotcms.rest;
 
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.dotcms.TestBase;
 import com.dotcms.repackage.javax.ws.rs.client.Client;
 import com.dotcms.repackage.javax.ws.rs.client.WebTarget;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.dotcms.TestBase;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.Role;
 import com.dotmarketing.exception.DotDataException;
@@ -21,6 +12,16 @@ import com.dotmarketing.util.json.JSONArray;
 import com.dotmarketing.util.json.JSONException;
 import com.dotmarketing.util.json.JSONObject;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
 public class RoleResourceTest extends TestBase  {
 
 	private Client client;
@@ -29,7 +30,7 @@ public class RoleResourceTest extends TestBase  {
 	private String serverName;
 	private Integer serverPort;
 
-	@Before
+	@BeforeEach
 	public void init() {
 		client = RestClientBuilder.newClient();
 		request = ServletTestRunner.localRequest.get();

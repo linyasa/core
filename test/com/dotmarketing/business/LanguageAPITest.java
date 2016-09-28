@@ -1,8 +1,10 @@
 package com.dotmarketing.business;
 
-import junit.framework.Assert;
-import org.junit.Test;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LanguageAPITest {
 
@@ -19,7 +21,7 @@ public class LanguageAPITest {
 	public void languageCache() throws Exception{
 		
 		CacheLocator.getLanguageCache().putLanguages(APILocator.getLanguageAPI().getLanguages());
-		Assert.assertEquals(2,CacheLocator.getLanguageCache().getLanguages().size());		
+		assertEquals(2,CacheLocator.getLanguageCache().getLanguages().size());
 		
 		Language lan = APILocator.getLanguageAPI().getLanguage(102);
 		lan = new Language();
@@ -31,13 +33,13 @@ public class LanguageAPITest {
 		
 		CacheLocator.getLanguageCache().clearCache();
 		CacheLocator.getLanguageCache().putLanguages(APILocator.getLanguageAPI().getLanguages());
-		Assert.assertEquals(3, CacheLocator.getLanguageCache().getLanguages().size());
+		assertEquals(3, CacheLocator.getLanguageCache().getLanguages().size());
 		
 		APILocator.getLanguageAPI().deleteLanguage(lan);
 		
 		CacheLocator.getLanguageCache().clearCache();
 		CacheLocator.getLanguageCache().putLanguages(APILocator.getLanguageAPI().getLanguages());
-		Assert.assertEquals(2,CacheLocator.getLanguageCache().getLanguages().size());
+		assertEquals(2,CacheLocator.getLanguageCache().getLanguages().size());
 		
 		
 	}

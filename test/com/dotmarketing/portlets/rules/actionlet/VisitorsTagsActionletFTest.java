@@ -1,25 +1,9 @@
 package com.dotmarketing.portlets.rules.actionlet;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
-
-import javax.servlet.http.HttpServletRequest;
-
 import com.dotcms.LicenseTestUtil;
 import com.dotcms.TestBase;
 import com.dotcms.repackage.com.google.common.collect.Lists;
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.MultiTree;
 import com.dotmarketing.business.APILocator;
@@ -48,6 +32,25 @@ import com.dotmarketing.servlets.test.ServletTestRunner;
 import com.dotmarketing.util.UtilMethods;
 import com.liferay.portal.model.User;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * Testing actionlet to add tags to the visitor object
  *
@@ -73,7 +76,7 @@ public class VisitorsTagsActionletFTest extends TestBase {
 
 	private final String BLANK_TEMPLATE_INODE = "54b2ca77-4c91-4de5-bcc7-ccd4ce0ecd50";
 
-	@BeforeClass
+	@BeforeAll
 	public static void prepare () throws Exception {
 		LicenseTestUtil.getLicense();
 	}
@@ -181,20 +184,20 @@ public class VisitorsTagsActionletFTest extends TestBase {
 		br.close();
 
 		// testing
-		Assert.assertTrue("Expected tag 'testing' not found",result.toString().contains("testing"));
+		assertTrue(result.toString().contains("testing"), "Expected tag 'testing' not found");
 
-		Assert.assertTrue("Expected tag 'persona' not found",result.toString().contains("persona"));
-		Assert.assertTrue("Expected tag 'asia' not found",result.toString().contains("asia"));
-		Assert.assertTrue("Expected tag 'china' not found",result.toString().contains("china"));
-		Assert.assertTrue("Expected tag 'nigeria' not found",result.toString().contains("nigeria"));
+		assertTrue(result.toString().contains("persona"), "Expected tag 'persona' not found");
+		assertTrue(result.toString().contains("asia"), "Expected tag 'asia' not found");
+		assertTrue(result.toString().contains("china"), "Expected tag 'china' not found");
+		assertTrue(result.toString().contains("nigeria"), "Expected tag 'nigeria' not found");
 
-		Assert.assertTrue("Expected tag 'newtag' not found",result.toString().contains("newtag"));
+		assertTrue(result.toString().contains("newtag"), "Expected tag 'newtag' not found");
 
-		Assert.assertTrue("Expected tag 'new2tag' not found",result.toString().contains("new2tag"));
-		Assert.assertTrue("Expected tag 'new3tag' not found",result.toString().contains("new3tag"));
-		Assert.assertTrue("Expected tag 'new4tag' not found",result.toString().contains("new4tag"));
+		assertTrue(result.toString().contains("new2tag"), "Expected tag 'new2tag' not found");
+		assertTrue(result.toString().contains("new3tag"), "Expected tag 'new3tag' not found");
+		assertTrue(result.toString().contains("new4tag"), "Expected tag 'new4tag' not found");
 
-		Assert.assertFalse("Unexpected tag 'dollar' found",result.toString().contains("dollar"));
+		assertFalse(result.toString().contains("dollar"), "Unexpected tag 'dollar' found");
 
 		// clean up
 		contentletAPI.unpublish(personaContentlet, sysuser, false);
@@ -226,7 +229,7 @@ public class VisitorsTagsActionletFTest extends TestBase {
       return rule;
   }
 
-	@After
+	@AfterEach
 	public void tearDown () throws Exception {
 		URL logoutUrl = new URL(baseUrl + "/destroy.jsp");
 		URLConnection con = logoutUrl.openConnection();

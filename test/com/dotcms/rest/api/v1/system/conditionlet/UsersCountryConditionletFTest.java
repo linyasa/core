@@ -6,7 +6,7 @@
 //import com.dotcms.repackage.javax.ws.rs.core.MediaType;
 //import com.dotcms.repackage.javax.ws.rs.core.Response;
 //import com.dotcms.repackage.org.apache.http.HttpStatus;
-//import org.junit.Test;
+//import org.junit.jupiter.api.Test;
 //import com.dotcms.rest.api.FunctionalTestConfig;
 //import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.RestCondition;
 //import com.dotcms.rest.api.v1.sites.ruleengine.rules.conditions.RestConditionValue;
@@ -22,7 +22,7 @@
 //import javax.servlet.http.HttpServletRequest;
 //import javax.servlet.http.HttpServletResponse;
 //
-//import static org.junit.Assert.assertTrue;
+//import static org.junit.jupiter.api.Assertions.assertTrue;
 //import static org.mockito.Mockito.*;
 //
 //public class UsersCountryConditionletFTest extends TestBase {

@@ -188,7 +188,7 @@ public class TestXmlRingingListener extends RunListener {
 
     /**
      * Called when a test will not be run, generally because a test method is annotated
-     * with {@link org.junit.Ignore}.
+     * with {@link org.junit.jupiter.api.Disabled}.
      *
      * @param description describes the test that will not be run
      */

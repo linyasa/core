@@ -1,24 +1,22 @@
 package com.dotmarketing.db;
 
-import junit.framework.Assert;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import com.dotmarketing.db.DbConnectionFactory;
-import com.dotmarketing.db.HibernateUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DbConnectionFactoryUtilTest {
     
-
-    
-    @BeforeClass
+    @BeforeAll
     public static void init() throws Exception {
 
     }
     
-    @After
-    @Before
+    @AfterEach
+    @BeforeEach
     public void prep() throws Exception {
         HibernateUtil.closeSession();
     }
@@ -29,20 +27,16 @@ public class DbConnectionFactoryUtilTest {
      */
     @Test
     public void testInTransaction() throws Exception {
-    	
-    	
-    	
-    	
-        Assert.assertFalse(DbConnectionFactory.inTransaction() );
+        assertFalse(DbConnectionFactory.inTransaction() );
 
     	HibernateUtil.startTransaction();
-        Assert.assertTrue( DbConnectionFactory.inTransaction());
+        assertTrue( DbConnectionFactory.inTransaction());
     	HibernateUtil.commitTransaction();
-        Assert.assertFalse(DbConnectionFactory.inTransaction() );
+        assertFalse(DbConnectionFactory.inTransaction() );
 
     	DbConnectionFactory.getConnection();
 
-        Assert.assertFalse(DbConnectionFactory.inTransaction() );
+        assertFalse(DbConnectionFactory.inTransaction() );
         HibernateUtil.closeSession();
     }
 }

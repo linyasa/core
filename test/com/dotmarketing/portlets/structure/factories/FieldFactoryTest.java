@@ -6,13 +6,18 @@ import com.dotmarketing.portlets.ContentletBaseTest;
 import com.dotmarketing.portlets.structure.model.Field;
 import com.dotmarketing.portlets.structure.model.FieldVariable;
 import com.dotmarketing.portlets.structure.model.Structure;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Jonathan Gamba.
